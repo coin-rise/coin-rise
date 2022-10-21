@@ -15,10 +15,10 @@ contract CampaignFactory {
 
     /** Functions */
 
-    function deployNewContract() external {
+    function deployNewContract(uint256 _deadline, uint256 _minFund) external {
         address _clone = Clones.clone(implementationContract);
 
-        // Campaign(_clone).initialize(variables);
+        Campaign(_clone).initialize(_deadline, _minFund);
 
         deployedCampaignContracts.push(_clone);
     }

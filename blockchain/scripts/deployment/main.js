@@ -8,12 +8,15 @@ const { network, run } = require("hardhat")
 
 const { deployCampaignManager } = require("./deployCampaignManager")
 
+const { deployCampaign } = require("./deployCampaign")
+
 async function main() {
     await run("compile")
     const chainId = network.config.chainId
 
     //TODO: Adding deploy scripts
     await deployCampaignManager(chainId)
+    await deployCampaign(chainId)
 }
 
 // We recommend this pattern to be able to use async/await everywhere
