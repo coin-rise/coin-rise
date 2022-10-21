@@ -3,17 +3,17 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./swap.sol";
+import "./Swap.sol";
 
 contract Campaign is Initializable, Ownable, SwapExamples {
     uint256 public deadline;
-    uint256 public MinFund;
-    uint256 public total_supply;
+    uint256 public minFund;
+    uint256 public totalSupply;
 
     struct Status {
-        uint256 start_date; //starting date of the compaign in unix timestamp format
-        uint256 end_date; //ending date of the compaign in unix timestamp format
-        bool fund_sent; //fund sent or not
+        uint256 startDate; //starting date of the compaign in unix timestamp format
+        uint256 endDate; //ending date of the compaign in unix timestamp format
+        bool fundSent; //fund sent or not
     }
 
     Status public status;
@@ -27,14 +27,14 @@ contract Campaign is Initializable, Ownable, SwapExamples {
         _disableInitializers();
     }
 
-    function initialize(uint256 _deadline, uint256 _MinFund)
+    function initialize(uint256 _deadline, uint256 _minFund)
         public
         initializer
     {
         deadline = _deadline;
-        MinFund = _MinFund;
-        status.start_date = block.timestamp;
-        status.end_date = status.start_date + _deadline;
-        status.fund_sent = false;
+        minFund = _minFund;
+        status.startDate = block.timestamp;
+        status.endDate = status.startDate + _deadline;
+        status.fundSent = false;
     }
 }
