@@ -39,6 +39,10 @@
         "typechain": "^8.1.0"
     },
     "dependencies": {
+        "@openzeppelin/contracts-upgradeable": "^4.8.0-rc.1",
+        "@openzeppelin/upgrades": "^2.8.0",
+        "@uniswap/v3-core": "^1.0.1",
+        "@uniswap/v3-periphery": "^1.4.2",
         "dotenv": "^16.0.3"
     },
     "lint-staged": {
