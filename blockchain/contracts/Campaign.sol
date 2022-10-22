@@ -3,9 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Swap.sol";
 
-contract Campaign is Initializable, Ownable, SwapExamples {
+contract Campaign is Initializable, Ownable {
     uint256 public deadline;
     uint256 public minFund;
     uint256 public totalSupply;
