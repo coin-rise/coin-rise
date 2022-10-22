@@ -4,12 +4,27 @@ function Form() {
   const [textTrack, setTextTrack] = useState("");
 
   function handleChange(e) {
-    console.log("render");
     setTextTrack(e.target.value);
   }
 
+  function handleSubmit(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.target.length - 1; i++) {
+      if (e.target[i].name === "checkbox") {
+        console.dir(e.target[i].checked);
+      } else if (e.target[i].name === "selectMultiple") {
+        console.dir(
+          Array.from(e.target[i].selectedOptions).map((o) => o.value)
+        );
+      } else {
+        console.dir(e.target[i].value);
+      }
+    }
+    console.log("submit");
+  }
+
   return (
-    <div className="App">
+    <form className="Form" onSubmit={handleSubmit}>
       <div>
         <label htmlFor="text">Text </label>
         <input type="text" id="text" name="text" />
@@ -56,7 +71,11 @@ function Form() {
         <input id="checkbox" name="checkbox" type="checkbox"></input>
         {/* {checkbox ? <span>Checked !</span> : null} */}
       </div>
-    </div>
+
+      <div>
+        <button>Submit</button>
+      </div>
+    </form>
   );
 }
 
