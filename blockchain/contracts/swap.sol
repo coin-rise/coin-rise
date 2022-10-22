@@ -11,8 +11,8 @@ contract SwapToken {
     address public WMATIC;
     address public DAI;
 
-    constructor(address _swapRouter, address _maticAddress, address _daiAddress) {
-        swapRouter = ISwapRouter(_swapRouter);
+    constructor(ISwapRouter _swapRouter, address _maticAddress, address _daiAddress) {
+        swapRouter = _swapRouter;
         WMATIC = _maticAddress;
         DAI = _daiAddress;
     }
