@@ -44,9 +44,8 @@ module.exports = {
             hardfork: "merge",
             // If you want to do some forking set `enabled` to true
             forking: {
-                url: POLYGON_MUMBAI_RPC_URL,
+                url: `${process.env.QUICKNODE_API_KEY_MUMBAI}`,
                 //blockNumber: FORKING_BLOCK_NUMBER,
-                accounts: [`${process.env.PRIVATE_KEY}`],
                 enabled: true,
             },
             chainId: 31337,
