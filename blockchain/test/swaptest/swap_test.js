@@ -1,8 +1,8 @@
 const { expect } = require("chai")
 const { ethers } = require("hardhat")
 
-const DAI =  process.env.DAI;
-const WMATIC = process.env.WMATIC;
+const DAI =  process.env.DAI; //0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
+const WMATIC = process.env.WMATIC;//0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
 const SwapRouter = process.env.SWAPROUTER;
 
 describe("SwapToken", () => {
@@ -20,8 +20,9 @@ describe("SwapToken", () => {
     swapRouter = await ethers.getContractAt("ISwapRouter", SwapRouter)
 
     const SwapToken = await ethers.getContractFactory("SwapToken")
-    swapToken = await SwapToken.deploy(SwapRouter, wMatic, dai)
+    swapToken = await SwapToken.deploy(swapRouter.address, wMatic.address, dai.address)
     await swapToken.deployed()
+    console.log("SwapTonen deployed");
 
     
   })
@@ -46,7 +47,7 @@ describe("SwapToken", () => {
     // Deposit wMatic
     await wMatic.deposit({ value: wMaticAmountInMax })
     await wMatic.approve(swapToken.address, wMaticAmountInMax)
-
+    console.log("kl ");
     // Swap
     await swapToken.swapExactOutputSingle(daiAmountOut, wMaticAmountInMax)
 
