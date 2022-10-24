@@ -2,10 +2,11 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Campaign is Initializable, Ownable {
+contract Campaign is Initializable, OwnableUpgradeable {
     uint256 public deadline;
     uint256 public minFundAmount;
     uint256 public totalSupply;
@@ -42,6 +43,7 @@ contract Campaign is Initializable, Ownable {
         status.startDate = block.timestamp;
         status.endDate = status.startDate + _deadline;
         status.fundSent = false;
+        __Ownable_init();
     }
 
     /* ========== PUBLIC METHODS ========== */
