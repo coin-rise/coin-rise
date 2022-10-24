@@ -64,5 +64,16 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   assert.equal(_status.startDate, _start)
               })
+
+              it("successfully emit an event when creating a new campaign", async () => {
+                  const { campaignFactory } = await loadFixture(deployCampaignFactoryFixture)
+
+                  const _deadline = 30
+                  const _minFund = ethers.utils.parseEther("2")
+                  await expect(campaignFactory.deployNewContract(_deadline, _minFund)).to.emit(
+                      campaignFactory,
+                      "CampaignCreated"
+                  )
+              })
           })
       })

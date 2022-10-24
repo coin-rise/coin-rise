@@ -5,9 +5,13 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./Campaign.sol";
 
 contract CampaignFactory {
+    /** State variables */
     address private implementationContract;
 
     address[] private deployedCampaignContracts;
+
+    /** Events */
+    event CampaignCreated(address campaign, uint256 deadline, uint256 minFund);
 
     constructor(address _implementationContract) {
         implementationContract = _implementationContract;
@@ -15,12 +19,19 @@ contract CampaignFactory {
 
     /** Functions */
 
+    /**
+     * @dev create and setup a new crowdfunding campaign
+     * @param _deadline - duration till the campaign has to be funded
+     * @param _minFund - minimum Amount for a sucessfull funded campaign
+     */
     function deployNewContract(uint256 _deadline, uint256 _minFund) external {
         address _clone = Clones.clone(implementationContract);
 
         Campaign(_clone).initialize(_deadline, _minFund);
 
         deployedCampaignContracts.push(_clone);
+
+        emit CampaignCreated(_clone, _deadline, _minFund);
     }
 
     /** View Functions */

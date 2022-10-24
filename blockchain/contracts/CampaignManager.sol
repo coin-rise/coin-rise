@@ -3,13 +3,23 @@ pragma solidity ^0.8.4;
 
 import "./CampaignFactory.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
+import "./Interfaces/ICampaignFactory.sol";
+import "./Interfaces/ICampaign.sol";
 
 contract CampaignManager is AutomationCompatible {
-    uint256 public deadline;
-    uint256 public counter;
+    /** State Variables */
+    ICampaignFactory private campaignFactory;
 
-    constructor() {
-        deadline = block.timestamp + 30 seconds;
+    /** Events */
+
+    constructor(address _campaignFactory) {
+        campaignFactory = ICampaignFactory(_campaignFactory);
+    }
+
+    /** Functions */
+
+    function createNewCampaign(uint256 _deadline, uint256 _minFund) external {
+        campaignFactory.deployNewContract(_deadline, _minFund);
     }
 
     /** Automatisation Functions */
@@ -25,16 +35,17 @@ contract CampaignManager is AutomationCompatible {
             bytes memory /* performData */
         )
     {
-        bool _upkeepNeeded = block.timestamp >= deadline ? true : false;
+        bool _upkeepNeeded;
+
+        // address[] memory _campaigns = campaignFactory
+        //     .getDeployedCampaignContracts();
+
+        // get all campaigns and check if the deadline has been reached
 
         return (_upkeepNeeded, "0x0");
     }
 
     function performUpkeep(
         bytes calldata /* performData */
-    ) external override {
-        deadline += 10 minutes;
-
-        counter += 1;
-    }
+    ) external override {}
 }
