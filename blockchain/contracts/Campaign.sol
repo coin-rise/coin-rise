@@ -24,6 +24,7 @@ contract Campaign is Initializable, Ownable {
     //keep track of supporters contribustion
     //mapping of supporters address to contribution;
     mapping(address => uint256) public contribution;
+    address[] private contributorAddressList;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -77,10 +78,10 @@ contract Campaign is Initializable, Ownable {
      * @dev keep track of supporters contribustion
      */
     function addContributor(address _contributor, uint256 _amount) public onlyOwner {
-        require(_amount >= minFundAmount,"amount inferiour to the minimum amount");
         require(_contributor != address(0),"Invalid address");
 
         contribution[_contributor] = _amount;
+        contributorAddressList.push(_contributor);
         totalSupply += _amount;
     }
 
@@ -98,9 +99,30 @@ contract Campaign is Initializable, Ownable {
      */
     function sendToSubmitter() public onlyOwner {
         require(status.fundSent == false,"fund has already been sent");
+        require(block.timestamp >= status.endDate,"campaign date is not over yet");
 
-        token.transfer(submitter, token.balanceOf(address(this)) );
+        if(totalSupply >= minFundAmount){
+            token.transfer(submitter, token.balanceOf(address(this)) );
+        }else {
+            returnFunds();
+        }
         status.fundSent == true;
+    }
+
+    /* ========== INTERNAL METHODS ========== */ 
+
+    /**
+     * @dev return funds to contributors;
+     */
+    function returnFunds() internal{
+
+        uint256 amount = 0;
+
+        for(uint256 i = 0; i < contributorAddressList.length; i++) {
+            amount = contribution[contributorAddressList[i]];
+            token.transfer(contributorAddressList[i], amount);
+            //To DO we should fund this contract to manage the gas fee
+        }
     }
 
 
