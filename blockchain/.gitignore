@@ -4,7 +4,6 @@
 # hardhat
 artifacts
 cache
-deployments
 node_modules
 coverage
 coverage.json

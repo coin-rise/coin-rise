@@ -1,8 +1,9 @@
 const { ethers, network } = require("hardhat")
-
+const fs = require("fs")
 const {
     developmentChains,
     VERIFICATION_BLOCK_CONFIRMATIONS,
+    deployedContractsPath,
 } = require("../../helper-hardhat-config")
 
 const { updateContractData } = require("../../helper-functions")
@@ -12,19 +13,32 @@ async function deployCampaignManager(chainId) {
         ? 1
         : VERIFICATION_BLOCK_CONFIRMATIONS
 
-    const campaignManagerFactory = await ethers.getContractFactory("CampaignManager")
+    const CampaignManager = await ethers.getContractFactory("CampaignManager")
 
-    const campaignManager = await campaignManagerFactory.deploy()
+    const filePath = deployedContractsPath
+    const deployedContracts = JSON.parse(fs.readFileSync(filePath, "utf-8"))
 
-    await campaignManager.deployTransaction.wait(waitBlockConfirmations)
+    if (chainId in deployedContracts) {
+        if ("CampaignFactory" in deployedContracts[chainId]) {
+            console.log("CampaignFactory contract found...")
 
-    console.log(
-        `Campaign Manager Contract deployed to ${campaignManager.address} on ${network.name} `
-    )
+            const campaignFactoryAddress = deployedContracts[chainId]["CampaignFactory"].address
 
-    await updateContractData(campaignManager, chainId, "CampaignManager")
+            const campaignManager = await CampaignManager.deploy(campaignFactoryAddress)
 
-    //TODO: verify the contract with the help of the helper functions
+            await campaignManager.deployTransaction.wait(waitBlockConfirmations)
+
+            console.log(
+                `Campaign Manager Contract deployed to ${campaignManager.address} on ${network.name} `
+            )
+
+            await updateContractData(campaignManager, chainId, "CampaignManager")
+
+            //TODO: verify the contract with the help of the helper functions
+        }
+    } else {
+        console.log("Cannot deploy manager. No CampaignFactory contract found on this network...")
+    }
 }
 
 module.exports = {

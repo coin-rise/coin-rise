@@ -11,9 +11,9 @@ async function deployCampaign(chainId) {
         ? 1
         : VERIFICATION_BLOCK_CONFIRMATIONS
 
-    const campaignFactory = await ethers.getContractFactory("Campaign")
+    const Campaign = await ethers.getContractFactory("Campaign")
 
-    const campaign = await campaignFactory.deploy()
+    const campaign = await Campaign.deploy()
 
     await campaign.deployTransaction.wait(waitBlockConfirmations)
 
