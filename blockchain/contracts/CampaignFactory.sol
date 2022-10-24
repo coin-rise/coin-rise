@@ -2,9 +2,10 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Campaign.sol";
 
-contract CampaignFactory {
+contract CampaignFactory is Ownable {
     /** State variables */
     address private implementationContract;
 
@@ -24,10 +25,16 @@ contract CampaignFactory {
      * @param _deadline - duration till the campaign has to be funded
      * @param _minFund - minimum Amount for a sucessfull funded campaign
      */
-    function deployNewContract(uint256 _deadline, uint256 _minFund) external {
+    function deployNewContract(
+        uint256 _deadline,
+        uint256 _minFund,
+        address _submitter,
+        address _token
+    ) external onlyOwner {
         address _clone = Clones.clone(implementationContract);
 
-        Campaign(_clone).initialize(_deadline, _minFund);
+        Campaign(_clone).initialize(_deadline, _minFund, _submitter, _token);
+        Campaign(_clone).transferOwnership(msg.sender);
 
         deployedCampaignContracts.push(_clone);
 

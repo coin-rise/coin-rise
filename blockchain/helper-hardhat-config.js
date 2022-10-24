@@ -1,9 +1,17 @@
 const networkConfig = {
     default: {
         name: "hardhat",
+        keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
+        linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
+        linkTokenWhale: "0x22951f1D74839e96c4cC57D15da0c5c2bd27a868",
+        DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     },
     31337: {
         name: "localhost",
+        keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
+        linkToken: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
+        linkTokenWhale: "0x22951f1D74839e96c4cC57D15da0c5c2bd27a868",
+        DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
     },
     80001: {
         name: "mumbai",
@@ -11,10 +19,17 @@ const networkConfig = {
         wMatic: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
         USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
         DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
+        linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
     },
     137: {
         name: "polygon",
         linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
+        swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+        wMatic: "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889",
+        USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        DAI: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
     },
 }
 

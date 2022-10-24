@@ -5,9 +5,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
 !developmentChains.includes(network.name)
     ? describe.skip
-    : describe("Campaign Unit Test", () => {
+    : describe("CampaignFactory Unit Test", () => {
           async function deployCampaignFactoryFixture() {
-              const [owner] = await ethers.getSigners()
+              const [owner, submitter] = await ethers.getSigners()
 
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
@@ -16,7 +16,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
               const campaignFactory = await CampaignFactory.deploy(campaign.address)
 
-              return { owner, campaign, campaignFactory }
+              const StableMockToken = await ethers.getContractFactory("MockToken")
+              const _name = "MockDUSD"
+              const _symbol = "MUSD"
+              const stableMockToken = await StableMockToken.deploy(_name, _symbol)
+
+              return { owner, campaign, campaignFactory, stableMockToken, submitter }
           }
 
           describe("#constructor", () => {
@@ -34,13 +39,20 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
           describe("#deployNewContract", () => {
               it("Successfully creates a Campaign", async () => {
-                  const { campaignFactory } = await loadFixture(deployCampaignFactoryFixture)
+                  const { campaignFactory, submitter, stableMockToken } = await loadFixture(
+                      deployCampaignFactoryFixture
+                  )
 
                   const _deadline = 30
 
                   const _minFund = ethers.utils.parseEther("2")
 
-                  await campaignFactory.deployNewContract(_deadline, _minFund)
+                  await campaignFactory.deployNewContract(
+                      _deadline,
+                      _minFund,
+                      submitter.address,
+                      stableMockToken.address
+                  )
 
                   const _numberOfContracts = (await campaignFactory.getDeployedCampaignContracts())
                       .length
@@ -49,12 +61,19 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
 
               it("Successfully initialize the new Campaign", async () => {
-                  const { campaignFactory } = await loadFixture(deployCampaignFactoryFixture)
+                  const { campaignFactory, submitter, stableMockToken } = await loadFixture(
+                      deployCampaignFactoryFixture
+                  )
 
                   const _deadline = 30
                   const _minFund = ethers.utils.parseEther("2")
 
-                  await campaignFactory.deployNewContract(_deadline, _minFund)
+                  await campaignFactory.deployNewContract(
+                      _deadline,
+                      _minFund,
+                      submitter.address,
+                      stableMockToken.address
+                  )
                   const _start = await time.latest()
                   const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -65,15 +84,45 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert.equal(_status.startDate, _start)
               })
 
-              it("successfully emit an event when creating a new campaign", async () => {
-                  const { campaignFactory } = await loadFixture(deployCampaignFactoryFixture)
+              it("successfully transfer the ownership of the campaign to the sender", async () => {
+                  const { owner, campaignFactory, submitter, stableMockToken } = await loadFixture(
+                      deployCampaignFactoryFixture
+                  )
 
                   const _deadline = 30
                   const _minFund = ethers.utils.parseEther("2")
-                  await expect(campaignFactory.deployNewContract(_deadline, _minFund)).to.emit(
-                      campaignFactory,
-                      "CampaignCreated"
+
+                  await campaignFactory.deployNewContract(
+                      _deadline,
+                      _minFund,
+                      submitter.address,
+                      stableMockToken.address
                   )
+                  const _start = await time.latest()
+                  const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const _newCampaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
+
+                  const _owner = await _newCampaign.owner()
+
+                  assert.equal(owner.address, _owner)
+              })
+
+              it("successfully emit an event when creating a new campaign", async () => {
+                  const { campaignFactory, submitter, stableMockToken } = await loadFixture(
+                      deployCampaignFactoryFixture
+                  )
+
+                  const _deadline = 30
+                  const _minFund = ethers.utils.parseEther("2")
+                  await expect(
+                      campaignFactory.deployNewContract(
+                          _deadline,
+                          _minFund,
+                          submitter.address,
+                          stableMockToken.address
+                      )
+                  ).to.emit(campaignFactory, "CampaignCreated")
               })
           })
       })
