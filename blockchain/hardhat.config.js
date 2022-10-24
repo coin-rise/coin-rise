@@ -13,7 +13,7 @@ const GOERLI_RPC_URL =
 const PRIVATE_KEY = process.env.PRIVATE_KEY
 const POLYGON_MUMBAI_RPC_URL = `https://polygon-mumbai.g.alchemy.com/v2/${
     process.env.POLYGON_MUMBAI_API_KEY ?? ""
-  }`
+}`
 // optional
 const MNEMONIC = process.env.MNEMONIC || "Your mnemonic"
 const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER
@@ -43,11 +43,11 @@ module.exports = {
         hardhat: {
             hardfork: "merge",
             // If you want to do some forking set `enabled` to true
-            forking: {
-                url: `${process.env.QUICKNODE_API_KEY_POLYGON}`,
-                //blockNumber: FORKING_BLOCK_NUMBER,
-                enabled: true,
-            },
+            // forking: {
+            //     url: `${process.env.QUICKNODE_API_KEY_POLYGON}`,
+            //     //blockNumber: FORKING_BLOCK_NUMBER,
+            //     enabled: false,
+            // },
             chainId: 31337,
         },
         localhost: {
