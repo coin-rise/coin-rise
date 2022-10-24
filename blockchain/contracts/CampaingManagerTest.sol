@@ -3,6 +3,9 @@ pragma solidity ^0.8.4;
 
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
+/**
+ * @dev - it is only a contract for testing the function of the chainlink keeper
+ */
 contract Manager is AutomationCompatible {
     uint256 public counter;
     uint256 public endDate;

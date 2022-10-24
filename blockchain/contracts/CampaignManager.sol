@@ -18,9 +18,9 @@ contract CampaignManager is AutomationCompatible {
     /** Events */
 
     event ContributorsUpdated(
-        address contributor,
-        uint256 amount,
-        address campaign
+        address indexed contributor,
+        uint256 indexed amount,
+        address indexed campaign
     );
 
     /** Modifiers */
