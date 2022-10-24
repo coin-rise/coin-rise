@@ -20,7 +20,7 @@ const FORKING_BLOCK_NUMBER = process.env.FORKING_BLOCK_NUMBER
 
 // Your API key for Etherscan, obtain one at https://etherscan.io/
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "Your etherscan API key"
-const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "Your polygonscan API key"
+const POLYGONSCAN_API_KEY = process.env.QUICKNODE_API_KEY_POLYGON || "Your polygonscan API key"
 const REPORT_GAS = process.env.REPORT_GAS || false
 const test = ""
 
