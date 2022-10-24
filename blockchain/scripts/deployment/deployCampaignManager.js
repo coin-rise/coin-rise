@@ -4,6 +4,7 @@ const {
     developmentChains,
     VERIFICATION_BLOCK_CONFIRMATIONS,
     deployedContractsPath,
+    networkConfig,
 } = require("../../helper-hardhat-config")
 
 const { updateContractData } = require("../../helper-functions")
@@ -19,12 +20,16 @@ async function deployCampaignManager(chainId) {
     const deployedContracts = JSON.parse(fs.readFileSync(filePath, "utf-8"))
 
     if (chainId in deployedContracts) {
-        if ("CampaignFactory" in deployedContracts[chainId]) {
+        if ("CampaignFactory" in deployedContracts[chainId] && "DAI" in networkConfig[chainId]) {
             console.log("CampaignFactory contract found...")
 
             const campaignFactoryAddress = deployedContracts[chainId]["CampaignFactory"].address
+            const stableTokenAddress = networkConfig[chainId].DAI
 
-            const campaignManager = await CampaignManager.deploy(campaignFactoryAddress)
+            const campaignManager = await CampaignManager.deploy(
+                campaignFactoryAddress,
+                stableTokenAddress
+            )
 
             await campaignManager.deployTransaction.wait(waitBlockConfirmations)
 
