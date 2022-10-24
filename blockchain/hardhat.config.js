@@ -42,12 +42,12 @@ module.exports = {
     networks: {
         hardhat: {
             hardfork: "merge",
-            // If you want to do some forking set `enabled` to true
-            // forking: {
-            //     url: `${process.env.QUICKNODE_API_KEY_POLYGON}`,
-            //     //blockNumber: FORKING_BLOCK_NUMBER,
-            //     enabled: false,
-            // },
+            //If you want to do some forking set `enabled` to true
+            forking: {
+                url: `${process.env.QUICKNODE_API_KEY_POLYGON}`,
+                //blockNumber: FORKING_BLOCK_NUMBER,
+                enabled: true,
+            },
             chainId: 31337,
         },
         localhost: {
