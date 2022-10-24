@@ -96,10 +96,10 @@ contract Campaign is Initializable, Ownable {
     /**
      * @dev send the collected funds to the submitter
      */
-    function sendToSubmitter(address _to) public onlyOwner {
+    function sendToSubmitter() public onlyOwner {
         require(status.fundSent == false,"fund has already been sent");
 
-        token.transfer(_to, token.balanceOf(address(this)) );
+        token.transfer(submitter, token.balanceOf(address(this)) );
         status.fundSent == true;
     }
 
