@@ -1,13 +1,13 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-struct Status {
-    uint256 startDate; //starting date of the compaign in unix timestamp format
-    uint256 endDate; //ending date of the compaign in unix timestamp format
-    bool fundSent; //fund sent or not
-}
-
 interface ICampaign {
+    struct Status {
+        uint256 startDate; //starting date of the compaign in unix timestamp format
+        uint256 endDate; //ending date of the compaign in unix timestamp format
+        bool fundSent; //fund sent or not
+    }
+
     /**
      * @dev View the campaign deadline
      */

@@ -31,11 +31,13 @@ contract Campaign is Initializable, OwnableUpgradeable {
     constructor() {
         _disableInitializers();
     }
-    
-    function initialize(uint256 _deadline, uint256 _minFundAmount, address _submitter, address _token)
-        public
-        initializer
-    {
+
+    function initialize(
+        uint256 _deadline,
+        uint256 _minFundAmount,
+        address _submitter,
+        address _token
+    ) public initializer {
         deadline = _deadline;
         minFundAmount = _minFundAmount;
         submitter = _submitter;
@@ -47,7 +49,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
     }
 
     /* ========== PUBLIC METHODS ========== */
-    
+
     /**
      * @dev View the campaign deadline
      */
@@ -72,15 +74,22 @@ contract Campaign is Initializable, OwnableUpgradeable {
     /**
      * @dev View the contributor contribustion
      */
-    function ViewContribustion(address _contributor) public view returns (uint256) {
+    function ViewContribustion(address _contributor)
+        public
+        view
+        returns (uint256)
+    {
         return contribution[_contributor];
     }
 
     /**
      * @dev keep track of supporters contribustion
      */
-    function addContributor(address _contributor, uint256 _amount) public onlyOwner {
-        require(_contributor != address(0),"Invalid address");
+    function addContributor(address _contributor, uint256 _amount)
+        public
+        onlyOwner
+    {
+        require(_contributor != address(0), "Invalid address");
 
         contribution[_contributor] = _amount;
         contributorAddressList.push(_contributor);
@@ -91,7 +100,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
      * @dev update Submitter Address
      */
     function updateSubmitterAddress(address _submitter) public onlyOwner {
-        require(_submitter != address(0),"Invalid address");
+        require(_submitter != address(0), "Invalid address");
 
         submitter = _submitter;
     }
@@ -100,32 +109,32 @@ contract Campaign is Initializable, OwnableUpgradeable {
      * @dev send the collected funds to the submitter
      */
     function sendToSubmitter() public onlyOwner {
-        require(status.fundSent == false,"fund has already been sent");
-        require(block.timestamp >= status.endDate,"campaign date is not over yet");
+        require(status.fundSent == false, "fund has already been sent");
+        require(
+            block.timestamp >= status.endDate,
+            "campaign date is not over yet"
+        );
 
-        if(totalSupply >= minFundAmount){
-            token.transfer(submitter, token.balanceOf(address(this)) );
-        }else {
+        if (totalSupply >= minFundAmount) {
+            token.transfer(submitter, token.balanceOf(address(this)));
+        } else {
             returnFunds();
         }
-        status.fundSent == true;
+        status.fundSent = true;
     }
 
-    /* ========== INTERNAL METHODS ========== */ 
+    /* ========== INTERNAL METHODS ========== */
 
     /**
      * @dev return funds to contributors;
      */
-    function returnFunds() internal{
-
+    function returnFunds() internal {
         uint256 amount = 0;
 
-        for(uint256 i = 0; i < contributorAddressList.length; i++) {
+        for (uint256 i = 0; i < contributorAddressList.length; i++) {
             amount = contribution[contributorAddressList[i]];
             token.transfer(contributorAddressList[i], amount);
             //To DO we should fund this contract to manage the gas fee
         }
     }
-
-
 }

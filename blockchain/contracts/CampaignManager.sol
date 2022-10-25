@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "./Interfaces/ICampaignFactory.sol";
 import "./Interfaces/ICampaign.sol";
-import "./Interfaces/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error CampaignManager__AmountIsZero();
 error CampaignManager__CampaignDoesNotExist();
@@ -22,6 +22,8 @@ contract CampaignManager is AutomationCompatible {
         uint256 indexed amount,
         address indexed campaign
     );
+
+    event CampaignsFinished(address[] indexed campaign);
 
     /** Modifiers */
     modifier requireNonZeroAmount(uint256 _amount) {
@@ -114,9 +116,9 @@ contract CampaignManager is AutomationCompatible {
         uint256 _counter;
         for (uint256 i = 0; i < _campaigns.length; i++) {
             ICampaign _campaign = ICampaign(_campaigns[i]);
-            uint256 _deadline = _campaign.ViewDeadline();
+            ICampaign.Status memory _status = _campaign.ViewStatus();
 
-            if (block.timestamp >= _deadline) {
+            if (block.timestamp >= _status.endDate) {
                 _counter += 1;
             }
         }
@@ -127,9 +129,9 @@ contract CampaignManager is AutomationCompatible {
 
         for (uint256 i = 0; i < _campaigns.length; i++) {
             ICampaign _campaign = ICampaign(_campaigns[i]);
-            uint256 _deadline = _campaign.ViewDeadline();
+            ICampaign.Status memory _status = _campaign.ViewStatus();
 
-            if (block.timestamp >= _deadline) {
+            if (block.timestamp >= _status.endDate) {
                 upkeepNeeded = true;
                 _finishedCampaigns[_arrayIncrement] = _campaigns[i];
                 _arrayIncrement += 1;
@@ -156,7 +158,9 @@ contract CampaignManager is AutomationCompatible {
             ICampaign _campaign = ICampaign(_finishedCampaigns[i]);
 
             // set the status
+
             _campaign.sendToSubmitter();
         }
+        emit CampaignsFinished(_finishedCampaigns);
     }
 }
