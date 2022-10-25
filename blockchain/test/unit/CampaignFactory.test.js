@@ -7,7 +7,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
     ? describe.skip
     : describe("CampaignFactory Unit Test", () => {
           async function deployCampaignFactoryFixture() {
-              const [owner, submitter] = await ethers.getSigners()
+              const [owner, submitter, badActor] = await ethers.getSigners()
 
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
@@ -21,7 +21,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const _symbol = "MUSD"
               const stableMockToken = await StableMockToken.deploy(_name, _symbol)
 
-              return { owner, campaign, campaignFactory, stableMockToken, submitter }
+              return { owner, campaign, campaignFactory, stableMockToken, submitter, badActor }
           }
 
           describe("#constructor", () => {
@@ -123,6 +123,25 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                           stableMockToken.address
                       )
                   ).to.emit(campaignFactory, "CampaignCreated")
+              })
+
+              it("failed to create a new campaign when the sender is not the owner", async () => {
+                  const { campaignFactory, badActor, stableMockToken } = await loadFixture(
+                      deployCampaignFactoryFixture
+                  )
+
+                  const _deadline = 30
+                  const _minFund = ethers.utils.parseEther("2")
+                  await expect(
+                      campaignFactory
+                          .connect(badActor)
+                          .deployNewContract(
+                              _deadline,
+                              _minFund,
+                              badActor.address,
+                              stableMockToken.address
+                          )
+                  ).to.be.revertedWith("Ownable: caller is not the owner")
               })
           })
       })
