@@ -54,6 +54,12 @@ contract CampaignManager is AutomationCompatible {
 
     /** Functions */
 
+    /**
+     * @dev -create a new Campaign for funding non-profit projects
+     * @param _deadline - duration of the funding process
+     * @param _minFund - minimum Amount of USD to fund the project successfully
+     * @notice the msg.sender will be the submitter and will be funded, if the project funding proccess succeed
+     */
     function createNewCampaign(uint256 _deadline, uint256 _minFund) external {
         campaignFactory.deployNewContract(
             _deadline,
@@ -63,6 +69,12 @@ contract CampaignManager is AutomationCompatible {
         );
     }
 
+    /**
+     * @dev - contribute the campaign with stableTokens
+     * @param _amount - amount of stableTokens want to send
+     * @param _campaignAddress - the address of the campaign contract want to contribute
+     * @notice - the function caller have to approve a tokentransfer to the campaign address before calling this function
+     */
     function contributeCampaign(uint256 _amount, address _campaignAddress)
         external
         requireNonZeroAmount(_amount)
@@ -85,6 +97,9 @@ contract CampaignManager is AutomationCompatible {
 
     /** Automatisation Functions */
 
+    /**
+     * @dev - chainlink keeper checks if an action has to be performed. If a campaign has expired, the chainlink keeper calls performUpkeep in the next block.
+     */
     function checkUpkeep(
         bytes calldata /* checkData */
     )
@@ -127,6 +142,10 @@ contract CampaignManager is AutomationCompatible {
         return (upkeepNeeded, performData);
     }
 
+    /**
+     * @dev - function which is executed by the chainlink keeper. Anyone is able to execute the function
+     * @param performData - array converted to bytes with all expired campaign addresses
+     */
     function performUpkeep(bytes calldata performData) external override {
         address[] memory _finishedCampaigns = abi.decode(
             performData,

@@ -60,10 +60,15 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
 
               it("failed to contribute to a wrong campaign address", async () => {
-                  const { campaignManager, contributor } = await loadFixture(
+                  const { campaignManager, contributor, submitter } = await loadFixture(
                       deployCampaignManagerFixture
                   )
                   const _tokenAmount = ethers.utils.parseEther("10")
+
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
 
                   await expect(
                       campaignManager
@@ -94,6 +99,31 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                           .connect(contributor)
                           .contributeCampaign(_tokenAmount, _campaignAddress)
                   ).to.revertedWithCustomError(campaignManager, "CampaignManager__AmountIsZero")
+              })
+
+              it("failed to contribute if no tokens are approved", async () => {
+                  const { campaignManager, submitter, contributor, mockToken, campaignFactory } =
+                      await loadFixture(deployCampaignManagerFixture)
+
+                  await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const _tokenAmount = ethers.utils.parseEther("10")
+
+                  //   await mockToken
+                  //       .connect(contributor)
+                  //       .approve(campaignManager.address, _tokenAmount)
+
+                  await expect(
+                      campaignManager
+                          .connect(contributor)
+                          .contributeCampaign(_tokenAmount, _campaignAddress)
+                  ).to.be.revertedWith("ERC20: insufficient allowance")
               })
           })
 
