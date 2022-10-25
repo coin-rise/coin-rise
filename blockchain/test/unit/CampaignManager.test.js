@@ -7,7 +7,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
     ? describe.skip
     : describe("CampaignManager Unit Test", () => {
           async function deployCampaignManagerFixture() {
-              const [owner, contributor, submitter] = await ethers.getSigners()
+              const [owner, contributor, submitter, keeper] = await ethers.getSigners()
 
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
@@ -27,7 +27,15 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
               await campaignFactory.transferOwnership(campaignManager.address)
 
-              return { campaignManager, owner, contributor, mockToken, submitter, campaignFactory }
+              return {
+                  campaignManager,
+                  owner,
+                  contributor,
+                  mockToken,
+                  submitter,
+                  campaignFactory,
+                  keeper,
+              }
           }
 
           describe("#contributeCampaign", () => {
@@ -129,7 +137,116 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
           describe("#checkUpkeep", () => {
               it("successfully returns the Campaigns to be processed ", async () => {
-                  const { campaignManager, owner } = await loadFixture(deployCampaignManagerFixture)
+                  const { campaignManager, submitter, campaignFactory } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const status = await campaign.ViewStatus()
+
+                  //set the time to the endDate of the contract
+                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  time.increaseTo(_newTime)
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const answer = await campaignManager.checkUpkeep("0x")
+
+                  const addresses = ethers.utils.defaultAbiCoder.decode(
+                      ["address[]"],
+                      answer.performData
+                  )[0]
+
+                  // only one campaign has reached the endDate
+                  assert.equal(addresses.length, 1)
+              })
+
+              it("successfully returns a false upkeepNeeded if all campaigns are ongoing", async () => {
+                  const { campaignManager, submitter } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const answer = await campaignManager.checkUpkeep("0x")
+
+                  const _upkeepNeeded = answer._upkeepNeeded
+
+                  assert(!_upkeepNeeded)
+              })
+          })
+
+          describe("#performUpkeep", () => {
+              it("successfully emit an event after call performUpkeep ", async () => {
+                  const { campaignManager, submitter, campaignFactory } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const status = await campaign.ViewStatus()
+
+                  //set the time to the endDate of the contract
+                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  time.increaseTo(_newTime)
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const answer = await campaignManager.checkUpkeep("0x")
+
+                  await expect(campaignManager.performUpkeep(answer.performData)).to.emit(
+                      campaignManager,
+                      "CampaignsFinished"
+                  )
+              })
+
+              it("successfully set the right status of the campaign", async () => {
+                  const { campaignManager, submitter, campaignFactory } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  const _interval = 30
+                  const _minFund = ethers.utils.parseEther("20")
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const status = await campaign.ViewStatus()
+
+                  //set the time to the endDate of the contract
+                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  time.increaseTo(_newTime)
+
+                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+
+                  const answer = await campaignManager.checkUpkeep("0x")
+
+                  await campaignManager.performUpkeep(answer.performData)
+
+                  const _newStatus = await campaign.ViewStatus()
+
+                  assert.equal(_newStatus.fundSent, true)
               })
           })
       })
