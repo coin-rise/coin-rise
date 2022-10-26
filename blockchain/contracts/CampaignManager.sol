@@ -4,16 +4,25 @@ pragma solidity ^0.8.4;
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "./Interfaces/ICampaignFactory.sol";
 import "./Interfaces/ICampaign.sol";
+import "./Interfaces/ICoinRiseTokenPool.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error CampaignManager__AmountIsZero();
 error CampaignManager__CampaignDoesNotExist();
+error CampaignManager__TokenPoolAlreadyDefined();
+error CampaignManager__NoTokenPoolIsDefined();
 
-contract CampaignManager is AutomationCompatible {
+contract CampaignManager is AutomationCompatible, Ownable {
     /** State Variables */
     ICampaignFactory private campaignFactory;
 
+    uint256 private fees;
+
     address private stableToken;
+    address private tokenPool;
+
+    bool private tokenPoolDefined;
 
     /** Events */
 
@@ -25,10 +34,19 @@ contract CampaignManager is AutomationCompatible {
 
     event CampaignsFinished(address[] indexed campaign);
 
+    event FeesUpdated(uint256 newFee);
+
     /** Modifiers */
     modifier requireNonZeroAmount(uint256 _amount) {
         if (_amount == 0) {
             revert CampaignManager__AmountIsZero();
+        }
+        _;
+    }
+
+    modifier requireDefinedTokenPool() {
+        if (tokenPool == address(0)) {
+            revert CampaignManager__NoTokenPoolIsDefined();
         }
         _;
     }
@@ -84,13 +102,10 @@ contract CampaignManager is AutomationCompatible {
     {
         ICampaign _campaign = ICampaign(_campaignAddress);
 
-        require(
-            IERC20(stableToken).transferFrom(
-                msg.sender,
-                _campaignAddress,
-                _amount
-            )
-        );
+        //calculate the fees for the protocol
+        uint256 _fees = calculateFees(_amount);
+
+        _transferStableTokensToPool(_amount, _fees);
 
         _campaign.addContributor(msg.sender, _amount);
 
@@ -156,11 +171,70 @@ contract CampaignManager is AutomationCompatible {
 
         for (uint256 i = 0; i < _finishedCampaigns.length; i++) {
             ICampaign _campaign = ICampaign(_finishedCampaigns[i]);
+            // TODO: Set the status of the campaign to finished and  transfer the ownership to the submitter
 
-            // set the status
+            uint256 _funds = _campaign.ViewTotalSupply();
 
-            _campaign.sendToSubmitter();
+            _transferTotalFundsToCampaign(_funds, _finishedCampaigns[i]);
         }
         emit CampaignsFinished(_finishedCampaigns);
+    }
+
+    function setTokenPoolAddress(address _newAddress) external onlyOwner {
+        _isTokenPoolNotDefined();
+        tokenPoolDefined = true;
+        tokenPool = _newAddress;
+    }
+
+    function setFees(uint256 _newFees) external onlyOwner {
+        fees = _newFees;
+
+        emit FeesUpdated(fees);
+    }
+
+    /** Internal Functions */
+
+    function _transferStableTokensToPool(uint256 _amount, uint256 _fees)
+        internal
+        requireDefinedTokenPool
+    {
+        //TODO: Transfer the tokens from user to CoinriseTokenPool
+        ICoinriseTokenPool(tokenPool).transferStableTokensFromManager(
+            _amount,
+            _fees,
+            msg.sender
+        );
+    }
+
+    function _transferTotalFundsToCampaign(
+        uint256 _amount,
+        address _campaignAddress
+    ) internal requireDefinedTokenPool {
+        ICoinriseTokenPool(tokenPool).sendFundsToCampaignContract(
+            _campaignAddress,
+            _amount
+        );
+    }
+
+    function _isTokenPoolNotDefined() internal view {
+        if (tokenPoolDefined) {
+            revert CampaignManager__TokenPoolAlreadyDefined();
+        }
+    }
+
+    /** View / Pure Functions */
+
+    function calculateFees(uint256 _amount)
+        public
+        view
+        returns (uint256 _fees)
+    {
+        _fees = (_amount * fees) / 10000;
+
+        return _fees;
+    }
+
+    function getFees() external view returns (uint256) {
+        return fees;
     }
 }

@@ -4,13 +4,17 @@ crowdfunding platform with crypto for non-profit projects
 
 the following graphic provides an overview of the project process
 
-![Flow Chart coin-rise](./assets/Project-SmartContract-Overview.jpg)
+For the user:
+![Flow Chart user coin-rise](./assets/UserExperience.jpg)
+
+For the submitter:
+![Flow Chart submitter coin-rise](./assets/SubmitterExperience.jpg)
 
 ## Roadmap
 
 -   Writing and finishing the Campaign.sol
 
--   Adding the ChainLink Keeper to CampaignManager.sol
+-   Testing and deploy the contracts to the mumbai network
 
 ## Environment Variables
 
