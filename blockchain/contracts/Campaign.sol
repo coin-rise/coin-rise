@@ -91,7 +91,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
     {
         require(_contributor != address(0), "Invalid address");
 
-        contribution[_contributor] = _amount;
+        contribution[_contributor] = contribution[_contributor] + _amount;
         contributorAddressList.push(_contributor);
         totalSupply += _amount;
     }
