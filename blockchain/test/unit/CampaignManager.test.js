@@ -7,7 +7,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
     ? describe.skip
     : describe("CampaignManager Unit Test", () => {
           async function deployCampaignManagerFixture() {
-              const [owner, contributor, submitter, keeper] = await ethers.getSigners()
+              const [owner, contributor, submitter, keeper, badActor] = await ethers.getSigners()
 
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
@@ -25,6 +25,16 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   mockToken.address
               )
 
+              const CoinRiseTokenPool = await ethers.getContractFactory("CoinRiseTokenPool")
+              const coinRiseTokenPool = await CoinRiseTokenPool.deploy(
+                  mockToken.address,
+                  campaignManager.address
+              )
+
+              await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
+
+              await campaignManager.setFees(100)
+
               await campaignFactory.transferOwnership(campaignManager.address)
 
               return {
@@ -35,13 +45,75 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   submitter,
                   campaignFactory,
                   keeper,
+                  coinRiseTokenPool,
+                  badActor,
               }
           }
 
+          describe("#setTokenPoolAddress", () => {
+              it("failed to set the token pool address twice", async () => {
+                  const { campaignManager, coinRiseTokenPool } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  await expect(
+                      campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
+                  ).to.be.revertedWithCustomError(
+                      campaignManager,
+                      "CampaignManager__TokenPoolAlreadyDefined"
+                  )
+              })
+
+              it("failed if not the owner set a token pool address", async () => {
+                  const { coinRiseTokenPool, badActor, campaignFactory, mockToken, owner } =
+                      await loadFixture(deployCampaignManagerFixture)
+
+                  const CampaignManager = await ethers.getContractFactory("CampaignManager")
+                  const campaignManager = await CampaignManager.deploy(
+                      campaignFactory.address,
+                      mockToken.address
+                  )
+
+                  await expect(
+                      campaignManager
+                          .connect(badActor)
+                          .setTokenPoolAddress(coinRiseTokenPool.address)
+                  ).to.be.revertedWith("Ownable: caller is not the owner")
+              })
+          })
+
+          describe("#setFees", () => {
+              it("successfully set new Fees", async () => {
+                  const { campaignManager } = await loadFixture(deployCampaignManagerFixture)
+
+                  await campaignManager.setFees(20)
+
+                  const _newFees = await campaignManager.getFees()
+
+                  assert.equal(_newFees.toNumber(), 20)
+              })
+
+              it("can only the owner set new Fees", async () => {
+                  const { campaignManager, badActor } = await loadFixture(
+                      deployCampaignManagerFixture
+                  )
+
+                  await expect(campaignManager.connect(badActor).setFees(29)).to.be.revertedWith(
+                      "Ownable: caller is not the owner"
+                  )
+              })
+          })
+
           describe("#contributeCampaign", () => {
               it("successfully transfer the tokens to the campaign", async () => {
-                  const { campaignManager, mockToken, submitter, contributor, campaignFactory } =
-                      await loadFixture(deployCampaignManagerFixture)
+                  const {
+                      campaignManager,
+                      mockToken,
+                      submitter,
+                      contributor,
+                      campaignFactory,
+                      coinRiseTokenPool,
+                  } = await loadFixture(deployCampaignManagerFixture)
 
                   //mint some tokens for the contributor
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
@@ -56,13 +128,13 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await mockToken
                       .connect(contributor)
-                      .approve(campaignManager.address, _tokenAmount)
+                      .approve(coinRiseTokenPool.address, _tokenAmount)
 
                   await campaignManager
                       .connect(contributor)
                       .contributeCampaign(_tokenAmount, _campaignAddress)
 
-                  const _balanceCampaign = await mockToken.balanceOf(_campaignAddress)
+                  const _balanceCampaign = await mockToken.balanceOf(coinRiseTokenPool.address)
 
                   assert(_balanceCampaign.eq(_tokenAmount))
               })
