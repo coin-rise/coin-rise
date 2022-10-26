@@ -9,6 +9,7 @@ const { network, run } = require("hardhat")
 const { deployCampaignManager } = require("./deployCampaignManager")
 const { deployCampaignFactory } = require("./deployFactory")
 const { deployCampaign } = require("./deployCampaign")
+const { deployCoinRiseTokenPool } = require("./deployCoinRiseTokenPool")
 
 async function main() {
     await run("compile")
@@ -18,6 +19,7 @@ async function main() {
     await deployCampaign(chainId)
     await deployCampaignFactory(chainId)
     await deployCampaignManager(chainId)
+    await deployCoinRiseTokenPool(chainId)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

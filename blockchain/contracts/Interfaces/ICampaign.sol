@@ -45,4 +45,6 @@ interface ICampaign {
      * @dev send the collected funds to the submitter
      */
     function sendToSubmitter() external;
+
+    function transferOwnership(address newOwner) external;
 }
