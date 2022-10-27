@@ -77,7 +77,7 @@ const updateContractData = async (contract, chainId, contractName) => {
             abi: _abi,
             address: _address,
         }
-        console.log(contractData)
+
         deployedContracts[chainId] = contractData
     }
 

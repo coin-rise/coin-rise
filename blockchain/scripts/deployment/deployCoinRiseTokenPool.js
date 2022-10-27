@@ -7,7 +7,7 @@ const {
     networkConfig,
 } = require("../../helper-hardhat-config")
 
-const { updateContractData } = require("../../helper-functions")
+const { updateContractData, verify } = require("../../helper-functions")
 
 async function deployCoinRiseTokenPool(chainId) {
     const waitBlockConfirmations = developmentChains.includes(network.name)
@@ -36,6 +36,22 @@ async function deployCoinRiseTokenPool(chainId) {
             )
 
             await updateContractData(coinRiseTokenPool, chainId, "CoinRiseTokenPool")
+
+            if (!developmentChains.includes(network.name)) {
+                await verify(coinRiseTokenPool.address, [
+                    campaignManagerAddress,
+                    stableTokenAddress,
+                ])
+            }
+
+            console.log("Set the token pool...")
+            const campaignManager = await ethers.getContractAt(
+                "CampaignManager",
+                campaignManagerAddress
+            )
+
+            const tx = await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
+            await tx.wait(1)
         }
     }
 }

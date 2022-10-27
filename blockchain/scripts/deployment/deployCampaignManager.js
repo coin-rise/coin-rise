@@ -7,7 +7,7 @@ const {
     networkConfig,
 } = require("../../helper-hardhat-config")
 
-const { updateContractData } = require("../../helper-functions")
+const { updateContractData, verify } = require("../../helper-functions")
 
 async function deployCampaignManager(chainId) {
     const waitBlockConfirmations = developmentChains.includes(network.name)
@@ -24,6 +24,7 @@ async function deployCampaignManager(chainId) {
             console.log("CampaignFactory contract found...")
 
             const campaignFactoryAddress = deployedContracts[chainId]["CampaignFactory"].address
+
             const stableTokenAddress = networkConfig[chainId].DAI
 
             const campaignManager = await CampaignManager.deploy(
@@ -39,10 +40,27 @@ async function deployCampaignManager(chainId) {
 
             await updateContractData(campaignManager, chainId, "CampaignManager")
 
-            //TODO: verify the contract with the help of the helper functions
+            if (!developmentChains.includes(network.name)) {
+                await verify(campaignManager.address, [campaignFactoryAddress, stableTokenAddress])
+            }
+
+            console.log("Set the initial fees to 100 => 1% ...")
+            let tx = await campaignManager.setFees(100)
+            await tx.wait(1)
+
+            console.log("Transfer the ownership of the factory to the Manager Contract..")
+
+            const campaignFactory = await ethers.getContractAt(
+                "CampaignFactory",
+                campaignFactoryAddress
+            )
+            tx = await campaignFactory.transferOwnership(campaignManager.address)
+            await tx.wait(1)
+        } else {
+            console.log(
+                "Cannot deploy manager. No CampaignFactory contract found on this network..."
+            )
         }
-    } else {
-        console.log("Cannot deploy manager. No CampaignFactory contract found on this network...")
     }
 }
 
