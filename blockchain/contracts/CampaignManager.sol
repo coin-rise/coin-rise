@@ -24,6 +24,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     bool private tokenPoolDefined;
 
+    address[] private activeCampaigns;
+
     /** Events */
 
     event ContributorsUpdated(
@@ -32,10 +34,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
         address indexed campaign
     );
 
-    event CampaignFinished(
-        address indexed campaign,
-        uint256 indexed totalFunds
-    );
+    event CampaignFinished(address indexed campaign, uint256 funds);
+
+    event NewCampaignCreated(address newCampaign, uint256 duration);
 
     event FeesUpdated(uint256 newFee);
 
@@ -80,16 +81,15 @@ contract CampaignManager is AutomationCompatible, Ownable {
     /**
      * @dev -create a new Campaign for funding non-profit projects
      * @param _deadline - duration of the funding process
-     * @param _minFund - minimum Amount of USD to fund the project successfully
      * @notice the msg.sender will be the submitter and will be funded, if the project funding proccess succeed
      */
-    function createNewCampaign(uint256 _deadline, uint256 _minFund) external {
-        campaignFactory.deployNewContract(
-            _deadline,
-            _minFund,
-            msg.sender,
-            stableToken
-        );
+    function createNewCampaign(uint256 _deadline) external {
+        campaignFactory.deployNewContract(_deadline, msg.sender, stableToken);
+
+        address _newCampaign = campaignFactory.getLastDeployedCampaign();
+        activeCampaigns.push(_newCampaign);
+
+        emit NewCampaignCreated(_newCampaign, _deadline);
     }
 
     /**
@@ -108,9 +108,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
         //calculate the fees for the protocol
         uint256 _fees = calculateFees(_amount);
 
-        _transferStableTokensToPool(_amount, _fees);
-
         _campaign.addContributor(msg.sender, _amount);
+
+        _transferStableTokensToPool(_amount, _fees);
 
         emit ContributorsUpdated(msg.sender, _amount, _campaignAddress);
     }
@@ -126,63 +126,80 @@ contract CampaignManager is AutomationCompatible, Ownable {
         external
         view
         override
-        returns (bool upkeepNeeded, bytes memory performData)
+        returns (
+            bool upkeepNeeded,
+            bytes memory /*performData */
+        )
     {
+        upkeepNeeded = false;
         // get all campaigns and check if the deadline has been reached
-        address[] memory _campaigns = campaignFactory
-            .getDeployedCampaignContracts();
-        uint256 _counter;
-        for (uint256 i = 0; i < _campaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_campaigns[i]);
-            ICampaign.Status memory _status = _campaign.ViewStatus();
+        // address[] memory _campaigns = campaignFactory
+        //     .getDeployedCampaignContracts();
+        // uint256 _counter;
+        for (uint256 i = 0; i < activeCampaigns.length; i++) {
+            ICampaign _campaign = ICampaign(activeCampaigns[i]);
+            uint256 _endDate = _campaign.getEndDate();
+            bool _fundingActive = _campaign.isFundingActive();
 
-            if (block.timestamp >= _status.endDate) {
-                _counter += 1;
+            if (block.timestamp >= _endDate && _fundingActive) {
+                upkeepNeeded = true;
+                break;
             }
         }
 
         // initialize array of elements requiring increments as long as the increments
-        address[] memory _finishedCampaigns = new address[](_counter);
-        uint256 _arrayIncrement = 0;
+        // address[] memory _newActiveCampaigns = new address[](_counter);
+        // uint256 _arrayIncrement = 0;
 
-        for (uint256 i = 0; i < _campaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_campaigns[i]);
-            ICampaign.Status memory _status = _campaign.ViewStatus();
+        // for (uint256 i = 0; i < _campaigns.length; i++) {
+        //     ICampaign _campaign = ICampaign(_campaigns[i]);
+        //     ICampaign.Status memory _status = _campaign.ViewStatus();
 
-            if (block.timestamp >= _status.endDate) {
-                upkeepNeeded = true;
-                _finishedCampaigns[_arrayIncrement] = _campaigns[i];
-                _arrayIncrement += 1;
-            }
-        }
+        //     if (
+        //         block.timestamp >= _status.endDate &&
+        //         _status.fundingFinished == false
+        //     ) {
+        //         upkeepNeeded = true;
+        //         _finishedCampaigns[_arrayIncrement] = _campaigns[i];
+        //         _arrayIncrement += 1;
+        //     }
+        // }
 
-        //save all update needed campaigns
-        performData = abi.encode(_finishedCampaigns);
+        // //save all update needed campaigns
+        // performData = abi.encode(_finishedCampaigns);
 
-        return (upkeepNeeded, performData);
+        return (upkeepNeeded, "");
     }
 
     /**
      * @dev - function which is executed by the chainlink keeper. Anyone is able to execute the function
-     * @param performData - array converted to bytes with all expired campaign addresses
      */
-    function performUpkeep(bytes calldata performData) external override {
-        address[] memory _finishedCampaigns = abi.decode(
-            performData,
-            (address[])
-        );
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) external override {
+        // address[] memory _finishedCampaigns = abi.decode(
+        //     performData,
+        //     (address[])
+        // );
+        // address[] memory _campaigns = campaignFactory
+        //     .getDeployedCampaignContracts();
+        address[] memory _activeCampaigns = activeCampaigns;
 
-        for (uint256 i = 0; i < _finishedCampaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_finishedCampaigns[i]);
-            // TODO: Set the status of the campaign to finished and  transfer the ownership to the submitter
+        for (uint256 i = 0; i < _activeCampaigns.length; i++) {
+            ICampaign _campaign = ICampaign(_activeCampaigns[i]);
 
-            uint256 _funds = _campaign.ViewTotalSupply();
+            uint256 _endDate = _campaign.getEndDate();
+            bool _fundingActive = _campaign.isFundingActive();
 
-            _transferTotalFundsToCampaign(_funds, _finishedCampaigns[i]);
+            if (block.timestamp >= _endDate && _fundingActive) {
+                _campaign.finishFunding();
 
-            _campaign.finishFunding();
+                uint256 _totalFunds = _campaign.getTotalSupply();
 
-            emit CampaignFinished(_finishedCampaigns[i], _funds);
+                // _transferTotalFundsToCampaign(_totalFunds, _activeCampaigns[i]);
+
+                emit CampaignFinished(_activeCampaigns[i], _totalFunds);
+            }
         }
     }
 

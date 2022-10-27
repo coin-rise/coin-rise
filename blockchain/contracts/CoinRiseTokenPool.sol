@@ -40,6 +40,8 @@ contract CoinRiseTokenPool is AccessControl {
     }
 
     constructor(address _stableToken, address _campaignManagerAddress) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         stableToken = IERC20(_stableToken);
         campaignManagerAddress = _campaignManagerAddress;
     }
