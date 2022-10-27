@@ -3,6 +3,7 @@ import Web3Modal from "web3modal";
 import { ethers } from "ethers";
 import ERC20Abi from "../abis/ERC20.json";
 import SwapAbi from "../abis/Swap.json";
+import CampaignFactoryAbi from "../abis/CampaignFactory.json";
 
 const web3Modal = new Web3Modal({
   providerOptions: {},
@@ -14,12 +15,14 @@ function Nav() {
   const [address, setAddress] = useState();
   const [wmaticContract, setWmaticContract] = useState();
   const [swapContract, setSwapContract] = useState();
+  const [campaignFactoryContract, setCampaignFactoryContract] = useState();
 
   const [amountIn, setAmountIn] = useState();
 
   // polygon mumbai testnet
   const wmaticAddress = "0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889";
   const swapAddress = "0x0000000000000000000000000000000000000000"; // TODO: replace with correct address
+  const campaignFactoryAddress = "0x3621cf993dA8d97Ae8BeBC5C420bF02eeE734418";
 
   useEffect(() => {
     if (instance) {
@@ -35,11 +38,30 @@ function Nav() {
 
         setWmaticContract(new ethers.Contract(wmaticAddress, ERC20Abi, signer));
         setSwapContract(new ethers.Contract(swapAddress, SwapAbi, signer));
+        setCampaignFactoryContract(
+          new ethers.Contract(
+            campaignFactoryAddress,
+            CampaignFactoryAbi,
+            signer
+          )
+        );
       }
     };
 
     setUp();
   }, [signer]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (campaignFactoryContract) {
+        console.log(
+          await campaignFactoryContract.getDeployedCampaignContracts()
+        );
+        console.log(await campaignFactoryContract.getLastDeployedCampaign());
+      }
+    };
+    fetch();
+  }, [campaignFactoryContract]);
 
   return (
     <nav style={{ display: "flex" }}>
