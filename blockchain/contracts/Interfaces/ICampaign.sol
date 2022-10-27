@@ -6,6 +6,7 @@ interface ICampaign {
         uint256 startDate; //starting date of the compaign in unix timestamp format
         uint256 endDate; //ending date of the compaign in unix timestamp format
         bool fundSent; //fund sent or not
+        bool fundingFinished;
     }
 
     /**
@@ -41,8 +42,7 @@ interface ICampaign {
      */
     function updateSubmitterAddress(address _submitter) external;
 
-    /**
-     * @dev send the collected funds to the submitter
-     */
-    function sendToSubmitter() external;
+    function transferStableTokens(address _to, uint256 _amount) external;
+
+    function finishFunding() external;
 }

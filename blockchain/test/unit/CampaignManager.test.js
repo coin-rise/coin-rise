@@ -318,7 +318,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _newStatus = await campaign.ViewStatus()
 
-                  assert.equal(_newStatus.fundSent, true)
+                  assert.equal(_newStatus.fundingFinished, true)
               })
           })
       })
