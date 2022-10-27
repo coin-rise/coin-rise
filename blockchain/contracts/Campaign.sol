@@ -6,6 +6,13 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+error Campaign__NotTheSubmitter();
+error Campaign_TokenAmountIsZero();
+error Campaign__AddressIsZeroAddress();
+error Campaign__FundingFinished();
+error Campaign__FundingNotFinished();
+error Campaign_AmountExceedTotalSupply();
+
 contract Campaign is Initializable, OwnableUpgradeable {
     uint256 public deadline;
     uint256 public minFundAmount;
@@ -18,6 +25,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
         uint256 startDate; //starting date of the compaign in unix timestamp format
         uint256 endDate; //ending date of the compaign in unix timestamp format
         bool fundSent; //fund sent or not
+        bool fundingFinished;
     }
 
     Status public status;
@@ -26,6 +34,23 @@ contract Campaign is Initializable, OwnableUpgradeable {
     //mapping of supporters address to contribution;
     mapping(address => uint256) public contribution;
     address[] private contributorAddressList;
+
+    event TokensTransfered(address to, uint256 amount);
+    event SubmitterAddressChanged(address newAddress);
+
+    modifier onlySubmitter() {
+        if (msg.sender != submitter) {
+            revert Campaign__NotTheSubmitter();
+        }
+        _;
+    }
+
+    modifier fundingFinished() {
+        if (status.fundingFinished == false) {
+            revert Campaign__FundingNotFinished();
+        }
+        _;
+    }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -45,6 +70,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
         status.startDate = block.timestamp;
         status.endDate = status.startDate + _deadline;
         status.fundSent = false;
+        status.fundingFinished = false;
         __Ownable_init();
     }
 
@@ -103,6 +129,8 @@ contract Campaign is Initializable, OwnableUpgradeable {
         require(_submitter != address(0), "Invalid address");
 
         submitter = _submitter;
+
+        emit SubmitterAddressChanged(_submitter);
     }
 
     /**
@@ -121,6 +149,47 @@ contract Campaign is Initializable, OwnableUpgradeable {
             returnFunds();
         }
         status.fundSent = true;
+    }
+
+    /**
+     * @dev - the submitter can transfer after the campaign is finished the tokens to an address
+     * @param _to - the address to receive the tokens
+     * @param _amount - the number of tokens to be transferred
+     */
+    function transferStableTokens(address _to, uint256 _amount)
+        external
+        onlySubmitter
+        fundingFinished
+    {
+        if (_amount == 0) {
+            revert Campaign_TokenAmountIsZero();
+        }
+        if (_to == address(0)) {
+            revert Campaign__AddressIsZeroAddress();
+        }
+
+        uint256 _totalSupply = totalSupply;
+
+        if (_totalSupply < _amount) {
+            revert Campaign_AmountExceedTotalSupply();
+        }
+
+        require(token.transfer(_to, _amount));
+
+        totalSupply -= _amount;
+
+        emit TokensTransfered(_to, _amount);
+    }
+
+    /**
+     * @dev - set the status of the campaign to finished
+     */
+    function finishFunding() external onlyOwner {
+        if (status.fundingFinished) {
+            revert Campaign__FundingFinished();
+        }
+
+        status.fundingFinished = true;
     }
 
     /* ========== INTERNAL METHODS ========== */

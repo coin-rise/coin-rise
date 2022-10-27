@@ -32,7 +32,10 @@ contract CampaignManager is AutomationCompatible, Ownable {
         address indexed campaign
     );
 
-    event CampaignsFinished(address[] indexed campaign);
+    event CampaignFinished(
+        address indexed campaign,
+        uint256 indexed totalFunds
+    );
 
     event FeesUpdated(uint256 newFee);
 
@@ -176,8 +179,11 @@ contract CampaignManager is AutomationCompatible, Ownable {
             uint256 _funds = _campaign.ViewTotalSupply();
 
             _transferTotalFundsToCampaign(_funds, _finishedCampaigns[i]);
+
+            _campaign.finishFunding();
+
+            emit CampaignFinished(_finishedCampaigns[i], _funds);
         }
-        emit CampaignsFinished(_finishedCampaigns);
     }
 
     function setTokenPoolAddress(address _newAddress) external onlyOwner {
