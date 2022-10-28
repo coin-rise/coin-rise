@@ -32,8 +32,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               )
 
               await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
-
-              await campaignManager.setFees(100)
+              const fees = 100
+              await campaignManager.setFees(fees)
 
               await campaignFactory.transferOwnership(campaignManager.address)
 
@@ -47,6 +47,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   keeper,
                   coinRiseTokenPool,
                   badActor,
+                  fees,
               }
           }
 
@@ -268,11 +269,10 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   time.increaseTo(_newTime)
 
                   await campaignManager.connect(submitter).createNewCampaign(_interval)
-
-                  await expect(campaignManager.connect(keeper).performUpkeep("0x")).to.emit(
-                      campaignManager,
-                      "CampaignFinished"
-                  )
+                  const answer = await campaignManager.checkUpkeep("0x")
+                  await expect(
+                      campaignManager.connect(keeper).performUpkeep(answer.performData)
+                  ).to.emit(campaignManager, "CampaignFinished")
               })
 
               it("successfully set the right status of the campaign", async () => {
@@ -298,7 +298,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
-                  await campaignManager.performUpkeep("0x")
+                  await campaignManager.performUpkeep(answer.performData)
 
                   const _fundingActive = await campaign.isFundingActive()
 
@@ -306,11 +306,46 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
 
               it("succesfully transfer the funds from the pool to the campaign contract", async () => {
-                  const { campaignManager, contributor } = await loadFixture(
-                      deployCampaignManagerFixture
-                  )
+                  const {
+                      campaignManager,
+                      contributor,
+                      mockToken,
+                      coinRiseTokenPool,
+                      submitter,
+                      keeper,
+                      campaignFactory,
+                  } = await loadFixture(deployCampaignManagerFixture)
+                  const _tokenAmount = ethers.utils.parseEther("10")
+                  await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
 
-                  //TODO: Writing the test!!!
+                  await mockToken
+                      .connect(contributor)
+                      .approve(coinRiseTokenPool.address, _tokenAmount)
+
+                  const _interval = 30
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  await campaignManager
+                      .connect(contributor)
+                      .contributeCampaign(_tokenAmount, _campaignAddress)
+
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const endDate = await campaign.getEndDate()
+
+                  //set the time to the endDate of the contract
+                  const _newTime = parseInt(endDate.toString()) + 1
+                  time.increaseTo(_newTime)
+
+                  const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
+
+                  await campaignManager.connect(keeper).performUpkeep(answer.performData)
+
+                  const _campaignBalance = await mockToken.balanceOf(_campaignAddress)
+                  const _expectedBalance = ethers.utils.parseEther("9.9")
+                  assert(_campaignBalance.eq(_expectedBalance))
               })
           })
       })

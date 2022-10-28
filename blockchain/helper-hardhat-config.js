@@ -9,6 +9,7 @@ const networkConfig = {
         swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
         wMaticWhale: "0xc74aeDAA57D96c6f2e2566552b3dea3a0345Fa46",
         daiWhale: "0xb2a33ae0E07fD2ca8DBdE9545F6ce0b3234dc4e8",
+        registryContract: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
     },
     31337: {
         name: "localhost",
@@ -28,6 +29,7 @@ const networkConfig = {
         DAI: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747", // Attention: This is official the USDC token
         keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
         linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
+        registryContract: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
     },
     137: {
         name: "polygon",

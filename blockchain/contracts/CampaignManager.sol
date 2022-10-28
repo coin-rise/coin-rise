@@ -108,7 +108,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         //calculate the fees for the protocol
         uint256 _fees = calculateFees(_amount);
 
-        _campaign.addContributor(msg.sender, _amount);
+        _campaign.addContributor(msg.sender, _amount - _fees);
 
         _transferStableTokensToPool(_amount, _fees);
 
@@ -126,16 +126,11 @@ contract CampaignManager is AutomationCompatible, Ownable {
         external
         view
         override
-        returns (
-            bool upkeepNeeded,
-            bytes memory /*performData */
-        )
+        returns (bool upkeepNeeded, bytes memory performData)
     {
         upkeepNeeded = false;
-        // get all campaigns and check if the deadline has been reached
-        // address[] memory _campaigns = campaignFactory
-        //     .getDeployedCampaignContracts();
-        // uint256 _counter;
+
+        uint256 counter = 0;
         for (uint256 i = 0; i < activeCampaigns.length; i++) {
             ICampaign _campaign = ICampaign(activeCampaigns[i]);
             uint256 _endDate = _campaign.getEndDate();
@@ -143,46 +138,25 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
             if (block.timestamp >= _endDate && _fundingActive) {
                 upkeepNeeded = true;
-                break;
+                counter += 1;
             }
         }
 
-        // initialize array of elements requiring increments as long as the increments
-        // address[] memory _newActiveCampaigns = new address[](_counter);
-        // uint256 _arrayIncrement = 0;
-
-        // for (uint256 i = 0; i < _campaigns.length; i++) {
-        //     ICampaign _campaign = ICampaign(_campaigns[i]);
-        //     ICampaign.Status memory _status = _campaign.ViewStatus();
-
-        //     if (
-        //         block.timestamp >= _status.endDate &&
-        //         _status.fundingFinished == false
-        //     ) {
-        //         upkeepNeeded = true;
-        //         _finishedCampaigns[_arrayIncrement] = _campaigns[i];
-        //         _arrayIncrement += 1;
-        //     }
-        // }
-
-        // //save all update needed campaigns
-        // performData = abi.encode(_finishedCampaigns);
-
-        return (upkeepNeeded, "");
+        performData = abi.encode(counter);
+        return (upkeepNeeded, performData);
     }
 
     /**
      * @dev - function which is executed by the chainlink keeper. Anyone is able to execute the function
      */
-    function performUpkeep(
-        bytes calldata /* performData */
-    ) external override {
-        // address[] memory _finishedCampaigns = abi.decode(
-        //     performData,
-        //     (address[])
-        // );
-        // address[] memory _campaigns = campaignFactory
-        //     .getDeployedCampaignContracts();
+    function performUpkeep(bytes calldata performData) external override {
+        uint256 _counter = abi.decode(performData, (uint256));
+
+        address[] memory _newActiveCampaigns = new address[](
+            activeCampaigns.length - _counter
+        );
+        uint256 _arrayIndex = 0;
+
         address[] memory _activeCampaigns = activeCampaigns;
 
         for (uint256 i = 0; i < _activeCampaigns.length; i++) {
@@ -195,12 +169,21 @@ contract CampaignManager is AutomationCompatible, Ownable {
                 _campaign.finishFunding();
 
                 uint256 _totalFunds = _campaign.getTotalSupply();
-
-                // _transferTotalFundsToCampaign(_totalFunds, _activeCampaigns[i]);
+                if (_totalFunds > 0) {
+                    _transferTotalFundsToCampaign(
+                        _totalFunds,
+                        _activeCampaigns[i]
+                    );
+                }
 
                 emit CampaignFinished(_activeCampaigns[i], _totalFunds);
+            } else {
+                _newActiveCampaigns[_arrayIndex] = _activeCampaigns[i];
+                _arrayIndex += 1;
             }
         }
+
+        activeCampaigns = _newActiveCampaigns;
     }
 
     function setTokenPoolAddress(address _newAddress) external onlyOwner {
@@ -259,5 +242,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     function getFees() external view returns (uint256) {
         return fees;
+    }
+
+    function getActiveCampaigns() external view returns (address[] memory) {
+        return activeCampaigns;
     }
 }
