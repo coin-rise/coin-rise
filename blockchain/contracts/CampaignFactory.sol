@@ -11,9 +11,6 @@ contract CampaignFactory is Ownable {
 
     address[] private deployedCampaignContracts;
 
-    /** Events */
-    event CampaignCreated(address campaign, uint256 deadline, uint256 minFund);
-
     constructor(address _implementationContract) {
         implementationContract = _implementationContract;
     }
@@ -23,22 +20,20 @@ contract CampaignFactory is Ownable {
     /**
      * @dev create and setup a new crowdfunding campaign
      * @param _deadline - duration till the campaign has to be funded
-     * @param _minFund - minimum Amount for a sucessfull funded campaign
+     * @param _submitter - the address of the submitter of the campaign
+     * @param _token - the used stable token for funding
      */
     function deployNewContract(
         uint256 _deadline,
-        uint256 _minFund,
         address _submitter,
         address _token
     ) external onlyOwner {
         address _clone = Clones.clone(implementationContract);
 
-        Campaign(_clone).initialize(_deadline, _minFund, _submitter, _token);
+        Campaign(_clone).initialize(_deadline, _submitter, _token);
         Campaign(_clone).transferOwnership(msg.sender);
 
         deployedCampaignContracts.push(_clone);
-
-        emit CampaignCreated(_clone, _deadline, _minFund);
     }
 
     /** View Functions */

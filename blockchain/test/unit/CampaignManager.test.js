@@ -32,8 +32,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               )
 
               await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
-
-              await campaignManager.setFees(100)
+              const fees = 100
+              await campaignManager.setFees(fees)
 
               await campaignFactory.transferOwnership(campaignManager.address)
 
@@ -47,6 +47,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   keeper,
                   coinRiseTokenPool,
                   badActor,
+                  fees,
               }
           }
 
@@ -117,10 +118,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   //mint some tokens for the contributor
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
-                  const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  const _interval = 30
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -146,9 +146,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _tokenAmount = ethers.utils.parseEther("10")
 
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   await expect(
                       campaignManager
@@ -167,9 +166,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const { campaignManager, contributor, campaignFactory, submitter } =
                       await loadFixture(deployCampaignManagerFixture)
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
                   const _tokenAmount = ethers.utils.parseEther("0")
@@ -187,9 +185,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -208,37 +205,30 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
           })
 
           describe("#checkUpkeep", () => {
-              it("successfully returns the Campaigns to be processed ", async () => {
-                  const { campaignManager, submitter, campaignFactory } = await loadFixture(
+              it("successfully returns true if some campaigns are finished ", async () => {
+                  const { campaignManager, submitter, campaignFactory, keeper } = await loadFixture(
                       deployCampaignManagerFixture
                   )
 
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
                   const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
 
-                  const status = await campaign.ViewStatus()
+                  const endDate = await campaign.getEndDate()
 
                   //set the time to the endDate of the contract
-                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
-                  const answer = await campaignManager.checkUpkeep("0x")
+                  const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
 
-                  const addresses = ethers.utils.defaultAbiCoder.decode(
-                      ["address[]"],
-                      answer.performData
-                  )[0]
-
-                  // only one campaign has reached the endDate
-                  assert.equal(addresses.length, 1)
+                  assert.equal(answer.upkeepNeeded, true)
               })
 
               it("successfully returns a false upkeepNeeded if all campaigns are ongoing", async () => {
@@ -247,47 +237,42 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
-                  const _upkeepNeeded = answer._upkeepNeeded
+                  const _upkeepNeeded = answer.upkeepNeeded
 
-                  assert(!_upkeepNeeded)
+                  assert.equal(_upkeepNeeded, false)
               })
           })
 
           describe("#performUpkeep", () => {
               it("successfully emit an event after call performUpkeep ", async () => {
-                  const { campaignManager, submitter, campaignFactory } = await loadFixture(
+                  const { campaignManager, submitter, campaignFactory, keeper } = await loadFixture(
                       deployCampaignManagerFixture
                   )
 
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
                   const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
 
-                  const status = await campaign.ViewStatus()
+                  const endDate = await campaign.getEndDate()
 
                   //set the time to the endDate of the contract
-                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
-
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
                   const answer = await campaignManager.checkUpkeep("0x")
-
-                  await expect(campaignManager.performUpkeep(answer.performData)).to.emit(
-                      campaignManager,
-                      "CampaignsFinished"
-                  )
+                  await expect(
+                      campaignManager.connect(keeper).performUpkeep(answer.performData)
+                  ).to.emit(campaignManager, "CampaignFinished")
               })
 
               it("successfully set the right status of the campaign", async () => {
@@ -296,29 +281,71 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
-                  const _minFund = ethers.utils.parseEther("20")
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
                   const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
 
-                  const status = await campaign.ViewStatus()
+                  const endDate = await campaign.getEndDate()
 
                   //set the time to the endDate of the contract
-                  const _newTime = parseInt(status.endDate.toString()) + 1
+                  const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval, _minFund)
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
                   await campaignManager.performUpkeep(answer.performData)
 
-                  const _newStatus = await campaign.ViewStatus()
+                  const _fundingActive = await campaign.isFundingActive()
 
-                  assert.equal(_newStatus.fundingFinished, true)
+                  assert.equal(_fundingActive, false)
+              })
+
+              it("succesfully transfer the funds from the pool to the campaign contract", async () => {
+                  const {
+                      campaignManager,
+                      contributor,
+                      mockToken,
+                      coinRiseTokenPool,
+                      submitter,
+                      keeper,
+                      campaignFactory,
+                  } = await loadFixture(deployCampaignManagerFixture)
+                  const _tokenAmount = ethers.utils.parseEther("10")
+                  await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
+
+                  await mockToken
+                      .connect(contributor)
+                      .approve(coinRiseTokenPool.address, _tokenAmount)
+
+                  const _interval = 30
+                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  await campaignManager
+                      .connect(contributor)
+                      .contributeCampaign(_tokenAmount, _campaignAddress)
+
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const endDate = await campaign.getEndDate()
+
+                  //set the time to the endDate of the contract
+                  const _newTime = parseInt(endDate.toString()) + 1
+                  time.increaseTo(_newTime)
+
+                  const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
+
+                  await campaignManager.connect(keeper).performUpkeep(answer.performData)
+
+                  const _campaignBalance = await mockToken.balanceOf(_campaignAddress)
+                  const _expectedBalance = ethers.utils.parseEther("9.9")
+                  assert(_campaignBalance.eq(_expectedBalance))
               })
           })
       })

@@ -12,9 +12,7 @@ For the submitter:
 
 ## Roadmap
 
--   Writing and finishing the Campaign.sol
-
--   Testing and deploy the contracts to the mumbai network
+-   Adding Featuers like yield generating or NFT's creation for contributors
 
 ## Environment Variables
 
@@ -96,6 +94,8 @@ or
 
 All ABIs and addresses can be retrieved after deployment under "./deployments/deployedContracts.json".
 
+Each campaign has its own smart contract. The addresses of the campaign can be found through the CampaignFactory.
+
 In this section all necessary functions are listed to interact with the protcol.
 
 1. CampaignManager
@@ -103,6 +103,14 @@ In this section all necessary functions are listed to interact with the protcol.
 &emsp; `createNewCampaign`
 
 &emsp; `contributeCampaign`
+
+&emsp; `setFees`
+
+&emsp; `calculateFees`
+
+&emsp; `getFees`
+
+&emsp; `getActiveCampaigns`
 
 2. CampaignFactory
 
@@ -112,14 +120,39 @@ In this section all necessary functions are listed to interact with the protcol.
 
 3. Campaign "Clone"
 
-Each campaign has its own smart contract. The addresses of the campaign can be found through the CampaignFactory.
+&emsp; `transferStableTokens`
 
-&emsp; `deadline`
+&emsp; `getEndDate`
 
-&emsp; `minFundAmount`
+&emsp; `getStartDate`
 
-&emsp; `totalSupply`
+&emsp; `getDuration`
 
-&emsp; `submitter`
+&emsp; `getSubmitter`
 
-&emsp; `status`
+&emsp; `isFundingActive`
+
+&emsp; `getRemainingFundingTime`
+
+&emsp; `getContributor`
+
+&emsp; `getNumberOfContributor`
+
+&emsp; `getTotalSupply`
+
+4. CoinRiseTokenPool
+
+&emsp; `withdrawFreeStableTokens`
+
+&emsp; `getLockedTotalStableTokenSupply`
+
+&emsp; `getFreeTotalStableTokenSupply`
+
+## Smart Contracts Mumbai Deployments
+
+| Contracts             |                 Addresses                  |
+| :-------------------- | :----------------------------------------: |
+| Campaigns.sol         | 0xAa8ef6f8A1E04cA5fb55Acf99003188Ecab37886 |
+| CampaignManager.sol   | 0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97 |
+| CampaignFactory.sol   | 0x2C44f76136f6cAfABe3E94A3e92D692642766eb0 |
+| CoinRiseTokenPool.sol | 0x40d273fAE017991DFa76E3e13cf5801AaEA09306 |

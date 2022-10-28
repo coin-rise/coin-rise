@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 error CoinRiseTokenPool__NotCampaignManager();
 error CoinRiseTokenPool__NotEnoughFreeStableTokens();
+error CoinRiseTokenPool__NotEnoughLockedStableCoins();
 
 contract CoinRiseTokenPool is AccessControl {
     bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
@@ -16,6 +17,8 @@ contract CoinRiseTokenPool is AccessControl {
     IERC20 private stableToken;
 
     address private campaignManagerAddress;
+
+    // address private chainlinkRegistryAddress;
 
     uint256 private lockedTotalStableTokenSupply;
 
@@ -30,6 +33,8 @@ contract CoinRiseTokenPool is AccessControl {
 
     event WithdrawFreeStableTokenFunds(address to, uint256 amount);
 
+    event RegistryAddressUpdated(address newAddress);
+
     /** Modifiers */
 
     modifier isManagerContract(address _contractAddress) {
@@ -40,6 +45,8 @@ contract CoinRiseTokenPool is AccessControl {
     }
 
     constructor(address _stableToken, address _campaignManagerAddress) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         stableToken = IERC20(_stableToken);
         campaignManagerAddress = _campaignManagerAddress;
     }
@@ -50,6 +57,10 @@ contract CoinRiseTokenPool is AccessControl {
         address _campaignAddress,
         uint256 _amount
     ) external isManagerContract(msg.sender) {
+        if (lockedTotalStableTokenSupply < _amount) {
+            revert CoinRiseTokenPool__NotEnoughLockedStableCoins();
+        }
+
         require(stableToken.transfer(_campaignAddress, _amount));
 
         lockedTotalStableTokenSupply -= _amount;
@@ -90,5 +101,13 @@ contract CoinRiseTokenPool is AccessControl {
         freeTotalStableTokenSupply = _freeTokenAmount;
 
         emit WithdrawFreeStableTokenFunds(msg.sender, _amount);
+    }
+
+    function getLockedTotalStableTokenSupply() external view returns (uint256) {
+        return lockedTotalStableTokenSupply;
+    }
+
+    function getFreeTotalStableTokenSupply() external view returns (uint256) {
+        return freeTotalStableTokenSupply;
     }
 }
