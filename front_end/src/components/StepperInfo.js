@@ -51,7 +51,7 @@ const StepperInfo = ({ setUrl }) => {
         type="file"
         hidden
         width="20vw"
-        onChange={(e) => setUrl(e.target.files[0])}
+        onChange={(e) => setUrl(e.target.files)}
       />
       <div
         style={{

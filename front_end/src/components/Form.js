@@ -4,6 +4,7 @@ import Stepper from "./Stepper/Stepper";
 import StepperGeneral from "./StepperGeneral";
 import StepperInfo from "./StepperInfo";
 import FinalStepper from "./FinalStepper";
+import {storeFiles, makeFileObjects} from "./Storage";
 
 function Form() {
   const [textTrack, setTextTrack] = useState("");
