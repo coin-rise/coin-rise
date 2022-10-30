@@ -33,7 +33,8 @@ const StepperGeneral = ({ setName }) => {
         <Box display="flex" justifyContent="center" widht="100%">
           <img src={StepperIcon} />
         </Box>
-        <Box style={{ marginLeft: "20rem", marginTop: "5rem" }}>
+        <Box style={{ marginLeft: "17rem", marginTop: "5rem" }}>
+          <div>
           <div
             style={{
               fontFamily: "Secular One",
@@ -108,7 +109,7 @@ const StepperGeneral = ({ setName }) => {
             type="text"
             width={900}
             onChange={(e) => setName(e.target.value)}
-          />
+          /></div>
         </Box>
       </Box>
     </>

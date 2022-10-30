@@ -148,12 +148,12 @@ function Nav({ children }) {
               width="100%"
               alignItems="center"
             >
-              <Link to="/">
+              <Link to="/" style={{ textDecoration: "none" }}>
                 <Typography className={classes.link}>Home</Typography>
               </Link>
 
               <Typography className={classes.link}>Project</Typography>
-              <Link to="/submit">
+              <Link to="/submit" style={{ textDecoration: "none" }}>
                 <button className={classes.btnSubmit}>
                   Submit
                   <img src={AddIcon} style={{ paddingLeft: "5px" }} />
