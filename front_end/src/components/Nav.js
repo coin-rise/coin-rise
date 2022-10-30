@@ -4,12 +4,72 @@ import { ethers } from "ethers";
 import ERC20Abi from "../abis/ERC20.json";
 import SwapAbi from "../abis/Swap.json";
 import CampaignFactoryAbi from "../abis/CampaignFactory.json";
+import { Typography, Box } from "@mui/material";
+import AddIcon from "../assets/AddIcon.svg";
+import { makeStyles } from "@mui/styles";
+import { Link } from "react-router-dom";
+
+const useStyles = makeStyles({
+  coin: {
+    fontFamily: "Inter",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "40px",
+    lineHeight: "48px",
+    color: "#F01D1D",
+  },
+  rise: {
+    fontFamily: "Trebuchet MS",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "40px",
+    lineHeight: "48px",
+    color: "#11484F",
+  },
+  link: {
+    fontFamily: "Sen",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "25px",
+    lineHeight: "30px",
+    color: "#000000",
+    cursor: "pointer",
+  },
+  btnWallet: {
+    color: "white",
+    backgroundColor: "#11484F",
+    borderRadius: "10px",
+    fontFamily: "Sen",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "25px",
+    lineHeight: "30px",
+    padding: "10px 15px",
+    cursor: "pointer",
+  },
+  btnSubmit: {
+    fontFamily: "Sen",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "25px",
+    lineHeight: "30px",
+    color: "#11484F",
+    cursor: "pointer",
+    border: "1px solid #11484F",
+    backgroundColor: "white",
+    borderRadius: "10px",
+    padding: "10px 10px",
+    display: "flex",
+    alignItems: "center",
+  },
+});
 
 const web3Modal = new Web3Modal({
   providerOptions: {},
 });
 
-function Nav() {
+function Nav({ children }) {
+  const classes = useStyles();
   const [instance, setInstance] = useState();
   const [signer, setSigner] = useState();
   const [address, setAddress] = useState();
@@ -64,55 +124,104 @@ function Nav() {
   }, [campaignFactoryContract]);
 
   return (
-    <nav style={{ display: "flex" }}>
-      <a href="/">
-        <b>Coin rise</b>
-      </a>
-      <a href="/submit">
-        <button>Submit a project</button>
-      </a>
-      {address ?? (
-        <button
-          onClick={async () => {
-            setInstance(await web3Modal.connect());
-          }}
-        >
-          Connect Wallet
-        </button>
-      )}
-      {wmaticContract && swapContract && (
-        <div>
-          <input
-            id="amountIn"
-            placeholder="amount in"
-            value={amountIn}
-            onChange={(e) => setAmountIn(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              wmaticContract.approve(
-                swapContract.address,
-                ethers.constants.MaxUint256
-              );
-            }}
+    <>
+      <Box p={4}>
+        <Box display="flex" width="100%" alignItems="center">
+          <Box
+            display="flex"
+            width="100%"
+            justifyContent="flex-start"
+            alignItems="center"
           >
-            Approve
-          </button>
-          <button
-            onClick={() => {
-              swapContract.swapExactInputSingle(
-                ethers.utils.parseUnits(
-                  amountIn,
-                  18 // wmatic has 18 decimals
-                )
-              );
-            }}
+            <Typography className={classes.coin}>Coin</Typography>
+            <Typography className={classes.rise}>Rise</Typography>
+          </Box>
+          <Box
+            display="flex"
+            width="100%"
+            justifyContent="flex-end"
+            alignItems="center"
           >
-            Swap
-          </button>
-        </div>
-      )}
-    </nav>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              width="100%"
+              alignItems="center"
+            >
+              <Link to="/">
+                <Typography className={classes.link}>Home</Typography>
+              </Link>
+
+              <Typography className={classes.link}>Project</Typography>
+              <Link to="/submit">
+                <button className={classes.btnSubmit}>
+                  Submit
+                  <img src={AddIcon} style={{ paddingLeft: "5px" }} />
+                </button>
+              </Link>
+              <button
+                className={classes.btnWallet}
+                onClick={async () => {
+                  setInstance(await web3Modal.connect());
+                }}
+              >
+                Connect Wallet
+              </button>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box>{children}</Box>
+    </>
+    // <nav style={{ display: "flex" }}>
+    //   <a href="/">
+    //     <b>Coin rise</b>
+    //   </a>
+    //   <a href="/submit">
+    //     <button>Submit a project</button>
+    //   </a>
+    //   {address ?? (
+    //     <button
+    //       onClick={async () => {
+    //         setInstance(await web3Modal.connect());
+    //       }}
+    //     >
+    //       Connect Wallet
+    //     </button>
+    //   )}
+    //   {wmaticContract && swapContract && (
+    //     <div>
+    //       <input
+    //         id="amountIn"
+    //         placeholder="amount in"
+    //         value={amountIn}
+    //         onChange={(e) => setAmountIn(e.target.value)}
+    //       />
+    //       <button
+    //         onClick={() => {
+    //           wmaticContract.approve(
+    //             swapContract.address,
+    //             ethers.constants.MaxUint256
+    //           );
+    //         }}
+    //       >
+    //         Approve
+    //       </button>
+    //       <button
+    //         onClick={() => {
+    //           swapContract.swapExactInputSingle(
+    //             ethers.utils.parseUnits(
+    //               amountIn,
+    //               18 // wmatic has 18 decimals
+    //             )
+    //           );
+    //         }}
+    //       >
+    //         Swap
+    //       </button>
+    //     </div>
+    //   )}
+    // </nav>
   );
 }
 
