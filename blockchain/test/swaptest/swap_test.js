@@ -6,7 +6,7 @@ const WMATIC = process.env.WMATIC;//0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
 const SwapRouter = process.env.SWAPROUTER;
 
 describe("SwapToken", () => {
-  let SwapToken
+  let swapToken
   let accounts
   let wMatic
   let dai
@@ -40,18 +40,18 @@ describe("SwapToken", () => {
     console.log("DAI balance", await dai.balanceOf(accounts[0].address))
   })
 
- /* it("swapExactOutputSingle", async () => {
+  it("swapExactOutputSingle", async () => {
     const wMaticAmountInMax = 10n ** 18n
     const daiAmountOut = 100n * 10n ** 18n
 
     // Deposit wMatic
     await wMatic.deposit({ value: wMaticAmountInMax })
     await wMatic.approve(swapToken.address, wMaticAmountInMax)
-    console.log("kl ");
+
     // Swap
     await swapToken.swapExactOutputSingle(daiAmountOut, wMaticAmountInMax)
 
     console.log("DAI balance", await dai.balanceOf(accounts[0].address))
-  })*/
+  })
 
 })
