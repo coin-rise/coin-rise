@@ -2,47 +2,51 @@
 pragma solidity ^0.8.4;
 
 interface ICampaign {
-    struct Status {
-        uint256 startDate; //starting date of the compaign in unix timestamp format
-        uint256 endDate; //ending date of the compaign in unix timestamp format
-        bool fundSent; //fund sent or not
-    }
+    event TokensTransfered(address to, uint256 amount);
+    event SubmitterAddressChanged(address newAddress);
+    event UpdateContributor(address contributor, uint256 amount);
+
+    function initialize(
+        uint256 _duration,
+        address _submitter,
+        address _token
+    ) external;
+
+    function addContributor(address _contributor, uint256 _amount) external;
+
+    function updateSubmitterAddress(address _submitter) external;
 
     /**
-     * @dev View the campaign deadline
+     * @dev - the submitter can transfer after the campaign is finished the tokens to an address
+     * @param _to - the address to receive the tokens
+     * @param _amount - the number of tokens to be transferred
      */
-    function ViewDeadline() external view returns (uint256);
+    function transferStableTokens(address _to, uint256 _amount) external;
 
     /**
-     * @dev View the campaign totalSupply
+     * @dev - set the status of the campaign to finished
      */
-    function ViewTotalSupply() external view returns (uint256);
+    function finishFunding() external;
 
-    /**
-     * @dev View the campaign status
-     */
-    function ViewStatus() external view returns (Status memory);
+    /* ========== View Functions ========== */
+    function getEndDate() external view returns (uint256);
 
-    /**
-     * @dev View the contributor contribustion
-     */
-    function ViewContribustion(address _contributor)
+    function getStartDate() external view returns (uint256);
+
+    function getDuration() external view returns (uint256);
+
+    function getSubmitter() external view returns (address);
+
+    function isFundingActive() external view returns (bool);
+
+    function getRemainingFundingTime() external view returns (uint256);
+
+    function getContributor(address _contributor)
         external
         view
         returns (uint256);
 
-    /**
-     * @dev keep track of supporters contribustion
-     */
-    function addContributor(address _contributor, uint256 _amount) external;
+    function getNumberOfContributor() external view returns (uint256);
 
-    /**
-     * @dev update Submitter Address
-     */
-    function updateSubmitterAddress(address _submitter) external;
-
-    /**
-     * @dev send the collected funds to the submitter
-     */
-    function sendToSubmitter() external;
+    function getTotalSupply() external view returns (uint256);
 }

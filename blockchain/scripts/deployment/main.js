@@ -9,15 +9,26 @@ const { network, run } = require("hardhat")
 const { deployCampaignManager } = require("./deployCampaignManager")
 const { deployCampaignFactory } = require("./deployFactory")
 const { deployCampaign } = require("./deployCampaign")
+const { deployCoinRiseTokenPool } = require("./deployCoinRiseTokenPool")
 
 async function main() {
     await run("compile")
     const chainId = network.config.chainId
 
     //TODO: Adding deploy scripts
+    console.log(`Start deploying contracts to ${network.name}`)
+    console.log("================================")
     await deployCampaign(chainId)
+    console.log("================================")
     await deployCampaignFactory(chainId)
+    console.log("================================")
+
     await deployCampaignManager(chainId)
+    console.log("================================")
+
+    await deployCoinRiseTokenPool(chainId)
+    console.log("================================")
+    console.log("Finished Deploying!")
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -45,11 +45,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _deadline = 30
 
-                  const _minFund = ethers.utils.parseEther("2")
-
                   await campaignFactory.deployNewContract(
                       _deadline,
-                      _minFund,
                       submitter.address,
                       stableMockToken.address
                   )
@@ -66,11 +63,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
-                  const _minFund = ethers.utils.parseEther("2")
 
                   await campaignFactory.deployNewContract(
                       _deadline,
-                      _minFund,
                       submitter.address,
                       stableMockToken.address
                   )
@@ -79,9 +74,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _newCampaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
 
-                  const _status = await _newCampaign.status()
+                  const _startDate = await _newCampaign.getStartDate()
 
-                  assert.equal(_status.startDate, _start)
+                  assert.equal(_startDate, _start)
               })
 
               it("successfully transfer the ownership of the campaign to the sender", async () => {
@@ -90,15 +85,13 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
-                  const _minFund = ethers.utils.parseEther("2")
 
                   await campaignFactory.deployNewContract(
                       _deadline,
-                      _minFund,
                       submitter.address,
                       stableMockToken.address
                   )
-                  const _start = await time.latest()
+
                   const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
 
                   const _newCampaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
@@ -108,39 +101,17 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert.equal(owner.address, _owner)
               })
 
-              it("successfully emit an event when creating a new campaign", async () => {
-                  const { campaignFactory, submitter, stableMockToken } = await loadFixture(
-                      deployCampaignFactoryFixture
-                  )
-
-                  const _deadline = 30
-                  const _minFund = ethers.utils.parseEther("2")
-                  await expect(
-                      campaignFactory.deployNewContract(
-                          _deadline,
-                          _minFund,
-                          submitter.address,
-                          stableMockToken.address
-                      )
-                  ).to.emit(campaignFactory, "CampaignCreated")
-              })
-
               it("failed to create a new campaign when the sender is not the owner", async () => {
                   const { campaignFactory, badActor, stableMockToken } = await loadFixture(
                       deployCampaignFactoryFixture
                   )
 
                   const _deadline = 30
-                  const _minFund = ethers.utils.parseEther("2")
+
                   await expect(
                       campaignFactory
                           .connect(badActor)
-                          .deployNewContract(
-                              _deadline,
-                              _minFund,
-                              badActor.address,
-                              stableMockToken.address
-                          )
+                          .deployNewContract(_deadline, badActor.address, stableMockToken.address)
                   ).to.be.revertedWith("Ownable: caller is not the owner")
               })
           })

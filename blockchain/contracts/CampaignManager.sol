@@ -4,16 +4,27 @@ pragma solidity ^0.8.4;
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "./Interfaces/ICampaignFactory.sol";
 import "./Interfaces/ICampaign.sol";
+import "./Interfaces/ICoinRiseTokenPool.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error CampaignManager__AmountIsZero();
 error CampaignManager__CampaignDoesNotExist();
+error CampaignManager__TokenPoolAlreadyDefined();
+error CampaignManager__NoTokenPoolIsDefined();
 
-contract CampaignManager is AutomationCompatible {
+contract CampaignManager is AutomationCompatible, Ownable {
     /** State Variables */
     ICampaignFactory private campaignFactory;
 
+    uint256 private fees;
+
     address private stableToken;
+    address private tokenPool;
+
+    bool private tokenPoolDefined;
+
+    address[] private activeCampaigns;
 
     /** Events */
 
@@ -23,12 +34,23 @@ contract CampaignManager is AutomationCompatible {
         address indexed campaign
     );
 
-    event CampaignsFinished(address[] indexed campaign);
+    event CampaignFinished(address indexed campaign, uint256 funds);
+
+    event NewCampaignCreated(address newCampaign, uint256 duration);
+
+    event FeesUpdated(uint256 newFee);
 
     /** Modifiers */
     modifier requireNonZeroAmount(uint256 _amount) {
         if (_amount == 0) {
             revert CampaignManager__AmountIsZero();
+        }
+        _;
+    }
+
+    modifier requireDefinedTokenPool() {
+        if (tokenPool == address(0)) {
+            revert CampaignManager__NoTokenPoolIsDefined();
         }
         _;
     }
@@ -59,16 +81,15 @@ contract CampaignManager is AutomationCompatible {
     /**
      * @dev -create a new Campaign for funding non-profit projects
      * @param _deadline - duration of the funding process
-     * @param _minFund - minimum Amount of USD to fund the project successfully
      * @notice the msg.sender will be the submitter and will be funded, if the project funding proccess succeed
      */
-    function createNewCampaign(uint256 _deadline, uint256 _minFund) external {
-        campaignFactory.deployNewContract(
-            _deadline,
-            _minFund,
-            msg.sender,
-            stableToken
-        );
+    function createNewCampaign(uint256 _deadline) external {
+        campaignFactory.deployNewContract(_deadline, msg.sender, stableToken);
+
+        address _newCampaign = campaignFactory.getLastDeployedCampaign();
+        activeCampaigns.push(_newCampaign);
+
+        emit NewCampaignCreated(_newCampaign, _deadline);
     }
 
     /**
@@ -84,15 +105,12 @@ contract CampaignManager is AutomationCompatible {
     {
         ICampaign _campaign = ICampaign(_campaignAddress);
 
-        require(
-            IERC20(stableToken).transferFrom(
-                msg.sender,
-                _campaignAddress,
-                _amount
-            )
-        );
+        //calculate the fees for the protocol
+        uint256 _fees = calculateFees(_amount);
 
-        _campaign.addContributor(msg.sender, _amount);
+        _campaign.addContributor(msg.sender, _amount - _fees);
+
+        _transferStableTokensToPool(_amount, _fees);
 
         emit ContributorsUpdated(msg.sender, _amount, _campaignAddress);
     }
@@ -110,57 +128,123 @@ contract CampaignManager is AutomationCompatible {
         override
         returns (bool upkeepNeeded, bytes memory performData)
     {
-        // get all campaigns and check if the deadline has been reached
-        address[] memory _campaigns = campaignFactory
-            .getDeployedCampaignContracts();
-        uint256 _counter;
-        for (uint256 i = 0; i < _campaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_campaigns[i]);
-            ICampaign.Status memory _status = _campaign.ViewStatus();
+        upkeepNeeded = false;
 
-            if (block.timestamp >= _status.endDate) {
-                _counter += 1;
-            }
-        }
+        uint256 counter = 0;
+        for (uint256 i = 0; i < activeCampaigns.length; i++) {
+            ICampaign _campaign = ICampaign(activeCampaigns[i]);
+            uint256 _endDate = _campaign.getEndDate();
+            bool _fundingActive = _campaign.isFundingActive();
 
-        // initialize array of elements requiring increments as long as the increments
-        address[] memory _finishedCampaigns = new address[](_counter);
-        uint256 _arrayIncrement = 0;
-
-        for (uint256 i = 0; i < _campaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_campaigns[i]);
-            ICampaign.Status memory _status = _campaign.ViewStatus();
-
-            if (block.timestamp >= _status.endDate) {
+            if (block.timestamp >= _endDate && _fundingActive) {
                 upkeepNeeded = true;
-                _finishedCampaigns[_arrayIncrement] = _campaigns[i];
-                _arrayIncrement += 1;
+                counter += 1;
             }
         }
 
-        //save all update needed campaigns
-        performData = abi.encode(_finishedCampaigns);
-
+        performData = abi.encode(counter);
         return (upkeepNeeded, performData);
     }
 
     /**
      * @dev - function which is executed by the chainlink keeper. Anyone is able to execute the function
-     * @param performData - array converted to bytes with all expired campaign addresses
      */
     function performUpkeep(bytes calldata performData) external override {
-        address[] memory _finishedCampaigns = abi.decode(
-            performData,
-            (address[])
+        uint256 _counter = abi.decode(performData, (uint256));
+
+        address[] memory _newActiveCampaigns = new address[](
+            activeCampaigns.length - _counter
         );
+        uint256 _arrayIndex = 0;
 
-        for (uint256 i = 0; i < _finishedCampaigns.length; i++) {
-            ICampaign _campaign = ICampaign(_finishedCampaigns[i]);
+        address[] memory _activeCampaigns = activeCampaigns;
 
-            // set the status
+        for (uint256 i = 0; i < _activeCampaigns.length; i++) {
+            ICampaign _campaign = ICampaign(_activeCampaigns[i]);
 
-            _campaign.sendToSubmitter();
+            uint256 _endDate = _campaign.getEndDate();
+            bool _fundingActive = _campaign.isFundingActive();
+
+            if (block.timestamp >= _endDate && _fundingActive) {
+                _campaign.finishFunding();
+
+                uint256 _totalFunds = _campaign.getTotalSupply();
+                if (_totalFunds > 0) {
+                    _transferTotalFundsToCampaign(
+                        _totalFunds,
+                        _activeCampaigns[i]
+                    );
+                }
+
+                emit CampaignFinished(_activeCampaigns[i], _totalFunds);
+            } else {
+                _newActiveCampaigns[_arrayIndex] = _activeCampaigns[i];
+                _arrayIndex += 1;
+            }
         }
-        emit CampaignsFinished(_finishedCampaigns);
+
+        activeCampaigns = _newActiveCampaigns;
+    }
+
+    function setTokenPoolAddress(address _newAddress) external onlyOwner {
+        _isTokenPoolNotDefined();
+        tokenPoolDefined = true;
+        tokenPool = _newAddress;
+    }
+
+    function setFees(uint256 _newFees) external onlyOwner {
+        fees = _newFees;
+
+        emit FeesUpdated(fees);
+    }
+
+    /** Internal Functions */
+
+    function _transferStableTokensToPool(uint256 _amount, uint256 _fees)
+        internal
+        requireDefinedTokenPool
+    {
+        //TODO: Transfer the tokens from user to CoinriseTokenPool
+        ICoinriseTokenPool(tokenPool).transferStableTokensFromManager(
+            _amount,
+            _fees,
+            msg.sender
+        );
+    }
+
+    function _transferTotalFundsToCampaign(
+        uint256 _amount,
+        address _campaignAddress
+    ) internal requireDefinedTokenPool {
+        ICoinriseTokenPool(tokenPool).sendFundsToCampaignContract(
+            _campaignAddress,
+            _amount
+        );
+    }
+
+    function _isTokenPoolNotDefined() internal view {
+        if (tokenPoolDefined) {
+            revert CampaignManager__TokenPoolAlreadyDefined();
+        }
+    }
+
+    /** View / Pure Functions */
+
+    function calculateFees(uint256 _amount)
+        public
+        view
+        returns (uint256 _fees)
+    {
+        _fees = (_amount * fees) / 10000;
+
+        return _fees;
+    }
+
+    function getFees() external view returns (uint256) {
+        return fees;
+    }
+
+    function getActiveCampaigns() external view returns (address[] memory) {
+        return activeCampaigns;
     }
 }

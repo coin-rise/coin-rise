@@ -1,9 +1,9 @@
-const { expect } = require("chai")
-const { ethers } = require("hardhat")
+// const { expect } = require("chai")
+// const { ethers } = require("hardhat")
 
-const DAI =  process.env.DAI; //0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
-const WMATIC = process.env.WMATIC;//0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
-const SwapRouter = process.env.SWAPROUTER;
+// const DAI =  process.env.DAI; //0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063
+// const WMATIC = process.env.WMATIC;//0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270
+// const SwapRouter = process.env.SWAPROUTER;
 
 describe("SwapToken", () => {
   let swapToken
@@ -11,6 +11,7 @@ describe("SwapToken", () => {
   let wMatic
   let dai
   let swapRouter
+
 
   before(async () => {
     accounts = await ethers.getSigners(1)
@@ -24,7 +25,6 @@ describe("SwapToken", () => {
     await swapToken.deployed()
     console.log("SwapTonen deployed");
 
-    
   })
 
   it("swapExactInputSingle", async () => {
@@ -53,5 +53,6 @@ describe("SwapToken", () => {
 
     console.log("DAI balance", await dai.balanceOf(accounts[0].address))
   })
+
 
 })

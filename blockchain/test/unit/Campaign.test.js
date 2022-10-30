@@ -22,20 +22,27 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const stableMockToken = await StableMockToken.deploy(_name, _symbol)
 
               const _deadline = 30
-                const _minFund = ethers.utils.parseEther("2")
 
-                await campaignFactory.deployNewContract(
-                    _deadline,
-                    _minFund,
-                    submitter.address,
-                    stableMockToken.address
-                )
-                const _start = await time.latest()
-                const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
+              await campaignFactory.deployNewContract(
+                  _deadline,
+                  submitter.address,
+                  stableMockToken.address
+              )
 
-                const _newCampaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
+              const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
 
-              return {_newCampaign, campaign, stableMockToken, owner, submitter, contributor1, contributor2, campaignFactory }
+              const _newCampaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
+
+              return {
+                  _newCampaign,
+                  campaign,
+                  stableMockToken,
+                  owner,
+                  submitter,
+                  contributor1,
+                  contributor2,
+                  campaignFactory,
+              }
           }
 
           describe("#initialize", () => {
@@ -45,35 +52,21 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   await expect(
-                      campaign.initialize(
-                          30,
-                          ethers.utils.parseEther("2"),
-                          submitter.address,
-                          stableMockToken.address
-                      )
+                      campaign.initialize(30, submitter.address, stableMockToken.address)
                   ).to.be.revertedWith("Initializable: contract is already initialized")
               })
           })
 
-        describe("#add Contributor", () => {
+          describe("#add Contributor", () => {
+              it("Successfully adds Contributor", async () => {
+                  const { _newCampaign, owner, contributor1 } = await loadFixture(
+                      deployCampaignFixture
+                  )
 
-            it("Successfully adds Contributor", async () => {
-                const { _newCampaign, owner, campaign, stableMockToken, submitter, contributor1 } = await loadFixture(
-                    deployCampaignFixture
-                )
+                  await _newCampaign.connect(owner).addContributor(contributor1.address, 55)
+                  const contribution = await _newCampaign.getContributor(contributor1.address)
 
-                await _newCampaign.connect(owner).addContributor(contributor1.address,  55);
-                const contribution = await _newCampaign.ViewContribustion(contributor1.address)
-
-                assert.equal(contribution, 55)
-                    
-            })
-        })
-
-        describe("#send to submitter", () => {
-
-            
-                    
-            })
-        })
+                  assert.equal(contribution, 55)
+              })
+          })
       })

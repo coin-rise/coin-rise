@@ -6,7 +6,7 @@ const {
     VERIFICATION_BLOCK_CONFIRMATIONS,
 } = require("../../helper-hardhat-config")
 
-const { updateContractData } = require("../../helper-functions")
+const { updateContractData, verify } = require("../../helper-functions")
 
 async function deployCampaignFactory(chainId) {
     const waitBlockConfirmations = developmentChains.includes(network.name)
@@ -33,9 +33,13 @@ async function deployCampaignFactory(chainId) {
             )
 
             await updateContractData(campaignFactory, chainId, "CampaignFactory")
+
+            if (!developmentChains.includes(network.name)) {
+                await verify(campaignFactory.address, [campaignAddress])
+            }
+        } else {
+            console.log("Cannot deploy factory. No Campaign contract found on this network...")
         }
-    } else {
-        console.log("Cannot deploy factory. No Campaign contract found on this network...")
     }
 }
 
