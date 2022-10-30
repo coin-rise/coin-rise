@@ -9,12 +9,14 @@ function Form() {
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const [name, setName] = useState();
+  const [url, setUrl] = useState("");
+  console.log(url, "urlwawe");
   function handleChange(e) {
     setTextTrack(e.target.value);
   }
   function handleNext() {
-    setActiveStep((prev) => prev + 1);
-    if (activeStep >= 2) {
+    if (activeStep < 2) setActiveStep((prev) => prev + 1);
+    else {
     }
   }
   function handlePrev() {
@@ -23,7 +25,7 @@ function Form() {
   const steps = ["  ", "", ""];
   const stepsContent = [
     <StepperGeneral setName={setName} />,
-    <StepperInfo />,
+    <StepperInfo setUrl={setUrl} />,
     <FinalStepper />,
   ];
 

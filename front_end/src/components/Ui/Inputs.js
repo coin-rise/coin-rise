@@ -7,7 +7,7 @@ export default function BasicTextFields({width,...props}) {
     <Box
       component="form"
       sx={{
-        '& > :not(style)': { width,backgroundColor:'#D9D9D9',borderRadius:'10px' },
+        '& > :not(style)': { width,backgroundColor:'#D9D9D9',borderRadius:'10px', },
       }}
       noValidate
       autoComplete="off"
