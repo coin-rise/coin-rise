@@ -13,23 +13,22 @@ function getFiles () {
     return fileInput.files
 }
 
-function makeFileObjects (campaignname, campaigninfo, extrainfo, videolink) {
+function makeFileObjects (campaignName, campaignInfo, extraInfo, videoLink, cidImg) {
     // You can create File objects from a Blob of binary data
     // see: https://developer.mozilla.org/en-US/docs/Web/API/Blob
     // Here we're just storing a JSON object, but you can store images,
     // audio, or whatever you want!
     const obj = { 
-      campaignName: campaignname,
-      campaignInfo: campaigninfo,
-      videoLink: videolink,
-      extraInfo: extrainfo
+      campaignName,
+      campaignInfo,
+      videoLink,
+      cidImg,
+      extraInfo
       }
     const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' })
   
-    const files = [
-      //new File(['contents-of-file-1'], 'plain-utf8.txt'),
-      new File([blob], 'campaign.json')
-    ]
+    const files = [new File([blob], 'campaign.json')]
+ 
     return files
 }
 

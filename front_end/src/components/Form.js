@@ -15,8 +15,6 @@ const contractManagerAddress = "0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97";
 function Form() {
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
-  const [name, setName] = useState();
-  const [url, setUrl] = useState("");
   const [campaign, setCampaign] = useState({
     purpose: "Non-Profit",
     category: "",
@@ -29,16 +27,17 @@ function Form() {
     campaignVideo: "",
     extraInformation: "",
   });
-  //console.log(storeFiles(makeFileObjects(name, name, name, name)), "infobj");
-  //console.log(storeFiles(makeFileObjects(img)), "infobj");
-  //storeFiles(file1, file2)
+
   function handleChange(e) {
     setTextTrack(e.target.value);
   }
-  function handleNext() {
+  async function handleNext() {
     if (activeStep < 2) setActiveStep((prev) => prev + 1);
     else {
-      CreateNewCampaign();
+      const cidImg = await storeFiles(campaign?.campaignImg);
+      const files = await makeFileObjects(campaign?.campaignName, campaign?.campaignInfo, campaign?.extraInformation, campaign?.campaignVideo, cidImg);
+      const cid = await storeFiles(files);
+      await CreateNewCampaign(campaign?.campaignDuration);
     }
   }
   function handlePrev() {
@@ -69,11 +68,11 @@ function Form() {
   /**
    * Create a new Campaign for funding non-profit projects
    */
-  const CreateNewCampaign = async () => {
-    /*if (!deadline.value) {
+  const CreateNewCampaign = async (duration) => {
+    if (!duration && Number(duration)) {
       console.log(`Error, Please enter a valid deadline`);
       return;
-    }*/
+    }
 
     try {
       const { ethereum } = window;
@@ -94,8 +93,7 @@ function Form() {
           console.log("newCampaign deadline :", deadline.toNumber());
         });
         let tx = await contract.createNewCampaign(
-          //BigNumber.from(deadline.value)
-          BigNumber.from(40)
+          BigNumber.from(duration)
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
