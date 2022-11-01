@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Box } from "@mui/material";
 import Stepper from "./Stepper/Stepper";
 import StepperGeneral from "./StepperGeneral";
 import StepperInfo from "./StepperInfo";
 import FinalStepper from "./FinalStepper";
 import { storeFiles, makeFileObjects } from "./Storage";
-
 import { ethers, BigNumber } from "ethers";
 
 /* campaignManager Contract Address and Contract ABI */
@@ -13,6 +12,26 @@ import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/Campa
 const contractManagerAddress = "0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97";
 
 function Form() {
+  const [userAddress, setUserAddress] = useState();
+
+  // wallet adress
+
+  useEffect(() => {
+    const onNewSigner = async () => {
+      let addr;
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        addr = await signer.getAddress();
+
+        setUserAddress(addr.toString());
+      }
+    };
+
+    onNewSigner();
+  }, [window.ethereum]);
+
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const [campaign, setCampaign] = useState({
@@ -35,7 +54,13 @@ function Form() {
     if (activeStep < 2) setActiveStep((prev) => prev + 1);
     else {
       const cidImg = await storeFiles(campaign?.campaignImg);
-      const files = await makeFileObjects(campaign?.campaignName, campaign?.campaignInfo, campaign?.extraInformation, campaign?.campaignVideo, cidImg);
+      const files = await makeFileObjects(
+        campaign?.campaignName,
+        campaign?.campaignInfo,
+        campaign?.extraInformation,
+        campaign?.campaignVideo,
+        cidImg
+      );
       const cid = await storeFiles(files);
       await CreateNewCampaign(campaign?.campaignDuration);
     }
@@ -45,7 +70,11 @@ function Form() {
   }
   const steps = ["  ", "", ""];
   const stepsContent = [
-    <StepperGeneral setCampaign={setCampaign} campaign={campaign}  />,
+    <StepperGeneral
+      setCampaign={setCampaign}
+      campaign={campaign}
+      userAddress={userAddress}
+    />,
     <StepperInfo setCampaign={setCampaign} campaign={campaign} />,
     <FinalStepper setCampaign={setCampaign} campaign={campaign} />,
   ];
@@ -65,6 +94,7 @@ function Form() {
     }
     console.log("submit");
   }
+
   /**
    * Create a new Campaign for funding non-profit projects
    */
@@ -92,9 +122,7 @@ function Form() {
           console.log("newCampaign address :", newCampaign);
           console.log("newCampaign deadline :", deadline.toNumber());
         });
-        let tx = await contract.createNewCampaign(
-          BigNumber.from(duration)
-        );
+        let tx = await contract.createNewCampaign(BigNumber.from(duration));
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
           "%c Create new campaign... please wait!  %s",

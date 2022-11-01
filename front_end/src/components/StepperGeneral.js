@@ -25,7 +25,7 @@ const useStyles = makeStyles({
   },
 });
 
-const StepperGeneral = ({ setCampaign, campaign }) => {
+const StepperGeneral = ({ setCampaign, campaign ,userAddress}) => {
   const classes = useStyles();
   return (
     <>
@@ -123,6 +123,7 @@ const StepperGeneral = ({ setCampaign, campaign }) => {
             <Inputs
               type="text"
               width={900}
+              value={userAddress}
               onChange={(e) =>
                 setCampaign({ ...campaign, newWalletAddress: e.target.value })
               }
