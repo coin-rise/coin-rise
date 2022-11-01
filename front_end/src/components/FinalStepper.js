@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import Inputs from "./Ui/index";
 
-const FinalStepper = () => {
+const FinalStepper = ({ setCampaign, campaign }) => {
   return (
     <Box style={{ marginLeft: "17rem" }}>
       <div
@@ -18,7 +18,13 @@ const FinalStepper = () => {
       >
         Minimun amount needed
       </div>
-      <Inputs type="text" width={900} />
+      <Inputs
+        type="text"
+        width={900}
+        onChange={(e) =>
+          setCampaign({ ...campaign, minAmount: e.target.value })
+        }
+      />
       <div
         style={{
           fontFamily: "Sen",
@@ -32,7 +38,13 @@ const FinalStepper = () => {
       >
         Compain Pitch
       </div>
-      <Inputs type="file" hidden width="20vw" />
+      <Inputs
+        type="text"
+        width={900}
+        onChange={(e) =>
+          setCampaign({ ...campaign, campaignVideo: e.target.value })
+        }
+      />
       <div
         style={{
           fontFamily: "Sen",
@@ -46,7 +58,14 @@ const FinalStepper = () => {
       >
         Additional Information
       </div>
-      <Inputs type="area" rows={6} width={600} />
+      <Inputs
+        type="area"
+        rows={6}
+        width={600}
+        onChange={(e) =>
+          setCampaign({ ...campaign, extraInformation: e.target.value })
+        }
+      />
     </Box>
   );
 };

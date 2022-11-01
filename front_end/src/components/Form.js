@@ -4,7 +4,7 @@ import Stepper from "./Stepper/Stepper";
 import StepperGeneral from "./StepperGeneral";
 import StepperInfo from "./StepperInfo";
 import FinalStepper from "./FinalStepper";
-import {storeFiles, makeFileObjects} from "./Storage";
+import { storeFiles, makeFileObjects } from "./Storage";
 
 import { ethers, BigNumber } from "ethers";
 
@@ -17,7 +17,18 @@ function Form() {
   const [activeStep, setActiveStep] = useState(0);
   const [name, setName] = useState();
   const [url, setUrl] = useState("");
-  console.log(url, "urlwawe");
+  const [campaign, setCampaign] = useState({
+    purpose: "Non-Profit",
+    category: "",
+    newWalletAddress: "",
+    campaignName: "",
+    campaignInfo: "",
+    campaignImg: "",
+    campaignDuration: "",
+    minAmount: "",
+    campaignVideo: "",
+    extraInformation: "",
+  });
   //console.log(storeFiles(makeFileObjects(name, name, name, name)), "infobj");
   //console.log(storeFiles(makeFileObjects(img)), "infobj");
   //storeFiles(file1, file2)
@@ -35,9 +46,9 @@ function Form() {
   }
   const steps = ["  ", "", ""];
   const stepsContent = [
-    <StepperGeneral setName={setName} />,
-    <StepperInfo setUrl={setUrl} />,
-    <FinalStepper />,
+    <StepperGeneral setCampaign={setCampaign} campaign={campaign}  />,
+    <StepperInfo setCampaign={setCampaign} campaign={campaign} />,
+    <FinalStepper setCampaign={setCampaign} campaign={campaign} />,
   ];
 
   function handleSubmit(e) {
@@ -56,8 +67,8 @@ function Form() {
     console.log("submit");
   }
   /**
-    * Create a new Campaign for funding non-profit projects
-    */
+   * Create a new Campaign for funding non-profit projects
+   */
   const CreateNewCampaign = async () => {
     /*if (!deadline.value) {
       console.log(`Error, Please enter a valid deadline`);
@@ -78,13 +89,10 @@ function Form() {
          *  Receive Emitted Event from Smart Contract
          *  @dev See newAttributeAdded emitted from our smart contract add_new_attribute function
          */
-        contract.on(
-          "NewCampaignCreated",
-          (newCampaign, deadline) => {
-            console.log("newCampaign address :", newCampaign);
-            console.log("newCampaign deadline :", deadline.toNumber());
-          }
-        );
+        contract.on("NewCampaignCreated", (newCampaign, deadline) => {
+          console.log("newCampaign address :", newCampaign);
+          console.log("newCampaign deadline :", deadline.toNumber());
+        });
         let tx = await contract.createNewCampaign(
           //BigNumber.from(deadline.value)
           BigNumber.from(40)
@@ -110,7 +118,9 @@ function Form() {
            * @dev NOTE: Switch up these links once we go to Production
            * Currently set to use Polygon Mumbai Testnet
            */
-          const stylesPolygon = ["color: white", "background: #7e44df"].join(";");
+          const stylesPolygon = ["color: white", "background: #7e44df"].join(
+            ";"
+          );
           console.log(
             `%c🧬 new campaign added, see transaction: https://polygonscan.com/tx/${tx.hash} %s`,
             stylesPolygon,
@@ -125,7 +135,6 @@ function Form() {
       console.log("error", error);
     }
   };
-
 
   return (
     <Box>
