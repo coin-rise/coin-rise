@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import Inputs from "./Ui/index";
 
-const StepperInfo = ({ setUrl }) => {
+const StepperInfo = ({ setCampaign, campaign }) => {
   return (
     <Box style={{ marginLeft: "17rem" }}>
       <div
@@ -18,7 +18,13 @@ const StepperInfo = ({ setUrl }) => {
       >
         Compain Name
       </div>
-      <Inputs type="text" width={600} />
+      <Inputs
+        type="text"
+        width={600}
+        onChange={(e) =>
+          setCampaign({ ...campaign, campaignName: e.target.value })
+        }
+      />
       <div
         style={{
           fontFamily: "Sen",
@@ -32,7 +38,14 @@ const StepperInfo = ({ setUrl }) => {
       >
         Compain Info
       </div>
-      <Inputs type="area" rows={6} width={600} />
+      <Inputs
+        type="area"
+        rows={6}
+        width={600}
+        onChange={(e) =>
+          setCampaign({ ...campaign, campaignInfo: e.target.value })
+        }
+      />
       <div
         style={{
           fontFamily: "Sen",
@@ -51,7 +64,9 @@ const StepperInfo = ({ setUrl }) => {
         type="file"
         hidden
         width="20vw"
-        onChange={(e) => setUrl(e.target.files)}
+        onChange={(e) =>
+          setCampaign({ ...campaign, campaignImg: e.target.files })
+        }
       />
       <div
         style={{
@@ -66,7 +81,13 @@ const StepperInfo = ({ setUrl }) => {
       >
         Compain Duration
       </div>
-      <Inputs type="text" width={400} />
+      <Inputs
+        type="text"
+        width={400}
+        onChange={(e) =>
+          setCampaign({ ...campaign, campaignDuration: e.target.value })
+        }
+      />
     </Box>
   );
 };
