@@ -126,14 +126,38 @@ contract CampaignManager is AutomationCompatible, Ownable {
     {
         ICampaign _campaign = ICampaign(_campaignAddress);
 
-        //calculate the fees for the protocol
-        uint256 _fees = calculateFees(_amount);
+        // _transferStableTokensToPool(_amount, _fees, msg.sender);
 
-        _campaign.addContributor(msg.sender, _amount - _fees);
+        bool sent = IERC20(stableToken).transferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
 
-        _transferStableTokensToPool(_amount, _fees);
+        if (sent) {
+            //calculate the fees for the protocol
+            uint256 _tokenBalance = IERC20(stableToken).balanceOf(
+                address(this)
+            );
+            uint256 _fees = calculateFees(_tokenBalance);
 
-        emit ContributorsUpdated(msg.sender, _amount, _campaignAddress);
+            uint256 _campaignTokenAmount = _tokenBalance - _fees;
+
+            IERC20(stableToken).transfer(tokenPool, _tokenBalance);
+
+            ICoinRiseTokenPool(tokenPool).setNewTotalSupplies(
+                _tokenBalance,
+                _fees
+            );
+
+            _campaign.addContributor(msg.sender, _campaignTokenAmount);
+
+            emit ContributorsUpdated(
+                msg.sender,
+                _campaignTokenAmount,
+                _campaignAddress
+            );
+        }
     }
 
     /** Automatisation Functions */
@@ -249,7 +273,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         uint256 _amount,
         address _campaignAddress
     ) internal requireDefinedTokenPool {
-        ICoinriseTokenPool(tokenPool).transferStableTokensToContributorPool(
+        ICoinRiseTokenPool(tokenPool).transferStableTokensToContributorPool(
             _amount,
             _campaignAddress
         );
@@ -259,26 +283,22 @@ contract CampaignManager is AutomationCompatible, Ownable {
         internal
         requireDefinedTokenPool
     {
-        ICoinriseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
+        ICoinRiseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
     }
 
-    function _transferStableTokensToPool(uint256 _amount, uint256 _fees)
-        internal
-        requireDefinedTokenPool
-    {
-        //TODO: Transfer the tokens from user to CoinriseTokenPool
-        ICoinriseTokenPool(tokenPool).transferStableTokensFromManager(
-            _amount,
-            _fees,
-            msg.sender
-        );
-    }
+    // function _transferStableTokensToPool(
+    //     uint256 _amount,
+    //     uint256 _fees,
+    //     address _contributor
+    // ) internal requireDefinedTokenPool {
+    //     IERC20(stableToken).transferFrom()
+    // }
 
     function _transferTotalFundsToCampaign(
         uint256 _amount,
         address _campaignAddress
     ) internal requireDefinedTokenPool {
-        ICoinriseTokenPool(tokenPool).sendFundsToCampaignContract(
+        ICoinRiseTokenPool(tokenPool).sendFundsToCampaignContract(
             _campaignAddress,
             _amount
         );
@@ -308,5 +328,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     function getActiveCampaigns() external view returns (address[] memory) {
         return activeCampaigns;
+    }
+
+    function getStableTokenAddress() external view returns (address) {
+        return stableToken;
     }
 }

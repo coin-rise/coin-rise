@@ -22,11 +22,17 @@ async function deployCoinRiseTokenPool(chainId) {
     if (chainId in deployedContracts) {
         if ("CampaignManager" in deployedContracts[chainId] && "DAI" in networkConfig[chainId]) {
             const campaignManagerAddress = deployedContracts[chainId]["CampaignManager"].address
-            const stableTokenAddress = networkConfig[chainId].DAI
+
+            const campaignManager = await ethers.getContractAt(
+                "CampaignManager",
+                campaignManagerAddress
+            )
+
+            const stableTokenAddress = await campaignManager.getStableTokenAddress()
 
             const coinRiseTokenPool = await CoinRiseTokenPool.deploy(
-                campaignManagerAddress,
-                stableTokenAddress
+                stableTokenAddress,
+                campaignManagerAddress
             )
 
             await coinRiseTokenPool.deployTransaction.wait(waitBlockConfirmations)
@@ -45,10 +51,6 @@ async function deployCoinRiseTokenPool(chainId) {
             }
 
             console.log("Set the token pool...")
-            const campaignManager = await ethers.getContractAt(
-                "CampaignManager",
-                campaignManagerAddress
-            )
 
             const tx = await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
             await tx.wait(1)

@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-error CoinRiseTokenPool__NotCampaignManager();
 error CoinRiseTokenPool__NotEnoughFreeStableTokens();
 error CoinRiseTokenPool__NotEnoughLockedStableCoins();
 error CoinRiseTokenPool__TokensAlreadyTransfered();
@@ -13,6 +12,7 @@ error CoinRiseTokenPool__NotEnoughContributorStableTokens();
 contract CoinRiseTokenPool is AccessControl {
     bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
     bytes32 public constant SENDER_ROLE = keccak256("SENDER_ROLE");
+    bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
 
     /** State Variables */
 
@@ -42,20 +42,15 @@ contract CoinRiseTokenPool is AccessControl {
 
     event RegistryAddressUpdated(address newAddress);
 
-    /** Modifiers */
-
-    modifier isManagerContract(address _contractAddress) {
-        if (campaignManagerAddress != _contractAddress) {
-            revert CoinRiseTokenPool__NotCampaignManager();
-        }
-        _;
-    }
-
     constructor(address _stableToken, address _campaignManagerAddress) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MANAGER_ROLE, _campaignManagerAddress);
 
         stableToken = IERC20(_stableToken);
-        campaignManagerAddress = _campaignManagerAddress;
+
+        freeTotalStableTokenSupply = 0;
+        contributorTokenSupply = 0;
+        lockedTotalStableTokenSupply = 0;
     }
 
     /** Functions */
@@ -63,7 +58,7 @@ contract CoinRiseTokenPool is AccessControl {
     function sendFundsToCampaignContract(
         address _campaignAddress,
         uint256 _amount
-    ) external isManagerContract(msg.sender) {
+    ) external onlyRole(MANAGER_ROLE) {
         bool _transfered = transferedTokens[_campaignAddress];
 
         if (_transfered) {
@@ -83,13 +78,10 @@ contract CoinRiseTokenPool is AccessControl {
         emit FundingsSentToCampaign(_campaignAddress, _amount);
     }
 
-    function transferStableTokensFromManager(
-        uint256 _amount,
-        uint256 _fees,
-        address from
-    ) external isManagerContract(msg.sender) {
-        require(stableToken.transferFrom(from, address(this), _amount));
-
+    function setNewTotalSupplies(uint256 _amount, uint256 _fees)
+        external
+        onlyRole(MANAGER_ROLE)
+    {
         lockedTotalStableTokenSupply += _amount - _fees;
         freeTotalStableTokenSupply += _fees;
 
@@ -103,7 +95,7 @@ contract CoinRiseTokenPool is AccessControl {
     function transferStableTokensToContributorPool(
         uint256 _amount,
         address _campaignAddress
-    ) external isManagerContract(msg.sender) {
+    ) external onlyRole(MANAGER_ROLE) {
         bool _transfered = transferedTokens[_campaignAddress];
 
         if (_transfered) {
@@ -125,7 +117,7 @@ contract CoinRiseTokenPool is AccessControl {
 
     function sendTokensToContributor(uint256 _amount, address _to)
         external
-        isManagerContract(msg.sender)
+        onlyRole(MANAGER_ROLE)
     {
         if (contributorTokenSupply < _amount) {
             revert CoinRiseTokenPool__NotEnoughContributorStableTokens();
