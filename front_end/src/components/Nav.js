@@ -165,8 +165,9 @@ function Nav({ children }) {
               <Link to="/" style={{ textDecoration: "none" }}>
                 <Typography className={classes.link}>Home</Typography>
               </Link>
-
-              <Typography className={classes.link}>Project</Typography>
+              <Link to="/project" style={{ textDecoration: "none" }}>
+                <Typography className={classes.link}>Project</Typography>
+              </Link>
               <Link to="/submit" style={{ textDecoration: "none" }}>
                 <button className={classes.btnSubmit}>
                   Submit

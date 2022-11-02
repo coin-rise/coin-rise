@@ -4,6 +4,8 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
+import Project from "./pages/ProejctPage";
+
 function App() {
   return (
     <div className="App">
@@ -22,6 +24,14 @@ function App() {
             element={
               <Nav>
                 <Form />
+              </Nav>
+            }
+          />
+          <Route
+            path="/project"
+            element={
+              <Nav>
+                <Project />
               </Nav>
             }
           />
