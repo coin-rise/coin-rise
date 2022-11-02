@@ -122,6 +122,8 @@ In this section all necessary functions are listed to interact with the protcol.
 
 &emsp; `transferStableTokens`
 
+&emsp; `updateSubmitterAddress`
+
 &emsp; `getEndDate`
 
 &emsp; `getStartDate`
@@ -152,7 +154,7 @@ In this section all necessary functions are listed to interact with the protcol.
 
 | Contracts             |                 Addresses                  |
 | :-------------------- | :----------------------------------------: |
-| Campaigns.sol         | 0xD78Ec97B73CB5DB5a5fe873Fe48A56340C6D937E |
-| CampaignManager.sol   | 0xcae4F58562920BA482004735201C9eb1aCc4F9b1 |
-| CampaignFactory.sol   | 0x4556C0eA17a98668FAA814290d226850d6876379 |
-| CoinRiseTokenPool.sol | 0xcB98D79f376023b8b201fEde26E14f449B188434 |
+| Campaigns.sol         | 0xA711DD409b4deB723C327AA788be9bB067B77519 |
+| CampaignManager.sol   | 0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b |
+| CampaignFactory.sol   | 0xd98458e022ac999a547D49f9da37DCc6F4d1f19F |
+| CoinRiseTokenPool.sol | 0x52d1004F0F70B5b09cf6E8f10E168d5a95E34529 |

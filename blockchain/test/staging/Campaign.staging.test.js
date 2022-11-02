@@ -17,34 +17,77 @@ developmentChains.includes(network.name)
                   const campaignManagerAddress = deployedContracts[chainId].CampaignManager.address
                   const campaignFactoryAddress = deployedContracts[chainId].CampaignFactory.address
 
-                  const stableTokenAddress = networkConfig[chainId].DAI
+                  const coinRiseTokenPoolAddress =
+                      deployedContracts[chainId].CoinRiseTokenPool.address
 
                   campaignManager = await ethers.getContractAt(
                       "CampaignManager",
                       campaignManagerAddress
                   )
+
+                  const stableTokenAddress = await campaignManager.getStableTokenAddress()
+
                   campaignFactory = await ethers.getContractAt(
                       "CampaignFactory",
                       campaignFactoryAddress
                   )
 
-                  stableToken = await ethers.getContractAt("ERC20", stableTokenAddress)
+                  coinRiseTokenPool = await ethers.getContractAt(
+                      "CoinRiseTokenPool",
+                      coinRiseTokenPoolAddress
+                  )
+
+                  stableToken = await ethers.getContractAt("MockToken", stableTokenAddress)
               }
           })
 
-          describe("#performUpkeep", () => {
-              it("successfully performUpkeep with live chainlink keeper", async () => {
-                  const _duration = 30
+          //   describe("#performUpkeep", () => {
+          //       it("successfully performUpkeep with live chainlink keeper", async () => {
+          //           const _duration = 30
 
-                  await new Promise(async (resolve, reject) => {
-                      campaignManager.once("CampaignFinished", async (campaign) => {
-                          console.log("Campaign finished")
+          //           await new Promise(async (resolve, reject) => {
+          //               campaignManager.once("CampaignFinished", async (campaign) => {
+          //                   console.log("Campaign finished")
 
-                          resolve()
-                      })
+          //                   resolve()
+          //               })
 
-                      await campaignManager.createNewCampaign(_duration)
-                  })
+          //               await campaignManager.createNewCampaign(_duration)
+          //           })
+          //       })
+          //   })
+
+          describe("#contributeCampaign", () => {
+              it("successfully contribute a campaign", async () => {
+                  const _duration = 9000
+                  const _minAmount = 100000
+                  const _campaignURI = "test"
+                  let tx = await campaignManager.createNewCampaign(
+                      _duration,
+                      _minAmount,
+                      _campaignURI
+                  )
+                  const txReceipt = await tx.wait()
+
+                  let campaignAddress
+                  for (i = 0; i < txReceipt.events.length; i++) {
+                      if (txReceipt.events[i].event == "NewCampaignCreated") {
+                          campaignAddress = txReceipt.events[i].args.newCampaign
+                      }
+                  }
+                  const owner = accounts[0]
+                  tx = await stableToken.mint(owner.address, ethers.utils.parseEther("1000"))
+                  await tx.wait()
+
+                  const _approveAmount = 1000000
+                  tx = await stableToken.approve(campaignManager.address, _approveAmount)
+                  await tx.wait()
+
+                  try {
+                      await campaignManager.contributeCampaign(_minAmount, campaignAddress)
+                  } catch (e) {
+                      console.log(e)
+                  }
               })
           })
       })

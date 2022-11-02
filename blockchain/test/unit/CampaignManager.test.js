@@ -133,7 +133,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await mockToken
                       .connect(contributor)
-                      .approve(coinRiseTokenPool.address, _tokenAmount)
+                      .approve(campaignManager.address, _tokenAmount)
 
                   await campaignManager
                       .connect(contributor)
@@ -359,7 +359,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await mockToken
                       .connect(contributor)
-                      .approve(coinRiseTokenPool.address, _tokenAmount)
+                      .approve(campaignManager.address, _tokenAmount)
 
                   const _interval = 30
                   const _minAmount = ethers.utils.parseEther("2")

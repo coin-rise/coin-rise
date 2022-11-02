@@ -25,8 +25,19 @@ async function deployCampaignManager(chainId) {
 
             const campaignFactoryAddress = deployedContracts[chainId]["CampaignFactory"].address
 
-            const stableTokenAddress = networkConfig[chainId].DAI
+            let stableTokenAddress = networkConfig[chainId].DAI
 
+            // it the contract is deployed to a testnet deploy a mock DAI token
+            if (network.name == "mumbai") {
+                const MockToken = await ethers.getContractFactory("MockToken")
+                const coinRiseDai = await MockToken.deploy("CoinRiseDAI", "CRDAI")
+
+                await coinRiseDai.deployTransaction.wait(waitBlockConfirmations)
+
+                await verify(coinRiseDai.address, ["CoinRiseDAI", "CRDAI"])
+
+                stableTokenAddress = coinRiseDai.address
+            }
             const campaignManager = await CampaignManager.deploy(
                 campaignFactoryAddress,
                 stableTokenAddress
