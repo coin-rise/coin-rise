@@ -34,7 +34,16 @@ contract CampaignManager is AutomationCompatible, Ownable {
         address indexed campaign
     );
 
-    event CampaignFinished(address indexed campaign, uint256 funds);
+    event CampaignFinished(
+        address indexed campaign,
+        uint256 funds,
+        bool successful
+    );
+
+    event TokenTransferedToContributor(
+        address indexed contributor,
+        uint256 indexed totalAmount
+    );
 
     event NewCampaignCreated(address newCampaign, uint256 duration);
 
@@ -81,10 +90,22 @@ contract CampaignManager is AutomationCompatible, Ownable {
     /**
      * @dev -create a new Campaign for funding non-profit projects
      * @param _deadline - duration of the funding process
+     * @param _minAmount - minimum number of tokens required for successful funding
+     * @param _campaignURI - resource of the stored information of the campaign on IPFS
      * @notice the msg.sender will be the submitter and will be funded, if the project funding proccess succeed
      */
-    function createNewCampaign(uint256 _deadline) external {
-        campaignFactory.deployNewContract(_deadline, msg.sender, stableToken);
+    function createNewCampaign(
+        uint256 _deadline,
+        uint256 _minAmount,
+        string memory _campaignURI
+    ) external {
+        campaignFactory.deployNewContract(
+            _deadline,
+            msg.sender,
+            stableToken,
+            _minAmount,
+            _campaignURI
+        );
 
         address _newCampaign = campaignFactory.getLastDeployedCampaign();
         activeCampaigns.push(_newCampaign);
@@ -166,17 +187,26 @@ contract CampaignManager is AutomationCompatible, Ownable {
             bool _fundingActive = _campaign.isFundingActive();
 
             if (block.timestamp >= _endDate && _fundingActive) {
-                _campaign.finishFunding();
+                bool _successfulFunded = _campaign.finishFunding();
 
                 uint256 _totalFunds = _campaign.getTotalSupply();
-                if (_totalFunds > 0) {
+                if (_totalFunds > 0 && _successfulFunded) {
                     _transferTotalFundsToCampaign(
+                        _totalFunds,
+                        _activeCampaigns[i]
+                    );
+                } else {
+                    _transferStableTokensToContributorPool(
                         _totalFunds,
                         _activeCampaigns[i]
                     );
                 }
 
-                emit CampaignFinished(_activeCampaigns[i], _totalFunds);
+                emit CampaignFinished(
+                    _activeCampaigns[i],
+                    _totalFunds,
+                    _successfulFunded
+                );
             } else {
                 _newActiveCampaigns[_arrayIndex] = _activeCampaigns[i];
                 _arrayIndex += 1;
@@ -192,6 +222,21 @@ contract CampaignManager is AutomationCompatible, Ownable {
         tokenPool = _newAddress;
     }
 
+    function claimTokensFromUnsuccessfulCampaigns(
+        address[] memory _campaignAddresses
+    ) external {
+        uint256 _totalAmount;
+
+        for (uint256 index = 0; index < _campaignAddresses.length; index++) {
+            uint256 _amount = ICampaign(_campaignAddresses[index])
+                .setContributionToZero(msg.sender);
+
+            _totalAmount += _amount;
+        }
+
+        _trasnferStableTokensToContributor(_totalAmount, msg.sender);
+    }
+
     function setFees(uint256 _newFees) external onlyOwner {
         fees = _newFees;
 
@@ -199,6 +244,23 @@ contract CampaignManager is AutomationCompatible, Ownable {
     }
 
     /** Internal Functions */
+
+    function _transferStableTokensToContributorPool(
+        uint256 _amount,
+        address _campaignAddress
+    ) internal requireDefinedTokenPool {
+        ICoinriseTokenPool(tokenPool).transferStableTokensToContributorPool(
+            _amount,
+            _campaignAddress
+        );
+    }
+
+    function _trasnferStableTokensToContributor(uint256 _amount, address _to)
+        internal
+        requireDefinedTokenPool
+    {
+        ICoinriseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
+    }
 
     function _transferStableTokensToPool(uint256 _amount, uint256 _fees)
         internal

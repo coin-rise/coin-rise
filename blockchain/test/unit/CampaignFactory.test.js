@@ -44,11 +44,15 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
                   await campaignFactory.deployNewContract(
                       _deadline,
                       submitter.address,
-                      stableMockToken.address
+                      stableMockToken.address,
+                      _minAmount,
+                      _campaignURI
                   )
 
                   const _numberOfContracts = (await campaignFactory.getDeployedCampaignContracts())
@@ -63,11 +67,15 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
                   await campaignFactory.deployNewContract(
                       _deadline,
                       submitter.address,
-                      stableMockToken.address
+                      stableMockToken.address,
+                      _minAmount,
+                      _campaignURI
                   )
                   const _start = await time.latest()
                   const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
@@ -85,11 +93,15 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
                   await campaignFactory.deployNewContract(
                       _deadline,
                       submitter.address,
-                      stableMockToken.address
+                      stableMockToken.address,
+                      _minAmount,
+                      _campaignURI
                   )
 
                   const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
@@ -107,11 +119,19 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _deadline = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
                   await expect(
                       campaignFactory
                           .connect(badActor)
-                          .deployNewContract(_deadline, badActor.address, stableMockToken.address)
+                          .deployNewContract(
+                              _deadline,
+                              badActor.address,
+                              stableMockToken.address,
+                              _minAmount,
+                              _campaignURI
+                          )
                   ).to.be.revertedWith("Ownable: caller is not the owner")
               })
           })

@@ -5,7 +5,9 @@ interface ICampaignFactory {
     function deployNewContract(
         uint256 _deadline,
         address _submitter,
-        address _token
+        address _token,
+        uint256 _minAmount,
+        string memory _campaignURI
     ) external;
 
     function getDeployedCampaignContracts()

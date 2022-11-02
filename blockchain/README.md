@@ -152,7 +152,7 @@ In this section all necessary functions are listed to interact with the protcol.
 
 | Contracts             |                 Addresses                  |
 | :-------------------- | :----------------------------------------: |
-| Campaigns.sol         | 0xAa8ef6f8A1E04cA5fb55Acf99003188Ecab37886 |
-| CampaignManager.sol   | 0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97 |
-| CampaignFactory.sol   | 0x2C44f76136f6cAfABe3E94A3e92D692642766eb0 |
-| CoinRiseTokenPool.sol | 0x40d273fAE017991DFa76E3e13cf5801AaEA09306 |
+| Campaigns.sol         | 0xD78Ec97B73CB5DB5a5fe873Fe48A56340C6D937E |
+| CampaignManager.sol   | 0xcae4F58562920BA482004735201C9eb1aCc4F9b1 |
+| CampaignFactory.sol   | 0x4556C0eA17a98668FAA814290d226850d6876379 |
+| CoinRiseTokenPool.sol | 0xcB98D79f376023b8b201fEde26E14f449B188434 |

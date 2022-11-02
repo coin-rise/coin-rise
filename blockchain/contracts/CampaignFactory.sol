@@ -22,15 +22,24 @@ contract CampaignFactory is Ownable {
      * @param _deadline - duration till the campaign has to be funded
      * @param _submitter - the address of the submitter of the campaign
      * @param _token - the used stable token for funding
+     * @param _minAmount - minimum Amount of tokens that have to be funded
      */
     function deployNewContract(
         uint256 _deadline,
         address _submitter,
-        address _token
+        address _token,
+        uint256 _minAmount,
+        string memory _campaignURI
     ) external onlyOwner {
         address _clone = Clones.clone(implementationContract);
 
-        Campaign(_clone).initialize(_deadline, _submitter, _token);
+        Campaign(_clone).initialize(
+            _deadline,
+            _submitter,
+            _token,
+            _minAmount,
+            _campaignURI
+        );
         Campaign(_clone).transferOwnership(msg.sender);
 
         deployedCampaignContracts.push(_clone);
