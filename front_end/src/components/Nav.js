@@ -64,9 +64,7 @@ const useStyles = makeStyles({
   },
 });
 
-const providerOptions= {
-
-}
+const providerOptions = {};
 
 function Nav({ children }) {
   const classes = useStyles();
@@ -123,16 +121,18 @@ function Nav({ children }) {
     fetch();
   }, [campaignFactoryContract]);
 
-  async function connectWallet(){
-    try{
-      let web3Modal = new Web3Modal ({
-        cacheProvider : false,
+  async function connectWallet() {
+    try {
+      let web3Modal = new Web3Modal({
+        cacheProvider: false,
         providerOptions,
       });
       const web3ModalInstance = await web3Modal.connect();
-      const web3ModalProvider = await ethers.providers.Web3Provider(web3ModalInstance);
+      const web3ModalProvider = await ethers.providers.Web3Provider(
+        web3ModalInstance
+      );
       console.log(web3ModalProvider);
-    }catch(error){
+    } catch (error) {
       console.error(error);
     }
   }
@@ -173,10 +173,7 @@ function Nav({ children }) {
                   <img src={AddIcon} style={{ paddingLeft: "5px" }} />
                 </button>
               </Link>
-              <button
-                className={classes.btnWallet}
-                onClick={connectWallet}
-              >
+              <button className={classes.btnWallet} onClick={connectWallet}>
                 Connect Wallet
               </button>
             </Box>

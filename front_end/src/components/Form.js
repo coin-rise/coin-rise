@@ -9,10 +9,14 @@ import { ethers, BigNumber } from "ethers";
 
 /* campaignManager Contract Address and Contract ABI */
 import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
+import CampaignAbi from "../abis/Campaign.json";
 const contractManagerAddress = "0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97";
+const campaignAddress = "0x280455bFb46EE7e446b87D6eC3DF615589EcC709";
 
 function Form() {
   const [userAddress, setUserAddress] = useState();
+  const [campaignContract, setCampaignContract] = useState();
+  const [signer, setSigner] = useState();
 
   // wallet adress
 
@@ -31,6 +35,37 @@ function Form() {
 
     onNewSigner();
   }, [window.ethereum]);
+
+  useEffect(() => {
+    const setUp = async () => {
+      if (signer) {
+        setCampaignContract(
+          new ethers.Contract(campaignAddress, CampaignAbi, signer)
+        );
+      }
+    };
+    setUp();
+  }, [signer]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      if (campaignContract) {
+        console.log(await campaignContract.getEndDate());
+        console.log(await campaignContract.getStartDate());
+        console.log(await campaignContract.getDuration());
+        console.log(await campaignContract.getSubmitter());
+        console.log(await campaignContract.isFundingActive());
+        console.log(await campaignContract.getRemainingFundingTime());
+        console.log(await campaignContract.getContributor());
+        console.log(await campaignContract.getNumberOfContributor());
+        console.log(await campaignContract.getTotalSupply());
+        console.log(await campaignContract.getMinAmount());
+        console.log(await campaignContract.getCampaignURI());
+        console.log(await campaignContract.getFundingStatus());
+      }
+    };
+    fetch();
+  }, [campaignContract]);
 
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
