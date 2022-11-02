@@ -14,4 +14,11 @@ interface ICoinriseTokenPool {
     ) external;
 
     function withdrawFreeStableTokens(uint256 _amount) external;
+
+    function sendTokensToContributor(uint256 _amount, address _to) external;
+
+    function transferStableTokensToContributorPool(
+        uint256 _amount,
+        address _campaignAddress
+    ) external;
 }

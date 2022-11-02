@@ -120,7 +120,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
 
                   const _interval = 30
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
+
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -146,8 +151,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _tokenAmount = ethers.utils.parseEther("10")
 
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   await expect(
                       campaignManager
@@ -166,8 +175,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const { campaignManager, contributor, campaignFactory, submitter } =
                       await loadFixture(deployCampaignManagerFixture)
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
                   const _tokenAmount = ethers.utils.parseEther("0")
@@ -185,8 +198,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -211,8 +228,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -224,7 +245,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
 
@@ -237,8 +260,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -255,8 +282,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -268,7 +299,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
                   const answer = await campaignManager.checkUpkeep("0x")
                   await expect(
                       campaignManager.connect(keeper).performUpkeep(answer.performData)
@@ -281,8 +314,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   )
 
                   const _interval = 30
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -294,7 +331,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -323,7 +362,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       .approve(coinRiseTokenPool.address, _tokenAmount)
 
                   const _interval = 30
-                  await campaignManager.connect(submitter).createNewCampaign(_interval)
+                  const _minAmount = ethers.utils.parseEther("2")
+                  const _campaignURI = "test"
+
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaign(_interval, _minAmount, _campaignURI)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 

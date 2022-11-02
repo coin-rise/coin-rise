@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 error CoinRiseTokenPool__NotCampaignManager();
 error CoinRiseTokenPool__NotEnoughFreeStableTokens();
 error CoinRiseTokenPool__NotEnoughLockedStableCoins();
+error CoinRiseTokenPool__TokensAlreadyTransfered();
+error CoinRiseTokenPool__NotEnoughContributorStableTokens();
 
 contract CoinRiseTokenPool is AccessControl {
     bytes32 public constant WITHDRAW_ROLE = keccak256("WITHDRAW_ROLE");
@@ -24,11 +26,16 @@ contract CoinRiseTokenPool is AccessControl {
 
     uint256 private freeTotalStableTokenSupply;
 
+    uint256 private contributorTokenSupply;
+
+    mapping(address => bool) private transferedTokens;
+
     /** Events */
     event FundingsSentToCampaign(address campaign, uint256 amount);
     event StableTokensUpdated(
         uint256 lockedTotalSupply,
-        uint256 freeTotalSupply
+        uint256 freeTotalSupply,
+        uint256 contributorSupply
     );
 
     event WithdrawFreeStableTokenFunds(address to, uint256 amount);
@@ -57,6 +64,12 @@ contract CoinRiseTokenPool is AccessControl {
         address _campaignAddress,
         uint256 _amount
     ) external isManagerContract(msg.sender) {
+        bool _transfered = transferedTokens[_campaignAddress];
+
+        if (_transfered) {
+            revert CoinRiseTokenPool__TokensAlreadyTransfered();
+        }
+
         if (lockedTotalStableTokenSupply < _amount) {
             revert CoinRiseTokenPool__NotEnoughLockedStableCoins();
         }
@@ -64,6 +77,8 @@ contract CoinRiseTokenPool is AccessControl {
         require(stableToken.transfer(_campaignAddress, _amount));
 
         lockedTotalStableTokenSupply -= _amount;
+
+        transferedTokens[_campaignAddress] = true;
 
         emit FundingsSentToCampaign(_campaignAddress, _amount);
     }
@@ -80,7 +95,49 @@ contract CoinRiseTokenPool is AccessControl {
 
         emit StableTokensUpdated(
             lockedTotalStableTokenSupply,
-            freeTotalStableTokenSupply
+            freeTotalStableTokenSupply,
+            contributorTokenSupply
+        );
+    }
+
+    function transferStableTokensToContributorPool(
+        uint256 _amount,
+        address _campaignAddress
+    ) external isManagerContract(msg.sender) {
+        bool _transfered = transferedTokens[_campaignAddress];
+
+        if (_transfered) {
+            revert CoinRiseTokenPool__TokensAlreadyTransfered();
+        }
+
+        contributorTokenSupply += _amount;
+
+        lockedTotalStableTokenSupply -= _amount;
+
+        transferedTokens[_campaignAddress] = true;
+
+        emit StableTokensUpdated(
+            lockedTotalStableTokenSupply,
+            freeTotalStableTokenSupply,
+            contributorTokenSupply
+        );
+    }
+
+    function sendTokensToContributor(uint256 _amount, address _to)
+        external
+        isManagerContract(msg.sender)
+    {
+        if (contributorTokenSupply < _amount) {
+            revert CoinRiseTokenPool__NotEnoughContributorStableTokens();
+        }
+
+        contributorTokenSupply -= _amount;
+        require(stableToken.transfer(_to, _amount));
+
+        emit StableTokensUpdated(
+            lockedTotalStableTokenSupply,
+            freeTotalStableTokenSupply,
+            contributorTokenSupply
         );
     }
 

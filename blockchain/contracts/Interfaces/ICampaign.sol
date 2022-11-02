@@ -9,7 +9,9 @@ interface ICampaign {
     function initialize(
         uint256 _duration,
         address _submitter,
-        address _token
+        address _token,
+        uint256 _minAmount,
+        string memory _campaignURI
     ) external;
 
     function addContributor(address _contributor, uint256 _amount) external;
@@ -26,7 +28,13 @@ interface ICampaign {
     /**
      * @dev - set the status of the campaign to finished
      */
-    function finishFunding() external;
+    function finishFunding() external returns (bool successful);
+
+    function updateCampaignURI(string memory _newURI) external;
+
+    function setContributionToZero(address _contributor)
+        external
+        returns (uint256);
 
     /* ========== View Functions ========== */
     function getEndDate() external view returns (uint256);
@@ -49,4 +57,8 @@ interface ICampaign {
     function getNumberOfContributor() external view returns (uint256);
 
     function getTotalSupply() external view returns (uint256);
+
+    function getMinAmount() external view returns (uint256);
+
+    function getCampaignURI() external view returns (string memory);
 }
