@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "./Interfaces/ICampaignFactory.sol";
 import "./Interfaces/ICampaign.sol";
+import "./Interfaces/IVoting.sol";
 import "./Interfaces/ICoinRiseTokenPool.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -12,6 +13,7 @@ error CampaignManager__AmountIsZero();
 error CampaignManager__CampaignDoesNotExist();
 error CampaignManager__TokenPoolAlreadyDefined();
 error CampaignManager__NoTokenPoolIsDefined();
+error CampaignManager__VotingContractAlreadyDefined();
 
 contract CampaignManager is AutomationCompatible, Ownable {
     /** State Variables */
@@ -21,12 +23,13 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     address private stableToken;
     address private tokenPool;
+    address private coinRiseTokenAddress;
+    address private votingContractAddress;
 
     bool private tokenPoolDefined;
+    bool private votingContractDefined;
 
     address[] private activeCampaigns;
-
-    address coinRiseTokenAddress;
 
     /** Events */
 
@@ -107,7 +110,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         string memory _campaignURI,
         uint256[3] memory _tokenTiers,
         bool _requestingPayouts
-    ) external {
+    ) public returns (address) {
         campaignFactory.deployNewContract(
             _deadline,
             msg.sender,
@@ -123,6 +126,30 @@ contract CampaignManager is AutomationCompatible, Ownable {
         activeCampaigns.push(_newCampaign);
 
         emit NewCampaignCreated(_newCampaign, _deadline);
+
+        return _newCampaign;
+    }
+
+    function createNewCampaignWithVoting(
+        uint256 _deadline,
+        uint256 _minAmount,
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        bool _requestingPayouts,
+        uint256 _quorumPercentage
+    ) external {
+        address _newCampaign = createNewCampaign(
+            _deadline,
+            _minAmount,
+            _campaignURI,
+            _tokenTiers,
+            _requestingPayouts
+        );
+
+        IVoting(votingContractAddress).intializeCampaignVotingInformation(
+            _quorumPercentage,
+            _newCampaign
+        );
     }
 
     /**
@@ -252,12 +279,6 @@ contract CampaignManager is AutomationCompatible, Ownable {
         activeCampaigns = _newActiveCampaigns;
     }
 
-    function setTokenPoolAddress(address _newAddress) external onlyOwner {
-        _isTokenPoolNotDefined();
-        tokenPoolDefined = true;
-        tokenPool = _newAddress;
-    }
-
     function claimTokensFromUnsuccessfulCampaigns(
         address[] memory _campaignAddresses
     ) external {
@@ -273,10 +294,24 @@ contract CampaignManager is AutomationCompatible, Ownable {
         _trasnferStableTokensToContributor(_totalAmount, msg.sender);
     }
 
+    /** Functions for Setup the Contract */
+
     function setFees(uint256 _newFees) external onlyOwner {
         fees = _newFees;
 
         emit FeesUpdated(fees);
+    }
+
+    function setTokenPoolAddress(address _newAddress) external onlyOwner {
+        _isTokenPoolNotDefined();
+        tokenPoolDefined = true;
+        tokenPool = _newAddress;
+    }
+
+    function setVotingContractAddress(address _newAddress) external onlyOwner {
+        _isVotingContractNotDefined();
+        votingContractDefined = true;
+        votingContractAddress = _newAddress;
     }
 
     /** Internal Functions */
@@ -298,14 +333,6 @@ contract CampaignManager is AutomationCompatible, Ownable {
         ICoinRiseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
     }
 
-    // function _transferStableTokensToPool(
-    //     uint256 _amount,
-    //     uint256 _fees,
-    //     address _contributor
-    // ) internal requireDefinedTokenPool {
-    //     IERC20(stableToken).transferFrom()
-    // }
-
     function _transferTotalFundsToCampaign(
         uint256 _amount,
         address _campaignAddress
@@ -319,6 +346,12 @@ contract CampaignManager is AutomationCompatible, Ownable {
     function _isTokenPoolNotDefined() internal view {
         if (tokenPoolDefined) {
             revert CampaignManager__TokenPoolAlreadyDefined();
+        }
+    }
+
+    function _isVotingContractNotDefined() internal view {
+        if (votingContractDefined) {
+            revert CampaignManager__VotingContractAlreadyDefined();
         }
     }
 

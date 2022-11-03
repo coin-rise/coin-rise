@@ -6,6 +6,7 @@ import "./Interfaces/ICampaign.sol";
 error Voting_AmountExceedTotalSupply();
 error Voting__NotTheManagerContract();
 error Voting__InformationAlreadyInitialized();
+error Voting__RequestNotVotable();
 
 contract Voting {
     /* ====== Structures ====== */
@@ -30,7 +31,11 @@ contract Voting {
     /* ====== Variables ====== */
     mapping(address => mapping(uint256 => RequestInformation))
         private requestsFromCampaigns;
+
     mapping(address => VotingInformation) private campaignVotingInformations;
+
+    mapping(address => mapping(uint256 => bool))
+        private contributorVotedOnRequest;
 
     address private managerAddress;
 
@@ -41,6 +46,13 @@ contract Voting {
         address to,
         uint256 amount,
         uint256 requestEndDate
+    );
+
+    event RequestVotesUpdated(
+        uint256 totalVotes,
+        uint256 yesVotes,
+        uint256 noVotes,
+        address lastVoter
     );
 
     /* ====== Modifiers ====== */
@@ -148,5 +160,61 @@ contract Voting {
 
     function executeRequest(uint256 _requestId, address _campaignAddress)
         external
+        onlyManager
     {}
+
+    function voteOnRequest(
+        address _contributor,
+        uint256 _requestId,
+        bool _approve
+    ) external {
+        address _campaign = msg.sender;
+
+        RequestInformation memory _requestInfo = requestsFromCampaigns[
+            _campaign
+        ][_requestId];
+
+        bool _votable = _isRequestVotable(
+            _requestInfo,
+            _contributor,
+            _requestId
+        );
+        if (!_votable) {
+            revert Voting__RequestNotVotable();
+        }
+
+        requestsFromCampaigns[_campaign][_requestId].totalVotes++;
+
+        if (_approve) {
+            requestsFromCampaigns[_campaign][_requestId].yesVotes++;
+        } else {
+            requestsFromCampaigns[_campaign][_requestId].noVotes++;
+        }
+
+        contributorVotedOnRequest[_contributor][_requestId] = true;
+
+        emit RequestVotesUpdated(
+            requestsFromCampaigns[_campaign][_requestId].totalVotes,
+            requestsFromCampaigns[_campaign][_requestId].yesVotes,
+            requestsFromCampaigns[_campaign][_requestId].noVotes,
+            _contributor
+        );
+    }
+
+    function _isRequestVotable(
+        RequestInformation memory _info,
+        address _contributor,
+        uint256 _requestId
+    ) internal view returns (bool) {
+        if (
+            !_info.approved &&
+            !_info.executed &&
+            block.timestamp >= _info.endDate &&
+            !contributorVotedOnRequest[_contributor][_requestId]
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 }

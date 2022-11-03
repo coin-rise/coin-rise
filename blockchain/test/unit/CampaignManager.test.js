@@ -12,6 +12,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
 
+              const CoinRiseNFT = await ethers.getContractFactory("CoinRiseNFT")
+              const coinRiseNft = await CoinRiseNFT.deploy()
+
               const CampaignFactory = await ethers.getContractFactory("CampaignFactory")
 
               const campaignFactory = await CampaignFactory.deploy(campaign.address)
@@ -22,8 +25,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const CampaignManager = await ethers.getContractFactory("CampaignManager")
               const campaignManager = await CampaignManager.deploy(
                   campaignFactory.address,
-                  mockToken.address
+                  mockToken.address,
+                  coinRiseNft.address
               )
+
+              const Voting = await ethers.getContractFactory("Voting")
+              const voting = await Voting.deploy(campaignManager.address)
 
               const CoinRiseTokenPool = await ethers.getContractFactory("CoinRiseTokenPool")
               const coinRiseTokenPool = await CoinRiseTokenPool.deploy(
@@ -48,6 +55,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   coinRiseTokenPool,
                   badActor,
                   fees,
+                  coinRiseNft,
               }
           }
 
@@ -66,13 +74,14 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
 
               it("failed if not the owner set a token pool address", async () => {
-                  const { coinRiseTokenPool, badActor, campaignFactory, mockToken, owner } =
+                  const { coinRiseTokenPool, badActor, campaignFactory, mockToken, coinRiseNft } =
                       await loadFixture(deployCampaignManagerFixture)
 
                   const CampaignManager = await ethers.getContractFactory("CampaignManager")
                   const campaignManager = await CampaignManager.deploy(
                       campaignFactory.address,
-                      mockToken.address
+                      mockToken.address,
+                      coinRiseNft.address
                   )
 
                   await expect(
@@ -123,9 +132,23 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _minAmount = ethers.utils.parseEther("2")
                   const _campaignURI = "test"
 
+                  const _tierOne = ethers.utils.parseEther("2")
+                  const _tierTwo = ethers.utils.parseEther("4")
+                  const _tierThree = ethers.utils.parseEther("6")
+
+                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+                  const _requestingPayouts = false
+
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI)
+                      .createNewCampaign(
+                          _interval,
+                          _minAmount,
+                          _campaignURI,
+                          _tokenTiers,
+                          _requestingPayouts
+                      )
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
