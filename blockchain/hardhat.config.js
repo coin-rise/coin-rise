@@ -11,6 +11,7 @@ const POLYGON_MAINNET_RPC_URL =
 const GOERLI_RPC_URL =
     process.env.GOERLI_RPC_URL || "https://eth-goerli.alchemyapi.io/v2/your-api-key"
 const PRIVATE_KEY = process.env.PRIVATE_KEY
+const PRIVATE_KEY_CONTRIBUTOR = process.env.PRIVATE_KEY_CONTRIBUTOR || "0x"
 const POLYGON_MUMBAI_RPC_URL = `https://polygon-mumbai.g.alchemy.com/v2/${
     process.env.POLYGON_MUMBAI_API_KEY ?? ""
 }`
@@ -76,7 +77,7 @@ module.exports = {
         },
         mumbai: {
             url: POLYGON_MUMBAI_RPC_URL,
-            accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+            accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY, PRIVATE_KEY_CONTRIBUTOR] : [],
             chainId: 80001,
         },
     },

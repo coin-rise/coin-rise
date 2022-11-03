@@ -167,4 +167,76 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       .transferStableTokens(contributor1.address, _amount)
               })
           })
+
+          describe("#setContributionToZero", () => {
+              it("successfully set the funds of the contributor to zero", async () => {
+                  const { _newCampaign, contributor1 } = await loadFixture(deployCampaignFixture)
+
+                  const _amount = ethers.utils.parseEther("1")
+
+                  await _newCampaign.addContributor(contributor1.address, _amount)
+
+                  const _duration = await _newCampaign.getDuration()
+
+                  await time.increase(_duration)
+
+                  await _newCampaign.finishFunding()
+
+                  await _newCampaign.setContributionToZero(contributor1.address)
+
+                  const _contribution = await _newCampaign.getContributor(contributor1.address)
+
+                  assert(_contribution.eq(ethers.constants.Zero))
+              })
+
+              it("failed to set the funds of the contributor to zero if the campaign is succesful funded", async () => {
+                  const { _newCampaign, contributor1 } = await loadFixture(deployCampaignFixture)
+
+                  const _amount = ethers.utils.parseEther("4")
+
+                  await _newCampaign.addContributor(contributor1.address, _amount)
+
+                  const _duration = await _newCampaign.getDuration()
+
+                  await time.increase(_duration)
+
+                  await _newCampaign.finishFunding()
+
+                  await expect(
+                      _newCampaign.setContributionToZero(contributor1.address)
+                  ).to.be.revertedWithCustomError(_newCampaign, "Campaign_SuccessfulFunded")
+              })
+
+              it("failed to set the funds of contributor to zero if the sender is not the owner", async () => {
+                  const { _newCampaign, badActor, contributor1 } = await loadFixture(
+                      deployCampaignFixture
+                  )
+
+                  const _amount = ethers.utils.parseEther("1")
+
+                  await _newCampaign.addContributor(contributor1.address, _amount)
+
+                  const _duration = await _newCampaign.getDuration()
+
+                  await time.increase(_duration)
+
+                  await _newCampaign.finishFunding()
+
+                  await expect(
+                      _newCampaign.connect(badActor).setContributionToZero(contributor1.address)
+                  ).to.be.revertedWith("Ownable: caller is not the owner")
+              })
+          })
+
+          describe("#updateCampaignURI", () => {
+              it("successfully update the URI of the campaign contract", async () => {
+                  const { _newCampaign } = await loadFixture(deployCampaignFixture)
+
+                  await _newCampaign.updateCampaignURI("newURI")
+
+                  const _campaignURI = await _newCampaign.getCampaignURI()
+
+                  assert.equal(_campaignURI, "newURI")
+              })
+          })
       })
