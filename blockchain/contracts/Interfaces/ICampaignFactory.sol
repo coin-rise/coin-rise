@@ -6,8 +6,11 @@ interface ICampaignFactory {
         uint256 _deadline,
         address _submitter,
         address _token,
+        address _coinRiseToken,
         uint256 _minAmount,
-        string memory _campaignURI
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        bool _requestingPayouts
     ) external;
 
     function getDeployedCampaignContracts()

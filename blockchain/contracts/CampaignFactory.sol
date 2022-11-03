@@ -28,8 +28,11 @@ contract CampaignFactory is Ownable {
         uint256 _deadline,
         address _submitter,
         address _token,
+        address _coinRiseToken,
         uint256 _minAmount,
-        string memory _campaignURI
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        bool _requestingPayouts
     ) external onlyOwner {
         address _clone = Clones.clone(implementationContract);
 
@@ -37,8 +40,11 @@ contract CampaignFactory is Ownable {
             _deadline,
             _submitter,
             _token,
+            _coinRiseToken,
             _minAmount,
-            _campaignURI
+            _campaignURI,
+            _tokenTiers,
+            _requestingPayouts
         );
         Campaign(_clone).transferOwnership(msg.sender);
 

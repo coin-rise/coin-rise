@@ -26,6 +26,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     address[] private activeCampaigns;
 
+    address coinRiseTokenAddress;
+
     /** Events */
 
     event ContributorsUpdated(
@@ -80,9 +82,14 @@ contract CampaignManager is AutomationCompatible, Ownable {
         _;
     }
 
-    constructor(address _campaignFactory, address _stableTokenAddress) {
+    constructor(
+        address _campaignFactory,
+        address _stableTokenAddress,
+        address _coinRiseTokenAddress
+    ) {
         campaignFactory = ICampaignFactory(_campaignFactory);
         stableToken = _stableTokenAddress;
+        coinRiseTokenAddress = _coinRiseTokenAddress;
     }
 
     /** Functions */
@@ -97,14 +104,19 @@ contract CampaignManager is AutomationCompatible, Ownable {
     function createNewCampaign(
         uint256 _deadline,
         uint256 _minAmount,
-        string memory _campaignURI
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        bool _requestingPayouts
     ) external {
         campaignFactory.deployNewContract(
             _deadline,
             msg.sender,
             stableToken,
+            coinRiseTokenAddress,
             _minAmount,
-            _campaignURI
+            _campaignURI,
+            _tokenTiers,
+            _requestingPayouts
         );
 
         address _newCampaign = campaignFactory.getLastDeployedCampaign();
