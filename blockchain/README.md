@@ -32,6 +32,8 @@ To run this project, you will need to add the following environment variables to
 
 `FORKING_BLOCK_NUMBER`
 
+`PRIVATE_KEY_CONTRIBUTOR`
+
 `AUTO_FUND`
 
 ## Running Tests
@@ -46,6 +48,18 @@ or
 
 ```bash
   yarn test
+```
+
+For running on the test on the mumbai network run:
+
+```bash
+  npm run test-staging
+```
+
+or
+
+```bash
+  yarn test-staging
 ```
 
 To view the coverage of the smart contracts run
