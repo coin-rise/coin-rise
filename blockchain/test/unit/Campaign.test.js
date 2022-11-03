@@ -26,12 +26,26 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const minAmount = ethers.utils.parseEther("2")
               const campaignURI = "test"
 
+              const CoinRiseNFT = await ethers.getContractFactory("CoinRiseNFT")
+              const coinRiseNft = await CoinRiseNFT.deploy()
+
+              const _tierOne = ethers.utils.parseEther("2")
+              const _tierTwo = ethers.utils.parseEther("4")
+              const _tierThree = ethers.utils.parseEther("6")
+
+              const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+              const _requestingPayouts = false
+
               await campaignFactory.deployNewContract(
                   _deadline,
                   submitter.address,
                   stableMockToken.address,
+                  coinRiseNft.address,
                   minAmount,
-                  campaignURI
+                  campaignURI,
+                  _tokenTiers,
+                  _requestingPayouts
               )
 
               const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
