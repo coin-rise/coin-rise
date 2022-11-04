@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./tokens/CoinRiseNFT.sol";
+import "./Interfaces/IVoting.sol";
 
 error Campaign__NotTheSubmitter();
 error Campaign_TokenAmountIsZero();
@@ -15,6 +16,7 @@ error Campaign_AmountExceedTotalSupply();
 error Campaign__NotSuccessfulFunded();
 error Campaign_SuccessfulFunded();
 error Campaign__PayoutsNeedSuccessfulApproved();
+error Campaign__SenderIsNotContributor();
 
 contract Campaign is Initializable, OwnableUpgradeable {
     enum TokenTier {
@@ -35,7 +37,9 @@ contract Campaign is Initializable, OwnableUpgradeable {
     uint256 private startDate;
     uint256 private endDate;
     uint256 private minAmount;
+
     address private submitter;
+    address private votingContractAddress;
 
     string private campaignURI;
 
@@ -64,6 +68,14 @@ contract Campaign is Initializable, OwnableUpgradeable {
     modifier onlySubmitter() {
         if (msg.sender != submitter) {
             revert Campaign__NotTheSubmitter();
+        }
+        _;
+    }
+
+    modifier onlyContributor() {
+        uint256 _contribution = contributors[msg.sender].contributionAmount;
+        if (_contribution == 0) {
+            revert Campaign__SenderIsNotContributor();
         }
         _;
     }
@@ -114,6 +126,7 @@ contract Campaign is Initializable, OwnableUpgradeable {
         duration = _duration;
 
         submitter = _submitter;
+
         token = IERC20(_token);
         startDate = block.timestamp;
         endDate = startDate + _duration;
@@ -209,6 +222,29 @@ contract Campaign is Initializable, OwnableUpgradeable {
         emit TokensTransfered(_to, _amount);
     }
 
+    function transferStableTokensWithRequest(
+        address _to,
+        uint256 _amount,
+        uint256 _requestDuration
+    ) external onlySubmitter isSuccessfulFunded fundingFinished {
+        IVoting(votingContractAddress).requestForTokenTransfer(
+            _to,
+            _amount,
+            _requestDuration
+        );
+    }
+
+    function voteOnTransferRequest(uint256 _requestId, bool _approve)
+        external
+        onlyContributor
+    {
+        IVoting(votingContractAddress).voteOnRequest(
+            msg.sender,
+            _requestId,
+            _approve
+        );
+    }
+
     /**
      * @dev - set the status of the campaign to finished
      */
@@ -248,6 +284,13 @@ contract Campaign is Initializable, OwnableUpgradeable {
         fundingNotFinished
     {
         campaignURI = _newURI;
+    }
+
+    function updateVotingContractAddress(address _newAddress)
+        external
+        onlyOwner
+    {
+        votingContractAddress = _newAddress;
     }
 
     /* ========== Internal Functions ========= */

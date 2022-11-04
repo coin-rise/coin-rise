@@ -45,4 +45,14 @@ interface IVoting {
         uint256 _quorumPercentage,
         address _campaignAddress
     ) external;
+
+    function voteOnRequest(
+        address _contributor,
+        uint256 _requestId,
+        bool _approve
+    ) external;
+
+    function executeRequest(uint256 _requestId, address _campaignAddress)
+        external
+        returns (bool approved);
 }

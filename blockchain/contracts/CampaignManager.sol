@@ -30,6 +30,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
     bool private votingContractDefined;
 
     address[] private activeCampaigns;
+    address[] private votableCampaigns;
 
     /** Events */
 
@@ -135,7 +136,6 @@ contract CampaignManager is AutomationCompatible, Ownable {
         uint256 _minAmount,
         string memory _campaignURI,
         uint256[3] memory _tokenTiers,
-        bool _requestingPayouts,
         uint256 _quorumPercentage
     ) external {
         address _newCampaign = createNewCampaign(
@@ -143,12 +143,16 @@ contract CampaignManager is AutomationCompatible, Ownable {
             _minAmount,
             _campaignURI,
             _tokenTiers,
-            _requestingPayouts
+            true
         );
 
         IVoting(votingContractAddress).intializeCampaignVotingInformation(
             _quorumPercentage,
             _newCampaign
+        );
+
+        ICampaign(_newCampaign).updateVotingContractAddress(
+            votingContractAddress
         );
     }
 

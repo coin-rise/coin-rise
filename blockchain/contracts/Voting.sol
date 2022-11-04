@@ -7,6 +7,7 @@ error Voting_AmountExceedTotalSupply();
 error Voting__NotTheManagerContract();
 error Voting__InformationAlreadyInitialized();
 error Voting__RequestNotVotable();
+error Voting__CampaignNotInitialized();
 
 contract Voting {
     /* ====== Structures ====== */
@@ -64,6 +65,14 @@ contract Voting {
         _;
     }
 
+    modifier isInitializedCampaign() {
+        VotingInformation memory _info = campaignVotingInformations[msg.sender];
+        if (!_info.initialized) {
+            revert Voting__CampaignNotInitialized();
+        }
+        _;
+    }
+
     /* ====== Functions ====== */
     constructor(address _managerContractAddress) {
         managerAddress = _managerContractAddress;
@@ -73,7 +82,7 @@ contract Voting {
         address _to,
         uint256 _amount,
         uint256 _requestDuration
-    ) external {
+    ) external isInitializedCampaign {
         uint256 _totalSupply = ICampaign(msg.sender).getTotalSupply();
 
         VotingInformation memory _info = campaignVotingInformations[msg.sender];
@@ -82,9 +91,10 @@ contract Voting {
             revert Voting_AmountExceedTotalSupply();
         }
 
-        uint256 _endDate = _requestDuration;
+        uint256 _endDate = block.timestamp + _requestDuration;
 
-        campaignVotingInformations[msg.sender].lastRequestId += 1;
+        campaignVotingInformations[msg.sender].lastRequestId++;
+        campaignVotingInformations[msg.sender].totalRequestedAmount += _amount;
 
         requestsFromCampaigns[msg.sender][
             campaignVotingInformations[msg.sender].lastRequestId
@@ -115,53 +125,34 @@ contract Voting {
         );
     }
 
-    /* ====== View / Pure Functions ====== */
-
-    function getFinishedRequestsFromCampaign(address _campaignAddress)
-        external
-        view
-        returns (RequestInformation[] memory)
-    {
-        uint256 _counter;
-
-        for (
-            uint256 index;
-            index < campaignVotingInformations[_campaignAddress].lastRequestId;
-            index++
-        ) {
-            RequestInformation memory _info = requestsFromCampaigns[
-                _campaignAddress
-            ][index];
-            if (block.timestamp >= _info.endDate) {
-                _counter++;
-            }
-        }
-
-        RequestInformation[]
-            memory _finishedRequests = new RequestInformation[](_counter);
-        uint256 _arrayIndex = 0;
-
-        for (
-            uint256 index;
-            index < campaignVotingInformations[_campaignAddress].lastRequestId;
-            index++
-        ) {
-            RequestInformation memory _info = requestsFromCampaigns[
-                _campaignAddress
-            ][index];
-            if (block.timestamp >= _info.endDate) {
-                _finishedRequests[_arrayIndex] = _info;
-                _arrayIndex++;
-            }
-        }
-
-        return _finishedRequests;
-    }
-
     function executeRequest(uint256 _requestId, address _campaignAddress)
         external
         onlyManager
-    {}
+        returns (bool approved)
+    {
+        uint256 _numContributor = ICampaign(_campaignAddress)
+            .getNumberOfContributor();
+
+        RequestInformation memory _info = requestsFromCampaigns[
+            _campaignAddress
+        ][_requestId];
+
+        uint256 _votePercentage = (_info.totalVotes * 100) / _numContributor;
+
+        approved = false;
+
+        if (
+            _votePercentage >=
+            campaignVotingInformations[_campaignAddress].quorumPercentage
+        ) {
+            if (_info.yesVotes > _info.noVotes) {
+                approved = true;
+                requestsFromCampaigns[_campaignAddress][_requestId]
+                    .approved = true;
+            }
+        }
+        requestsFromCampaigns[_campaignAddress][_requestId].executed = true;
+    }
 
     function voteOnRequest(
         address _contributor,
@@ -209,12 +200,71 @@ contract Voting {
         if (
             !_info.approved &&
             !_info.executed &&
-            block.timestamp >= _info.endDate &&
+            !(block.timestamp >= _info.endDate) &&
             !contributorVotedOnRequest[_contributor][_requestId]
         ) {
             return true;
         }
 
         return false;
+    }
+
+    /* ====== View / Pure Functions ====== */
+
+    function getVotingInformation(address _campaignAddress)
+        external
+        view
+        returns (VotingInformation memory)
+    {
+        return campaignVotingInformations[_campaignAddress];
+    }
+
+    function getRequestInformation(address _campaignAddress, uint256 _requestId)
+        external
+        view
+        returns (RequestInformation memory)
+    {
+        return requestsFromCampaigns[_campaignAddress][_requestId];
+    }
+
+    function getFinishedRequestsFromCampaign(address _campaignAddress)
+        external
+        view
+        returns (RequestInformation[] memory)
+    {
+        uint256 _counter;
+
+        for (
+            uint256 index;
+            index < campaignVotingInformations[_campaignAddress].lastRequestId;
+            index++
+        ) {
+            RequestInformation memory _info = requestsFromCampaigns[
+                _campaignAddress
+            ][index];
+            if (block.timestamp >= _info.endDate) {
+                _counter++;
+            }
+        }
+
+        RequestInformation[]
+            memory _finishedRequests = new RequestInformation[](_counter);
+        uint256 _arrayIndex = 0;
+
+        for (
+            uint256 index;
+            index < campaignVotingInformations[_campaignAddress].lastRequestId;
+            index++
+        ) {
+            RequestInformation memory _info = requestsFromCampaigns[
+                _campaignAddress
+            ][index];
+            if (block.timestamp >= _info.endDate) {
+                _finishedRequests[_arrayIndex] = _info;
+                _arrayIndex++;
+            }
+        }
+
+        return _finishedRequests;
     }
 }

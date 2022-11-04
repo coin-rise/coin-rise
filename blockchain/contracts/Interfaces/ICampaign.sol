@@ -36,6 +36,8 @@ interface ICampaign {
         external
         returns (uint256);
 
+    function updateVotingContractAddress(address _newAddress) external;
+
     /* ========== View Functions ========== */
     function getEndDate() external view returns (uint256);
 
