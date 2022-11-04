@@ -4,14 +4,14 @@ import Stepper from "./Stepper/Stepper";
 import StepperGeneral from "./StepperGeneral";
 import StepperInfo from "./StepperInfo";
 import FinalStepper from "./FinalStepper";
-import { storeFiles, makeFileObjects } from "./Storage";
+import { storeFiles, makeFileObjects, retrieveFiles, loadData} from "./Storage";
 import { ethers, BigNumber } from "ethers";
 
 /* campaignManager Contract Address and Contract ABI */
 import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
-import CampaignAbi from "../abis/Campaign.json";
-const contractManagerAddress = "0x1D2C3DB58779F6cEC7e91BF12259a43ece338F97";
-const campaignAddress = "0x280455bFb46EE7e446b87D6eC3DF615589EcC709";
+import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
+const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
+const campaignAddress = "0x1a111771e2FD5c1Ee970CdDd45a89268120Bc45A";
 
 function Form() {
   const [userAddress, setUserAddress] = useState();
@@ -97,7 +97,7 @@ function Form() {
         cidImg
       );
       const cid = await storeFiles(files);
-      await CreateNewCampaign(campaign?.campaignDuration);
+      await CreateNewCampaign(campaign?.campaignDuration, campaign?.minAmount, cid);
     }
   }
   function handlePrev() {
@@ -133,9 +133,14 @@ function Form() {
   /**
    * Create a new Campaign for funding non-profit projects
    */
-  const CreateNewCampaign = async (duration) => {
+  const CreateNewCampaign = async (duration, minamount, cid_ipfs) => {
     if (!duration && Number(duration)) {
       console.log(`Error, Please enter a valid deadline`);
+      return;
+    }
+
+    if (!minamount && Number(minamount)) {
+      console.log(`Error, Please enter a valid amount`);
       return;
     }
 
@@ -157,7 +162,7 @@ function Form() {
           console.log("newCampaign address :", newCampaign);
           console.log("newCampaign deadline :", deadline.toNumber());
         });
-        let tx = await contract.createNewCampaign(BigNumber.from(duration));
+        let tx = await contract.createNewCampaign(BigNumber.from(duration), BigNumber.from(minamount), cid_ipfs);
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
           "%c Create new campaign... please wait!  %s",
