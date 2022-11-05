@@ -75,8 +75,27 @@
     {
       "inputs": [],
       "name": "finishFunding",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "successful",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCampaignURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -114,6 +133,19 @@
     {
       "inputs": [],
       "name": "getEndDate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMinAmount",
       "outputs": [
         {
           "internalType": "uint256",
@@ -205,6 +237,16 @@
           "internalType": "address",
           "name": "_token",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_minAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_campaignURI",
+          "type": "string"
         }
       ],
       "name": "initialize",
@@ -229,6 +271,25 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_contributor",
+          "type": "address"
+        }
+      ],
+      "name": "setContributionToZero",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "_to",
           "type": "address"
         },
@@ -239,6 +300,19 @@
         }
       ],
       "name": "transferStableTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_newURI",
+          "type": "string"
+        }
+      ],
+      "name": "updateCampaignURI",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
