@@ -61,7 +61,7 @@ async function retrieveFiles  (cid) {
 async function loadData(cid) {
   const response = await fetch("https://ipfs.io/ipfs/"+cid);
   const content = await response.json();
-  console.log(content); 
+  //console.log(content); 
   return content
 }
 
