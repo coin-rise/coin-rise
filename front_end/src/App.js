@@ -5,8 +5,10 @@ import Home from "./pages/Home";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Nav from "./components/Nav";
 import Project from "./pages/ProejctPage";
+import SpecificPage from "./pages/SpecificPage";
 
 function App() {
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -24,6 +26,14 @@ function App() {
             element={
               <Nav>
                 <Form />
+              </Nav>
+            }
+          />
+           <Route
+            path="/project/:id"
+            element={
+              <Nav>
+                <SpecificPage />
               </Nav>
             }
           />
