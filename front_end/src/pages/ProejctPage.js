@@ -9,6 +9,7 @@ import { ethers, BigNumber } from "ethers";
 import {
   storeFiles,
   makeFileObjects,
+  loadData,
   retrieveData
 } from "../components/Storage";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
@@ -83,7 +84,7 @@ const ProejctPage = () => {
       let campaignObj = [];
       for (let i = 11; i < campaignList.length; i++) {
         let cid_i = await getCampaignURI(campaignList[i]);
-        let content = await retrieveData(cid_i);
+        let content = await loadData(cid_i);
         content.address = campaignList[i];
         campaignObj.push(content);
       }
