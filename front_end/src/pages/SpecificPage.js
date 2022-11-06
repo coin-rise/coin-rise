@@ -7,10 +7,11 @@ import BasicTabs from "../components/Tabs";
 import BasicModal from "../components/Modal/Modal";
 import Inputs from "../components/Ui";
 import { ethers, BigNumber } from "ethers";
+import { useParams } from "react-router-dom";
 import {
   storeFiles,
   makeFileObjects,
-  retrieveData
+  retrieveData,
 } from "../components/Storage";
 
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
@@ -30,14 +31,16 @@ const SpecificPage = () => {
     marginRight: "10px",
   };
 
-/**
- * Get the IPFS CID of a Campaign
- */
+  /**
+   * Get the IPFS CID of a Campaign
+   */
   const getCampaignURI = async (campaignaddress) => {
     try {
       const { ethereum } = window;
       if (ethereum) {
-        const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI);
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
         const contract = new ethers.Contract(
           campaignaddress,
           CampaignAbi.abi,
@@ -57,8 +60,7 @@ const SpecificPage = () => {
   };
 
   const [CampaignsData, setCampaignsData] = useState();
-  console.log(CampaignsData,"data");
-  const getCampaignData = async(address) =>{
+  const getCampaignData = async (address) => {
     try {
       let cid_i = await getCampaignURI(address);
       let content = await retrieveData(cid_i);
@@ -67,9 +69,10 @@ const SpecificPage = () => {
     } catch (error) {
       console.log("error", error);
     }
-  }
+  };
+  const { id } = useParams();
   useEffect(() => {
-    getCampaignData('0x3A7A5176Caf503dEb19d06fcDE845B9D6DD01B10');
+    getCampaignData(id);
   }, []);
   return (
     <Box px={4}>
@@ -102,7 +105,7 @@ const SpecificPage = () => {
               46%
             </Avatar>
             <Box dispaly="flex" flexDirection="column">
-              <h1 style={{ margin: 0 }}>Feed the a child Project</h1>
+              <h1 style={{ margin: 0 }}>{CampaignsData?.campaignName}</h1>
               <Box mt={3} display="flex" alignItems="center">
                 <Clock
                   width="20px"
@@ -160,12 +163,15 @@ const SpecificPage = () => {
         <BasicTabs
           style={style}
           tabsBar={["proposal", "comments", "info"]}
-          tabsContent={[<div>a</div>, <div>e</div>, <div>w</div>]}
+          tabsContent={[
+            <div>{CampaignsData?.campaignInfo}</div>,
+            <div>e</div>,
+            <div>w</div>,
+          ]}
         />
       </Box>
       <h1>Additional Information</h1>
-      <p>www.feed.com</p>
-      <p>www.feed.com</p>
+      {CampaignsData?.extraInfo}
 
       <BasicModal open={open} handleClose={handleClose}>
         <BasicTabs
