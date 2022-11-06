@@ -9,7 +9,7 @@ import { ethers, BigNumber } from "ethers";
 import {
   storeFiles,
   makeFileObjects,
-  retrieveData
+  retrieveData,
 } from "../components/Storage";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
 import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
@@ -17,16 +17,16 @@ import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/Campa
 const FactoryAddress = "0xd98458e022ac999a547D49f9da37DCc6F4d1f19F";
 
 const ProejctPage = () => {
-
   /**
-  * Get Deployed Campaign Contracts
-  */
+   * Get Deployed Campaign Contracts
+   */
   const getDeployedCampaignContracts = async () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
-
-        const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI);
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
         const contract = new ethers.Contract(
           FactoryAddress,
           CampaignFactoryAbi.abi,
@@ -56,7 +56,9 @@ const ProejctPage = () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
-        const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI);
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
         const contract = new ethers.Contract(
           campaignaddress,
           CampaignAbi.abi,
@@ -81,7 +83,7 @@ const ProejctPage = () => {
   const makeObj = async (campaignList) => {
     try {
       let campaignObj = [];
-      for (let i = 11; i < campaignList.length; i++) {
+      for (let i = 23; i < campaignList.length; i++) {
         let cid_i = await getCampaignURI(campaignList[i]);
         let content = await retrieveData(cid_i);
         content.address = campaignList[i];
@@ -105,6 +107,8 @@ const ProejctPage = () => {
   const data = [1, 2, 3, 4];
   const AllComapain = [{}, {}, {}];
   const [text, setText] = useState("");
+
+  if (campaigns === undefined) return <h1>Loading</h1>;
 
   return (
     <div style={{ marginLeft: "8rem", marginTop: "2rem" }}>

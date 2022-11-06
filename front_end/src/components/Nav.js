@@ -147,7 +147,7 @@ function Nav({ children }) {
         <Box display="flex" width="100%" alignItems="center">
           <Box
             display="flex"
-            width="100%"
+            width="70%"
             justifyContent="flex-start"
             alignItems="center"
           >
