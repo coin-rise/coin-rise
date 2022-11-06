@@ -30,7 +30,14 @@ const campaignAddress = "0x3A7A5176Caf503dEb19d06fcDE845B9D6DD01B10";
 
 const { chains, provider } = configureChains(
   //chains our app will support
-  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, chain.goerli],
+  [
+    chain.mainnet,
+    chain.polygon,
+    chain.optimism,
+    chain.arbitrum,
+    chain.goerli,
+    chain.polygonMumbai,
+  ],
   //providers
   [publicProvider()]
 );
@@ -50,7 +57,7 @@ function App() {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider
         theme={lightTheme({
-          accentColor: "#F01D1D",
+          accentColor: "#11484F",
         })}
         chains={chains}
       >
