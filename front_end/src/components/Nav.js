@@ -8,6 +8,7 @@ import { Typography, Box } from "@mui/material";
 import AddIcon from "../assets/AddIcon.svg";
 import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const useStyles = makeStyles({
   coin: {
@@ -121,21 +122,21 @@ function Nav({ children }) {
     fetch();
   }, [campaignFactoryContract]);
 
-  async function connectWallet() {
-    try {
-      let web3Modal = new Web3Modal({
-        cacheProvider: false,
-        providerOptions,
-      });
-      const web3ModalInstance = await web3Modal.connect();
-      const web3ModalProvider = await ethers.providers.Web3Provider(
-        web3ModalInstance
-      );
-      console.log(web3ModalProvider);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  // async function connectWallet() {
+  //   try {
+  //     let web3Modal = new Web3Modal({
+  //       cacheProvider: false,
+  //       providerOptions,
+  //     });
+  //     const web3ModalInstance = await web3Modal.connect();
+  //     const web3ModalProvider = await ethers.providers.Web3Provider(
+  //       web3ModalInstance
+  //     );
+  //     console.log(web3ModalProvider);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   return (
     <>
@@ -174,9 +175,10 @@ function Nav({ children }) {
                   <img src={AddIcon} style={{ paddingLeft: "5px" }} />
                 </button>
               </Link>
-              <button className={classes.btnWallet} onClick={connectWallet}>
+              {/* <button className={classes.btnWallet} onClick={connectWallet}>
                 Connect Wallet
-              </button>
+              </button> */}
+              <ConnectButton />
             </Box>
           </Box>
         </Box>
