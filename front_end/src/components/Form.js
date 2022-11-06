@@ -4,9 +4,16 @@ import Stepper from "./Stepper/Stepper";
 import StepperGeneral from "./StepperGeneral";
 import StepperInfo from "./StepperInfo";
 import FinalStepper from "./FinalStepper";
-import { storeFiles, makeFileObjects, retrieveFiles, loadData} from "./Storage";
-import { ethers, BigNumber } from "ethers";
+import { useNavigate } from "react-router-dom";
 
+import {
+  storeFiles,
+  makeFileObjects,
+  retrieveFiles,
+  loadData,
+} from "./Storage";
+import { ethers, BigNumber } from "ethers";
+import { CircularProgress } from "@mui/material";
 /* campaignManager Contract Address and Contract ABI */
 import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
@@ -17,6 +24,8 @@ function Form() {
   const [userAddress, setUserAddress] = useState();
   const [campaignContract, setCampaignContract] = useState();
   const [signer, setSigner] = useState();
+  const [isLoading, setIsloading] = useState(false);
+  const navigate = useNavigate();
 
   // wallet adress
 
@@ -88,6 +97,7 @@ function Form() {
   async function handleNext() {
     if (activeStep < 2) setActiveStep((prev) => prev + 1);
     else {
+      setIsloading(true);
       const cidImg = await storeFiles(campaign?.campaignImg);
       const files = await makeFileObjects(
         campaign?.campaignName,
@@ -97,7 +107,13 @@ function Form() {
         cidImg
       );
       const cid = await storeFiles(files);
-      await CreateNewCampaign(campaign?.campaignDuration, campaign?.minAmount, cid);
+      await CreateNewCampaign(
+        campaign?.campaignDuration,
+        campaign?.minAmount,
+        cid
+      ).then(() => setIsloading(false));
+      navigate(`/project/${mourad}`);
+      // console.log(newComapaing,'newComapaing')
     }
   }
   function handlePrev() {
@@ -113,6 +129,8 @@ function Form() {
     <StepperInfo setCampaign={setCampaign} campaign={campaign} />,
     <FinalStepper setCampaign={setCampaign} campaign={campaign} />,
   ];
+  const [mourad, setMourad] = useState();
+  console.log(mourad, "mouradEddine");
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -161,8 +179,13 @@ function Form() {
         contract.on("NewCampaignCreated", (newCampaign, deadline) => {
           console.log("newCampaign address :", newCampaign);
           console.log("newCampaign deadline :", deadline.toNumber());
+          setMourad(newCampaign);
         });
-        let tx = await contract.createNewCampaign(BigNumber.from(duration), BigNumber.from(minamount), cid_ipfs);
+        let tx = await contract.createNewCampaign(
+          BigNumber.from(duration),
+          BigNumber.from(minamount),
+          cid_ipfs
+        );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
           "%c Create new campaign... please wait!  %s",
@@ -242,7 +265,7 @@ function Form() {
             cursor: "pointer",
           }}
         >
-          {activeStep == 2 ? "Submit" : "Next"}
+          {activeStep == 2 && isLoading ? <CircularProgress /> : "Next"}
         </button>
       </Box>
     </Box>
