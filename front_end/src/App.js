@@ -21,10 +21,7 @@ const FactoryAddress = "0xd98458e022ac999a547D49f9da37DCc6F4d1f19F";
 const campaignAddress = "0x3A7A5176Caf503dEb19d06fcDE845B9D6DD01B10";
 
 function App() {
-  /**
-  * Get Deployed Campaign Contracts
-  */
-  
+  console.log(process.env,"env")
   return (
     <div className="App">
       <BrowserRouter>
