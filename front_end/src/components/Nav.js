@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { ReactComponent as TwitterLogo } from "./../assets/Twitter.svg";
 import { ReactComponent as GithubLogo } from "./../assets/Github.svg";
 import Inputs from "./Ui";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const useStyles = makeStyles({
   coin: {
@@ -177,9 +178,10 @@ function Nav({ children }) {
                   <img src={AddIcon} style={{ paddingLeft: "5px" }} />
                 </button>
               </Link>
-              <button className={classes.btnWallet} onClick={connectWallet}>
+              {/* <button className={classes.btnWallet} onClick={connectWallet}>
                 Connect Wallet
-              </button>
+              </button> */}
+              <ConnectButton />
             </Box>
           </Box>
         </Box>
