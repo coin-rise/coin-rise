@@ -6,6 +6,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI`
+
 ### `npm start`
 
 Runs the app in the development mode.\
