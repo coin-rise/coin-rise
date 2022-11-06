@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { BorderLinearProgress } from "../components/Card/Card";
 import { ReactComponent as Clock } from "../assets/Clock.svg";
@@ -6,6 +6,14 @@ import Avatar from "@mui/material/Avatar";
 import BasicTabs from "../components/Tabs";
 import BasicModal from "../components/Modal/Modal";
 import Inputs from "../components/Ui";
+import { ethers, BigNumber } from "ethers";
+import {
+  storeFiles,
+  makeFileObjects,
+  retrieveData
+} from "../components/Storage";
+
+import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
 
 const SpecificPage = () => {
   const [open, setOpen] = useState(false);
@@ -22,6 +30,47 @@ const SpecificPage = () => {
     marginRight: "10px",
   };
 
+/**
+ * Get the IPFS CID of a Campaign
+ */
+  const getCampaignURI = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI);
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let cid = await contract.getCampaignURI();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c campaign IPFS CID =  %s", stylesMining, cid);
+        return cid;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const [CampaignsData, setCampaignsData] = useState();
+  console.log(CampaignsData,"data");
+  const getCampaignData = async(address) =>{
+    try {
+      let cid_i = await getCampaignURI(address);
+      let content = await retrieveData(cid_i);
+      setCampaignsData(content);
+      return content;
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
+  useEffect(() => {
+    getCampaignData('0x3A7A5176Caf503dEb19d06fcDE845B9D6DD01B10');
+  }, []);
   return (
     <Box px={4}>
       <Box display="flex">

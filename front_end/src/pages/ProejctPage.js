@@ -9,8 +9,7 @@ import { ethers, BigNumber } from "ethers";
 import {
   storeFiles,
   makeFileObjects,
-  retrieveFiles,
-  loadData,
+  retrieveData
 } from "../components/Storage";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
 import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
@@ -76,17 +75,6 @@ const ProejctPage = () => {
     }
   };
 
-  const retrieveData = async (cid) => {
-    try {
-      const files = await retrieveFiles(cid);
-      const content = await loadData(files[0].cid);
-      return content;
-    } catch (error) {
-      console.log("error", error);
-    }
-
-  };
-  
   const [campaigns, setCampaigns] = useState([]);
   console.log(campaigns, "campaigns");
 

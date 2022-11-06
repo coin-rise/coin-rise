@@ -65,9 +65,20 @@ async function loadData(cid) {
   return content
 }
 
+const retrieveData = async (cid) => {
+  try {
+    const files = await retrieveFiles(cid);
+    const content = await loadData(files[0].cid);
+    return content;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
 export{
     storeFiles,
     makeFileObjects,
     retrieveFiles,
-    loadData
+    loadData,
+    retrieveData
 }
