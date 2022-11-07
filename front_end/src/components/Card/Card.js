@@ -11,7 +11,7 @@ import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
   borderRadius: 5,
   [`&.${linearProgressClasses.colorPrimary}`]: {
@@ -23,7 +23,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "light" ? "#5CA05F" : "#308fe8",
   },
 }));
-const Card = () => {
+const Card = ({ campaignName, campaignInfo, videoLink, extraInfo }) => {
   const [value] = useState(50);
   return (
     <Box
@@ -44,7 +44,7 @@ const Card = () => {
                 margin: 0,
               }}
             >
-              Feed A chiled Project
+              {campaignName && campaignName}
             </h5>
           </Box>
           <Box display="flex" justifyContent="flex-end" width="100%">
@@ -53,9 +53,7 @@ const Card = () => {
         </Box>
       </Box>
       <Box mt={2} ml={2}>
-        <p style={{ margin: 0 }}>
-          We have an orphonage with 200 children displaced by flood in Africa
-        </p>
+        <p style={{ margin: 0 }}>{campaignInfo && campaignInfo}</p>
       </Box>
 
       <Box mt={5} ml={2}>

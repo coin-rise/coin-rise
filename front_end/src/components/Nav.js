@@ -8,6 +8,10 @@ import { Typography, Box } from "@mui/material";
 import AddIcon from "../assets/AddIcon.svg";
 import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
+import { ReactComponent as TwitterLogo } from "./../assets/Twitter.svg";
+import { ReactComponent as GithubLogo } from "./../assets/Github.svg";
+import Inputs from "./Ui";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const useStyles = makeStyles({
   coin: {
@@ -143,7 +147,7 @@ function Nav({ children }) {
         <Box display="flex" width="100%" alignItems="center">
           <Box
             display="flex"
-            width="100%"
+            width="70%"
             justifyContent="flex-start"
             alignItems="center"
           >
@@ -174,14 +178,68 @@ function Nav({ children }) {
                   <img src={AddIcon} style={{ paddingLeft: "5px" }} />
                 </button>
               </Link>
-              <button className={classes.btnWallet} onClick={connectWallet}>
+              {/* <button className={classes.btnWallet} onClick={connectWallet}>
                 Connect Wallet
-              </button>
+              </button> */}
+              <ConnectButton />
             </Box>
           </Box>
         </Box>
       </Box>
       <Box>{children}</Box>
+      <Box mt={3} p={4} style={{ height: "200px", backgroundColor: "black" }}>
+        <Box display="flex" width="100%">
+          <Box display="flex" width="100%" justifyContent="flex-start">
+            <Typography className={classes.coin}>Coin</Typography>
+            <Typography className={classes.rise}>Rise</Typography>
+          </Box>
+          <Box
+            display="flex"
+            width="100%"
+            alignItems="flex-end"
+            flexDirection="column"
+            mr={5}
+          >
+            <h1 style={{ margin: 0, color: "white" }}>Community</h1>
+            <Box
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "25%",
+                alignItems: "center",
+              }}
+              mt={3}
+            >
+              <p style={{ margin: 0, color: "white" }}>Twitter</p>
+              <TwitterLogo />
+            </Box>
+            <Box
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "25%",
+                alignItems: "center",
+              }}
+              mt={2}
+            >
+              <p style={{ margin: 0, color: "white" }}>Github</p>
+              <GithubLogo />
+            </Box>
+          </Box>
+        </Box>
+        <Box display="flex">
+          <Inputs type="text" width={300} borderRadius="0px" />
+          <button
+            style={{
+              backgroundColor: "#43C5D6",
+              color: "black",
+              padding: "19px 50px",
+            }}
+          >
+            Register
+          </button>
+        </Box>
+      </Box>
     </>
     // <nav style={{ display: "flex" }}>
     //   <a href="/">

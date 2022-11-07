@@ -8,14 +8,17 @@
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.11",
     "@mui/styles": "^5.10.10",
+    "@rainbow-me/rainbowkit": "^0.7.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "ethers": "^5.7.2",
     "ipfs-core": "^0.17.0",
+    "npm": "^8.19.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "wagmi": "^0.7.12",
     "web-vitals": "^2.1.4",
     "web3.storage": "^4.4.0",
     "web3modal": "^1.9.9"
@@ -45,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "dotenv": "^16.0.3",
     "react-router-dom": "^6.4.2"
   }
 }
