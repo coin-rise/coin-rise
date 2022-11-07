@@ -128,19 +128,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   //mint some tokens for the contributor
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
 
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
-
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -163,19 +151,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const { campaignManager, contributor, submitter } = await loadFixture(
                       deployCampaignManagerFixture
                   )
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
+                  await createNewCampaign(campaignManager, submitter)
 
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
                   const _tokenAmount = ethers.utils.parseEther("10")
                   await expect(
                       campaignManager
@@ -193,19 +170,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               it("failed to contribute with a zero token amount funding", async () => {
                   const { campaignManager, contributor, campaignFactory, submitter } =
                       await loadFixture(deployCampaignManagerFixture)
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
 
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
                   const _tokenAmount = ethers.utils.parseEther("0")
@@ -222,27 +188,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       await loadFixture(deployCampaignManagerFixture)
 
                   await mockToken.mint(contributor.address, ethers.utils.parseEther("1000"))
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
 
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
                   const _tokenAmount = ethers.utils.parseEther("10")
-
-                  //   await mockToken
-                  //       .connect(contributor)
-                  //       .approve(campaignManager.address, _tokenAmount)
 
                   await expect(
                       campaignManager
@@ -258,19 +209,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       deployCampaignManagerFixture
                   )
 
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
-
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -282,9 +221,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
 
@@ -295,20 +232,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const { campaignManager, submitter } = await loadFixture(
                       deployCampaignManagerFixture
                   )
-                  //TODO: Write a function for creating a new campaign!!!!
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
 
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -324,19 +249,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       deployCampaignManagerFixture
                   )
 
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
-
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -348,9 +261,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
+
                   const answer = await campaignManager.checkUpkeep("0x")
                   await expect(
                       campaignManager.connect(keeper).performUpkeep(answer.performData)
@@ -362,19 +274,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       deployCampaignManagerFixture
                   )
 
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
-
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -386,9 +286,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _newTime = parseInt(endDate.toString()) + 1
                   time.increaseTo(_newTime)
 
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -404,7 +302,6 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       campaignManager,
                       contributor,
                       mockToken,
-                      coinRiseTokenPool,
                       submitter,
                       keeper,
                       campaignFactory,
@@ -416,19 +313,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       .connect(contributor)
                       .approve(campaignManager.address, _tokenAmount)
 
-                  const _interval = 30
-                  const _minAmount = ethers.utils.parseEther("2")
-                  const _campaignURI = "test"
-
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
-
-                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
-
-                  await campaignManager
-                      .connect(submitter)
-                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+                  await createNewCampaign(campaignManager, submitter)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -453,4 +338,75 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert(_campaignBalance.eq(_expectedBalance))
               })
           })
+
+          describe("#claimTokensFromUnsuccessfulCampaigns", () => {
+              it("successfully send back the tokens to the contributor after failing campaign", async () => {
+                  const { campaignManager, submitter, contributor, mockToken, campaignFactory } =
+                      await loadFixture(deployCampaignManagerFixture)
+
+                  await createNewCampaign(campaignManager, submitter)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+
+                  const _newCampaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const _minAmount = await _newCampaign.getMinAmount()
+
+                  const _tokenAmount = _minAmount.div(ethers.constants.Two)
+
+                  await contributeCampaign(
+                      campaignManager,
+                      mockToken,
+                      _tokenAmount,
+                      contributor,
+                      _newCampaign
+                  )
+
+                  const _remainingTime = await _newCampaign.getRemainingFundingTime()
+
+                  time.increase(_remainingTime)
+
+                  const _checkUpkeepNeeded = await campaignManager.checkUpkeep("0x")
+
+                  await campaignManager.performUpkeep(_checkUpkeepNeeded.performData)
+
+                  const _active = await _newCampaign.isFundingActive()
+                  assert(!_active)
+                  if (!_active) {
+                      const _amountBefore = await mockToken.balanceOf(contributor.address)
+
+                      await campaignManager
+                          .connect(contributor)
+                          .claimTokensFromUnsuccessfulCampaigns([_newCampaign.address])
+
+                      const _amountAfter = await mockToken.balanceOf(contributor.address)
+
+                      assert(_amountAfter.gt(_amountBefore))
+                  }
+              })
+          })
       })
+
+async function createNewCampaign(managerContract, functionCaller) {
+    const _interval = 30
+    const _minAmount = ethers.utils.parseEther("2")
+    const _campaignURI = "test"
+
+    const _tierOne = ethers.utils.parseEther("2")
+    const _tierTwo = ethers.utils.parseEther("4")
+    const _tierThree = ethers.utils.parseEther("6")
+
+    const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+    await managerContract
+        .connect(functionCaller)
+        .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
+}
+
+async function contributeCampaign(campaignManager, mockToken, _amount, contributor, campaign) {
+    await mockToken.mint(contributor.address, _amount)
+
+    await mockToken.connect(contributor).approve(campaignManager.address, _amount)
+
+    await campaignManager.connect(contributor).contributeCampaign(_amount, campaign.address)
+}

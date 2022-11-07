@@ -20,10 +20,16 @@ async function deployCampaignManager(chainId) {
     const deployedContracts = JSON.parse(fs.readFileSync(filePath, "utf-8"))
 
     if (chainId in deployedContracts) {
-        if ("CampaignFactory" in deployedContracts[chainId] && "DAI" in networkConfig[chainId]) {
+        if (
+            "CampaignFactory" in deployedContracts[chainId] &&
+            "DAI" in networkConfig[chainId] &&
+            "CoinRiseNFT" in deployedContracts[chainId]
+        ) {
             console.log("CampaignFactory contract found...")
 
             const campaignFactoryAddress = deployedContracts[chainId]["CampaignFactory"].address
+
+            const coinRiseNftAddress = deployedContracts[chainId]["CoinRiseNFT"].address
 
             let stableTokenAddress = networkConfig[chainId].DAI
 
@@ -40,7 +46,8 @@ async function deployCampaignManager(chainId) {
             }
             const campaignManager = await CampaignManager.deploy(
                 campaignFactoryAddress,
-                stableTokenAddress
+                stableTokenAddress,
+                coinRiseNftAddress
             )
 
             await campaignManager.deployTransaction.wait(waitBlockConfirmations)
@@ -52,7 +59,11 @@ async function deployCampaignManager(chainId) {
             await updateContractData(campaignManager, chainId, "CampaignManager")
 
             if (!developmentChains.includes(network.name)) {
-                await verify(campaignManager.address, [campaignFactoryAddress, stableTokenAddress])
+                await verify(campaignManager.address, [
+                    campaignFactoryAddress,
+                    stableTokenAddress,
+                    coinRiseNftAddress,
+                ])
             }
 
             console.log("Set the initial fees to 100 => 1% ...")

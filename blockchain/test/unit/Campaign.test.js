@@ -271,4 +271,10 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert.equal(_campaignURI, "newURI")
               })
           })
+
+          describe("#transferStableTokensAfterRequest", () => {
+              it("successfully transfer the tokens after the request was successful", async () => {
+                  const { _newCampaign } = await loadFixture(deployCampaignFixture)
+              })
+          })
       })
