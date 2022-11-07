@@ -7,7 +7,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
     ? describe.skip
     : describe("CampaignManager Unit Test", () => {
           async function deployCampaignManagerFixture() {
-              const [owner, contributor, submitter, keeper, badActor] = await ethers.getSigners()
+              const [owner, contributor, submitter, keeper, badActor, receiver] =
+                  await ethers.getSigners()
 
               const Campaign = await ethers.getContractFactory("Campaign")
               const campaign = await Campaign.deploy()
@@ -39,6 +40,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               )
 
               await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
+              await campaignManager.setVotingContractAddress(voting.address)
               const fees = 100
               await campaignManager.setFees(fees)
 
@@ -56,6 +58,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   badActor,
                   fees,
                   coinRiseNft,
+                  receiver,
+                  voting,
               }
           }
 
@@ -241,6 +245,57 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   assert.equal(_upkeepNeeded, false)
               })
+
+              it("sucessfully return true if requests are finished", async () => {
+                  const {
+                      campaignManager,
+                      submitter,
+                      contributor,
+                      mockToken,
+                      campaignFactory,
+                      receiver,
+                      voting,
+                  } = await loadFixture(deployCampaignManagerFixture)
+
+                  await createNewCampaignWithVotes(campaignManager, submitter)
+
+                  const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
+                  const campaign = await ethers.getContractAt("Campaign", _campaignAddress)
+
+                  const _amount = ethers.utils.parseEther("2.5")
+                  await contributeCampaign(
+                      campaignManager,
+                      mockToken,
+                      _amount,
+                      contributor,
+                      campaign
+                  )
+
+                  const _remainingTime = await campaign.getRemainingFundingTime()
+
+                  await time.increase(_remainingTime)
+
+                  await mockKeeperFunctions(campaignManager)
+
+                  // request a transaction to the receiver
+                  const _sendingAmount = ethers.utils.parseEther("2")
+                  const _duration = 30
+                  await campaign
+                      .connect(submitter)
+                      .transferStableTokensWithRequest(receiver.address, _sendingAmount, _duration)
+
+                  const _requests = await voting.getRequestInformation(campaign.address, 1)
+
+                  console.log(_requests)
+
+                  const _balanceBefor = await mockToken.balanceOf(receiver.address)
+
+                  await time.increase(_duration + 1)
+
+                  await mockKeeperFunctions(campaignManager)
+
+                  const _balanceAfter = await mockToken.balanceOf(receiver.address)
+              })
           })
 
           describe("#performUpkeep", () => {
@@ -409,4 +464,34 @@ async function contributeCampaign(campaignManager, mockToken, _amount, contribut
     await mockToken.connect(contributor).approve(campaignManager.address, _amount)
 
     await campaignManager.connect(contributor).contributeCampaign(_amount, campaign.address)
+}
+
+async function createNewCampaignWithVotes(campaignManager, caller) {
+    const _interval = 30
+    const _minAmount = ethers.utils.parseEther("2")
+    const _campaignURI = "test"
+
+    const _tierOne = ethers.utils.parseEther("2")
+    const _tierTwo = ethers.utils.parseEther("4")
+    const _tierThree = ethers.utils.parseEther("6")
+
+    const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+    const _quorumPercentage = 10
+
+    await campaignManager
+        .connect(caller)
+        .createNewCampaignWithVoting(
+            _interval,
+            _minAmount,
+            _campaignURI,
+            _tokenTiers,
+            _quorumPercentage
+        )
+}
+
+async function mockKeeperFunctions(campaignManager) {
+    const _answer = await campaignManager.checkUpkeep("0x")
+
+    await campaignManager.performUpkeep(_answer.performData)
 }
