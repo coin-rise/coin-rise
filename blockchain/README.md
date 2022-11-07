@@ -12,7 +12,10 @@ For the submitter:
 
 ## Roadmap
 
--   Adding Featuers like yield generating or NFT's creation for contributors
+-   Testing Voting Feature (Unit Testing)
+-   Testing Atomatisation from ChainlinKeeper (checkUpkeep,performUpkeep)
+-   deploy new Contracts to polygon mumbai
+-   writing staging tests for all possible scenarios
 
 ## Environment Variables
 

@@ -16,7 +16,8 @@ error CampaignManager__NoTokenPoolIsDefined();
 error CampaignManager__VotingContractAlreadyDefined();
 
 contract CampaignManager is AutomationCompatible, Ownable {
-    /** State Variables */
+    /* ====== State Variables ====== */
+
     ICampaignFactory private campaignFactory;
 
     uint256 private fees;
@@ -32,7 +33,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
     address[] private activeCampaigns;
     address[] private votableCampaigns;
 
-    /** Events */
+    /* ====== Events ====== */
 
     event ContributorsUpdated(
         address indexed contributor,
@@ -55,7 +56,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     event FeesUpdated(uint256 newFee);
 
-    /** Modifiers */
+    /* ====== Modifiers ====== */
+
     modifier requireNonZeroAmount(uint256 _amount) {
         if (_amount == 0) {
             revert CampaignManager__AmountIsZero();
@@ -86,6 +88,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
         _;
     }
 
+    /* ====== Functions ====== */
+
     constructor(
         address _campaignFactory,
         address _stableTokenAddress,
@@ -96,10 +100,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
         coinRiseTokenAddress = _coinRiseTokenAddress;
     }
 
-    /** Functions */
-
     /**
-     * @dev -create a new Campaign for funding non-profit projects
+     * @dev -create a new Campaign for funding non-profit projects without voting system
      * @param _deadline - duration of the funding process
      * @param _minAmount - minimum number of tokens required for successful funding
      * @param _campaignURI - resource of the stored information of the campaign on IPFS
@@ -109,8 +111,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         uint256 _deadline,
         uint256 _minAmount,
         string memory _campaignURI,
-        uint256[3] memory _tokenTiers,
-        bool _requestingPayouts
+        uint256[3] memory _tokenTiers
     ) public returns (address) {
         campaignFactory.deployNewContract(
             _deadline,
@@ -120,7 +121,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
             _minAmount,
             _campaignURI,
             _tokenTiers,
-            _requestingPayouts
+            false
         );
 
         address _newCampaign = campaignFactory.getLastDeployedCampaign();
@@ -138,13 +139,15 @@ contract CampaignManager is AutomationCompatible, Ownable {
         uint256[3] memory _tokenTiers,
         uint256 _quorumPercentage
     ) external {
-        address _newCampaign = createNewCampaign(
+        address _newCampaign = _createNewCampaign(
             _deadline,
             _minAmount,
             _campaignURI,
             _tokenTiers,
             true
         );
+
+        votableCampaigns.push(_newCampaign);
 
         IVoting(votingContractAddress).intializeCampaignVotingInformation(
             _quorumPercentage,
@@ -203,7 +206,22 @@ contract CampaignManager is AutomationCompatible, Ownable {
         }
     }
 
-    /** Automatisation Functions */
+    function claimTokensFromUnsuccessfulCampaigns(
+        address[] memory _campaignAddresses
+    ) external {
+        uint256 _totalAmount;
+
+        for (uint256 index = 0; index < _campaignAddresses.length; index++) {
+            uint256 _amount = ICampaign(_campaignAddresses[index])
+                .setContributionToZero(msg.sender);
+
+            _totalAmount += _amount;
+        }
+
+        _trasnferStableTokensToContributor(_totalAmount, msg.sender);
+    }
+
+    /* ====== Automatisation Functions with ChainLink Keeper ====== */
 
     /**
      * @dev - chainlink keeper checks if an action has to be performed. If a campaign has expired, the chainlink keeper calls performUpkeep in the next block.
@@ -219,6 +237,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         upkeepNeeded = false;
 
         uint256 counter = 0;
+
         for (uint256 i = 0; i < activeCampaigns.length; i++) {
             ICampaign _campaign = ICampaign(activeCampaigns[i]);
             uint256 _endDate = _campaign.getEndDate();
@@ -230,7 +249,38 @@ contract CampaignManager is AutomationCompatible, Ownable {
             }
         }
 
-        performData = abi.encode(counter);
+        uint256 _campaignsWithFinishedRequests = 0;
+
+        for (uint256 index = 0; index < votableCampaigns.length; index++) {
+            uint256[] memory _infos = IVoting(votingContractAddress)
+                .getFinishedRequestsFromCampaign(votableCampaigns[index]);
+            if (_infos.length > 0) {
+                _campaignsWithFinishedRequests++;
+            }
+        }
+
+        address[]
+            memory _campaignsAddressesWithFinishedRequests = new address[](
+                _campaignsWithFinishedRequests
+            );
+
+        uint256 _arrayIndex;
+
+        for (uint256 index = 0; index < votableCampaigns.length; index++) {
+            uint256[] memory _infos = IVoting(votingContractAddress)
+                .getFinishedRequestsFromCampaign(votableCampaigns[index]);
+            if (_infos.length > 0) {
+                _campaignsAddressesWithFinishedRequests[
+                    _arrayIndex
+                ] = votableCampaigns[index];
+                _arrayIndex++;
+            }
+        }
+
+        performData = abi.encode(
+            counter,
+            _campaignsAddressesWithFinishedRequests
+        );
         return (upkeepNeeded, performData);
     }
 
@@ -238,7 +288,10 @@ contract CampaignManager is AutomationCompatible, Ownable {
      * @dev - function which is executed by the chainlink keeper. Anyone is able to execute the function
      */
     function performUpkeep(bytes calldata performData) external override {
-        uint256 _counter = abi.decode(performData, (uint256));
+        (
+            uint256 _counter,
+            address[] memory _campaignsWithFinishedRequests
+        ) = abi.decode(performData, (uint256, address[]));
 
         address[] memory _newActiveCampaigns = new address[](
             activeCampaigns.length - _counter
@@ -258,6 +311,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
                 uint256 _totalFunds = _campaign.getTotalSupply();
                 if (_totalFunds > 0 && _successfulFunded) {
+                    //TODO: If campaign is not a voting campaign send the funds directly to the submitter
                     _transferTotalFundsToCampaign(
                         _totalFunds,
                         _activeCampaigns[i]
@@ -281,24 +335,40 @@ contract CampaignManager is AutomationCompatible, Ownable {
         }
 
         activeCampaigns = _newActiveCampaigns;
-    }
 
-    function claimTokensFromUnsuccessfulCampaigns(
-        address[] memory _campaignAddresses
-    ) external {
-        uint256 _totalAmount;
+        for (
+            uint256 index = 0;
+            index < _campaignsWithFinishedRequests.length;
+            index++
+        ) {
+            address _campaignAddress = _campaignsWithFinishedRequests[index];
+            uint256[] memory _requestIds = IVoting(votingContractAddress)
+                .getFinishedRequestsFromCampaign(_campaignAddress);
 
-        for (uint256 index = 0; index < _campaignAddresses.length; index++) {
-            uint256 _amount = ICampaign(_campaignAddresses[index])
-                .setContributionToZero(msg.sender);
-
-            _totalAmount += _amount;
+            if (_requestIds.length > 0) {
+                for (
+                    uint256 _requestIndex;
+                    _requestIndex < _requestIds.length;
+                    _requestIndex++
+                ) {
+                    IVoting.RequestInformation memory _info = IVoting(
+                        votingContractAddress
+                    ).getRequestInformation(
+                            _campaignAddress,
+                            _requestIds[_requestIndex]
+                        );
+                    if (_info.endDate <= block.timestamp) {
+                        IVoting(votingContractAddress).executeRequest(
+                            _requestIds[_requestIndex],
+                            _campaignAddress
+                        );
+                    }
+                }
+            }
         }
-
-        _trasnferStableTokensToContributor(_totalAmount, msg.sender);
     }
 
-    /** Functions for Setup the Contract */
+    /* ====== Functions for Setup the Contract ====== */
 
     function setFees(uint256 _newFees) external onlyOwner {
         fees = _newFees;
@@ -318,7 +388,33 @@ contract CampaignManager is AutomationCompatible, Ownable {
         votingContractAddress = _newAddress;
     }
 
-    /** Internal Functions */
+    /* ====== Internal Functions ====== */
+
+    function _createNewCampaign(
+        uint256 _deadline,
+        uint256 _minAmount,
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        bool _requestingPayouts
+    ) public returns (address) {
+        campaignFactory.deployNewContract(
+            _deadline,
+            msg.sender,
+            stableToken,
+            coinRiseTokenAddress,
+            _minAmount,
+            _campaignURI,
+            _tokenTiers,
+            _requestingPayouts
+        );
+
+        address _newCampaign = campaignFactory.getLastDeployedCampaign();
+        activeCampaigns.push(_newCampaign);
+
+        emit NewCampaignCreated(_newCampaign, _deadline);
+
+        return _newCampaign;
+    }
 
     function _transferStableTokensToContributorPool(
         uint256 _amount,
@@ -347,6 +443,10 @@ contract CampaignManager is AutomationCompatible, Ownable {
         );
     }
 
+    function _executeFinishedRequest(address _campaign, uint256 requestId)
+        internal
+    {}
+
     function _isTokenPoolNotDefined() internal view {
         if (tokenPoolDefined) {
             revert CampaignManager__TokenPoolAlreadyDefined();
@@ -359,7 +459,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         }
     }
 
-    /** View / Pure Functions */
+    /* ====== View / Pure Functions ====== */
 
     function calculateFees(uint256 _amount)
         public

@@ -138,17 +138,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -181,17 +173,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
                   const _tokenAmount = ethers.utils.parseEther("10")
                   await expect(
                       campaignManager
@@ -219,17 +203,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
                   const _tokenAmount = ethers.utils.parseEther("0")
@@ -256,17 +232,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -300,17 +268,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -324,13 +284,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const answer = await campaignManager.connect(keeper).checkUpkeep("0x")
 
@@ -352,17 +306,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -388,17 +334,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -412,13 +350,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
                   const answer = await campaignManager.checkUpkeep("0x")
                   await expect(
                       campaignManager.connect(keeper).performUpkeep(answer.performData)
@@ -440,17 +372,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 
@@ -464,13 +388,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const answer = await campaignManager.checkUpkeep("0x")
 
@@ -508,17 +426,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
-                  const _requestingPayouts = false
-
                   await campaignManager
                       .connect(submitter)
-                      .createNewCampaign(
-                          _interval,
-                          _minAmount,
-                          _campaignURI,
-                          _tokenTiers,
-                          _requestingPayouts
-                      )
+                      .createNewCampaign(_interval, _minAmount, _campaignURI, _tokenTiers)
 
                   const _campaignAddress = await campaignFactory.getLastDeployedCampaign()
 

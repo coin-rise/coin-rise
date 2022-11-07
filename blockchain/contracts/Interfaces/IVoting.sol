@@ -16,6 +16,7 @@ interface IVoting {
     struct VotingInformation {
         uint256 lastRequestId;
         uint256 totalRequestedAmount;
+        uint256 totalRequests;
         uint256 quorumPercentage;
         bool initialized;
     }
@@ -55,4 +56,19 @@ interface IVoting {
     function executeRequest(uint256 _requestId, address _campaignAddress)
         external
         returns (bool approved);
+
+    function getVotingInformation(address _campaignAddress)
+        external
+        view
+        returns (VotingInformation memory);
+
+    function getRequestInformation(address _campaignAddress, uint256 _requestId)
+        external
+        view
+        returns (RequestInformation memory);
+
+    function getFinishedRequestsFromCampaign(address _campaignAddress)
+        external
+        view
+        returns (uint256[] memory);
 }

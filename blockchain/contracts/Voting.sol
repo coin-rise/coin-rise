@@ -25,6 +25,7 @@ contract Voting {
     struct VotingInformation {
         uint256 lastRequestId;
         uint256 totalRequestedAmount;
+        uint256 totalRequests;
         uint256 quorumPercentage;
         bool initialized;
     }
@@ -120,6 +121,7 @@ contract Voting {
         campaignVotingInformations[_campaignAddress] = VotingInformation(
             0,
             0,
+            0,
             _quorumPercentage,
             true
         );
@@ -149,6 +151,20 @@ contract Voting {
                 approved = true;
                 requestsFromCampaigns[_campaignAddress][_requestId]
                     .approved = true;
+
+                //Send the tokens to the receiver address
+
+                address _receiver = requestsFromCampaigns[_campaignAddress][
+                    _requestId
+                ].to;
+                uint256 _amount = requestsFromCampaigns[_campaignAddress][
+                    _requestId
+                ].tokenAmount;
+
+                ICampaign(_campaignAddress).transferStableTokensAfterRequest(
+                    _receiver,
+                    _amount
+                );
             }
         }
         requestsFromCampaigns[_campaignAddress][_requestId].executed = true;
@@ -230,7 +246,7 @@ contract Voting {
     function getFinishedRequestsFromCampaign(address _campaignAddress)
         external
         view
-        returns (RequestInformation[] memory)
+        returns (uint256[] memory)
     {
         uint256 _counter;
 
@@ -242,25 +258,24 @@ contract Voting {
             RequestInformation memory _info = requestsFromCampaigns[
                 _campaignAddress
             ][index];
-            if (block.timestamp >= _info.endDate) {
+            if ((block.timestamp >= _info.endDate) && !_info.executed) {
                 _counter++;
             }
         }
 
-        RequestInformation[]
-            memory _finishedRequests = new RequestInformation[](_counter);
+        uint256[] memory _finishedRequests = new uint256[](_counter);
         uint256 _arrayIndex = 0;
 
         for (
-            uint256 index;
+            uint256 index = 1;
             index < campaignVotingInformations[_campaignAddress].lastRequestId;
             index++
         ) {
             RequestInformation memory _info = requestsFromCampaigns[
                 _campaignAddress
             ][index];
-            if (block.timestamp >= _info.endDate) {
-                _finishedRequests[_arrayIndex] = _info;
+            if ((block.timestamp >= _info.endDate) && !_info.executed) {
+                _finishedRequests[_arrayIndex] = index;
                 _arrayIndex++;
             }
         }

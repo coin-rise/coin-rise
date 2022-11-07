@@ -17,6 +17,7 @@ error Campaign__NotSuccessfulFunded();
 error Campaign_SuccessfulFunded();
 error Campaign__PayoutsNeedSuccessfulApproved();
 error Campaign__SenderIsNotContributor();
+error Campaign__SenderIsNotVotingContract();
 
 contract Campaign is Initializable, OwnableUpgradeable {
     enum TokenTier {
@@ -32,20 +33,22 @@ contract Campaign is Initializable, OwnableUpgradeable {
         bool allowableToMint;
     }
 
+    /* ====== State Variables ====== */
+
     uint256 private duration;
     uint256 private totalSupply;
     uint256 private startDate;
     uint256 private endDate;
     uint256 private minAmount;
+    bool private requestingPayouts;
 
     address private submitter;
-    address private votingContractAddress;
-
     string private campaignURI;
 
     bool private fundingPhase;
     bool private successfulFunded;
-    bool private requestingPayouts;
+
+    address private votingContractAddress;
 
     uint256[] private tokenTiers = new uint256[](3);
 
@@ -57,6 +60,8 @@ contract Campaign is Initializable, OwnableUpgradeable {
     mapping(address => ContributorInfo) public contributors;
     uint256 private numContributors;
 
+    /* ====== Events ====== */
+
     event TokensTransfered(address to, uint256 amount);
     event SubmitterAddressChanged(address newAddress);
     event UpdateContributor(
@@ -64,6 +69,8 @@ contract Campaign is Initializable, OwnableUpgradeable {
         uint256 amount,
         TokenTier tier
     );
+
+    /* ====== Modifier ====== */
 
     modifier onlySubmitter() {
         if (msg.sender != submitter) {
@@ -108,11 +115,31 @@ contract Campaign is Initializable, OwnableUpgradeable {
         _;
     }
 
+    modifier isVotingContract() {
+        if (msg.sender != votingContractAddress) {
+            revert Campaign__SenderIsNotVotingContract();
+        }
+        _;
+    }
+
+    /* ====== Functions ====== */
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
     }
 
+    /**
+     * @dev - function has to be called after the contract was cloned
+     * @param _duration - the duration of the campaign until it's finished
+     * @param _submitter - the address of the campaign submitter
+     * @param _token - the address of the used stable token
+     * @param _coinRiseToken - the address of the NFT tokens for the contributors
+     * @param _minAmount -
+     * @param _campaignURI -
+     * @param _tokenTiers -
+     * @param _requestingPayouts -
+     */
     function initialize(
         uint256 _duration,
         address _submitter,
@@ -142,51 +169,6 @@ contract Campaign is Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
-    /* ========== PUBLIC METHODS ========== */
-
-    /**
-     * @dev keep track of supporters contribustion
-     */
-    function addContributor(address _contributor, uint256 _amount)
-        external
-        onlyOwner
-        fundingNotFinished
-    {
-        require(_contributor != address(0), "Invalid address");
-
-        contributors[_contributor].contributionAmount =
-            contributors[_contributor].contributionAmount +
-            _amount;
-
-        (TokenTier _tier, bool _allowable) = checkForTokenTier(
-            contributors[_contributor].contributionAmount
-        );
-
-        contributors[_contributor].allowableToMint = _allowable;
-        contributors[_contributor].tier = _tier;
-
-        numContributors += 1;
-
-        totalSupply += _amount;
-
-        emit UpdateContributor(
-            _contributor,
-            contributors[_contributor].contributionAmount,
-            _tier
-        );
-    }
-
-    /**
-     * @dev update Submitter Address
-     */
-    function updateSubmitterAddress(address _submitter) public onlyOwner {
-        require(_submitter != address(0), "Invalid address");
-
-        submitter = _submitter;
-
-        emit SubmitterAddressChanged(_submitter);
-    }
-
     /**
      * @dev - the submitter can transfer after the campaign is finished the tokens to an address
      * @param _to - the address to receive the tokens
@@ -198,28 +180,16 @@ contract Campaign is Initializable, OwnableUpgradeable {
         fundingFinished
         isSuccessfulFunded
     {
-        if (_amount == 0) {
-            revert Campaign_TokenAmountIsZero();
-        }
-        if (_to == address(0)) {
-            revert Campaign__AddressIsZeroAddress();
-        }
+        _transferStableTokens(_to, _amount, false);
+    }
 
-        if (requestingPayouts) {
-            revert Campaign__PayoutsNeedSuccessfulApproved();
-        }
-
-        uint256 _totalSupply = totalSupply;
-
-        if (_totalSupply < _amount) {
-            revert Campaign_AmountExceedTotalSupply();
-        }
-
-        require(token.transfer(_to, _amount));
-
-        totalSupply -= _amount;
-
-        emit TokensTransfered(_to, _amount);
+    function transferStableTokensAfterRequest(address _to, uint256 _amount)
+        external
+        isSuccessfulFunded
+        fundingFinished
+        isVotingContract
+    {
+        _transferStableTokens(_to, _amount, true);
     }
 
     function transferStableTokensWithRequest(
@@ -264,6 +234,51 @@ contract Campaign is Initializable, OwnableUpgradeable {
         }
     }
 
+    /* ========== Functions CampaignManager ========== */
+
+    /**
+     * @dev keep track of supporters contribustion
+     */
+    function addContributor(address _contributor, uint256 _amount)
+        external
+        onlyOwner
+        fundingNotFinished
+    {
+        require(_contributor != address(0), "Invalid address");
+
+        contributors[_contributor].contributionAmount =
+            contributors[_contributor].contributionAmount +
+            _amount;
+
+        (TokenTier _tier, bool _allowable) = checkForTokenTier(
+            contributors[_contributor].contributionAmount
+        );
+
+        contributors[_contributor].allowableToMint = _allowable;
+        contributors[_contributor].tier = _tier;
+
+        numContributors += 1;
+
+        totalSupply += _amount;
+
+        emit UpdateContributor(
+            _contributor,
+            contributors[_contributor].contributionAmount,
+            _tier
+        );
+    }
+
+    /**
+     * @dev update Submitter Address
+     */
+    function updateSubmitterAddress(address _submitter) public onlyOwner {
+        require(_submitter != address(0), "Invalid address");
+
+        submitter = _submitter;
+
+        emit SubmitterAddressChanged(_submitter);
+    }
+
     function setContributionToZero(address _contributor)
         external
         onlyOwner
@@ -297,6 +312,35 @@ contract Campaign is Initializable, OwnableUpgradeable {
 
     function _initializeTokenTiers(uint256[3] memory _tokenTiers) internal {
         tokenTiers = _tokenTiers;
+    }
+
+    function _transferStableTokens(
+        address _to,
+        uint256 _amount,
+        bool _voting
+    ) internal {
+        if (_amount == 0) {
+            revert Campaign_TokenAmountIsZero();
+        }
+        if (_to == address(0)) {
+            revert Campaign__AddressIsZeroAddress();
+        }
+
+        if (requestingPayouts && !_voting) {
+            revert Campaign__PayoutsNeedSuccessfulApproved();
+        }
+
+        uint256 _totalSupply = totalSupply;
+
+        if (_totalSupply < _amount) {
+            revert Campaign_AmountExceedTotalSupply();
+        }
+
+        require(token.transfer(_to, _amount));
+
+        totalSupply -= _amount;
+
+        emit TokensTransfered(_to, _amount);
     }
 
     /* ========== View Functions ========== */
@@ -382,11 +426,47 @@ contract Campaign is Initializable, OwnableUpgradeable {
         return successfulFunded;
     }
 
+    function getTokenTiers() external view returns (uint256[] memory) {
+        return tokenTiers;
+    }
+
+    function isCampaignVotable() external view returns (bool) {
+        return requestingPayouts;
+    }
+
+    function getVotingContractAddress() external view returns (address) {
+        return votingContractAddress;
+    }
+
     function getContributorInfo(address _contributor)
         external
         view
         returns (ContributorInfo memory)
     {
         return contributors[_contributor];
+    }
+
+    function getAllRequests()
+        external
+        view
+        returns (IVoting.RequestInformation[] memory)
+    {
+        IVoting.VotingInformation memory _campaignInfo = IVoting(
+            votingContractAddress
+        ).getVotingInformation(address(this));
+
+        uint256 _numRequests = _campaignInfo.totalRequests;
+        IVoting.RequestInformation[]
+            memory _requests = new IVoting.RequestInformation[](_numRequests);
+
+        for (uint256 index = 1; index <= _numRequests; index++) {
+            IVoting.RequestInformation memory _info = IVoting(
+                votingContractAddress
+            ).getRequestInformation(address(this), index);
+
+            _requests[index - 1] = _info;
+        }
+
+        return _requests;
     }
 }
