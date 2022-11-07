@@ -19,6 +19,16 @@
           "internalType": "address",
           "name": "_token",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_minAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_campaignURI",
+          "type": "string"
         }
       ],
       "name": "deployNewContract",
