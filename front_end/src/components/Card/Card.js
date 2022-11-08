@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { ReactComponent as Like } from "../../assets/Like.svg";
 import { ReactComponent as Clock } from "../../assets/Clock.svg";
-
+import { ethers, BigNumber } from "ethers";
 import CircularProgress, {
   circularProgressClasses,
 } from "@mui/material/CircularProgress";
@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
+import CampaignAbi from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -23,8 +24,202 @@ export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     backgroundColor: theme.palette.mode === "light" ? "#5CA05F" : "#308fe8",
   },
 }));
-const Card = ({ campaignName, campaignInfo, videoLink, extraInfo }) => {
+const Card = ({
+  campaignName,
+  campaignInfo,
+  videoLink,
+  extraInfo,
+  address,
+}) => {
   const [value] = useState(50);
+  const [contributor, setContributor] = useState();
+  const [remaining, setRemaining] = useState();
+  const [totalSuply, setTotalSuply] = useState();
+  const [minAmount, setMinAmount] = useState();
+
+  const getNumberOfContributor = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let numberContributor = await contract.getNumberOfContributor();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c number of Contributor =  %s",
+          stylesMining,
+          numberContributor
+        );
+        setContributor(numberContributor?.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+   * Get Remaining Funding Time of a Campaign
+   */
+  const getRemainingFundingTime = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let RemainingFundingTime = await contract.getRemainingFundingTime();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c Remaining Funding Time of a Campaign =  %s",
+          stylesMining,
+          RemainingFundingTime
+        );
+        setRemaining(RemainingFundingTime?.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+   * Get the status of the Funding
+   */
+  const isFundingActive = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let isactive = await contract.isFundingActive();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c is Funding Active =  %s", stylesMining, isactive);
+        return isactive;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+   * Get the status of the Funding
+   */
+  const getFundingStatus = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let successfulFunded = await contract.getFundingStatus();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c is Funding successful =  %s",
+          stylesMining,
+          successfulFunded
+        );
+        return successfulFunded;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  /**
+   * Get the TotalSupply of the campaign
+   */
+  const getTotalSupply = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let TotalSupply = await contract.getTotalSupply();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c is Funding Active =  %s", stylesMining, TotalSupply);
+        setTotalSuply(TotalSupply?.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  /**
+   * Get the min amount of the campaign
+   */
+  const getMinAmount = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let MinAmount = await contract.getMinAmount();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c min amount =  %s", stylesMining, MinAmount);
+        setMinAmount(MinAmount.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  useEffect(() => {
+    getNumberOfContributor(address);
+    getRemainingFundingTime(address);
+    isFundingActive(address);
+    getFundingStatus(address);
+    getTotalSupply(address);
+    getMinAmount(address);
+  }, []);
   return (
     <Box
       mt={2}
@@ -63,17 +258,20 @@ const Card = ({ campaignName, campaignInfo, videoLink, extraInfo }) => {
       <Box mx={2} mt={2}>
         <Box display="flex" alignItems="center">
           <Box display="flex" justifyContent="flex-start" width="100%">
-            <p>$546 Raised</p>
+            <p>{totalSuply && totalSuply}$ Raised</p>
           </Box>
           <Box display="flex" justifyContent="flex-end" width="100%">
-            {value}%
+            {(totalSuply / minAmount) * 100}%
           </Box>
         </Box>
-        <BorderLinearProgress variant="determinate" value={value} />
+        <BorderLinearProgress
+          variant="determinate"
+          value={totalSuply / minAmount}
+        />
       </Box>
       <Box ml={2} mt={2} display="flex" alignItems="center">
         <Clock width="20px" height="20px" style={{ marginRight: "10px" }} />
-        <p style={{ margin: 0 }}>25 days</p>
+        <p style={{ margin: 0 }}>{remaining && remaining} days</p>
       </Box>
     </Box>
   );
