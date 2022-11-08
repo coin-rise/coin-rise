@@ -311,11 +311,14 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
                 uint256 _totalFunds = _campaign.getTotalSupply();
                 if (_totalFunds > 0 && _successfulFunded) {
-                    //TODO: If campaign is not a voting campaign send the funds directly to the submitter
-                    _transferTotalFundsToCampaign(
-                        _totalFunds,
-                        _activeCampaigns[i]
-                    );
+                    bool _voting = _campaign.isCampaignVotable();
+
+                    if (_voting) {
+                        _transferTotalFundsToCampaign(
+                            _totalFunds,
+                            _activeCampaigns[i]
+                        );
+                    } else {}
                 } else {
                     _transferStableTokensToContributorPool(
                         _totalFunds,

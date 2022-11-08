@@ -12,6 +12,7 @@ For the submitter:
 
 ## Roadmap
 
+-   automatisation for sending the funds of a non voting campaign to the submitter
 -   writing staging tests for all possible scenarios
 
 ## Environment Variables

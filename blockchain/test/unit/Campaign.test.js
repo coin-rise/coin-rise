@@ -198,6 +198,27 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       .connect(submitter)
                       .transferStableTokens(contributor1.address, _amount)
               })
+
+              it("fail to transfer stable tokens if the sender is not the submitter", async () => {
+                  const { _newCampaign, badActor, contributor1, stableMockToken } =
+                      await loadFixture(deployCampaignFixture)
+
+                  const _amount = ethers.utils.parseEther("100")
+
+                  await _newCampaign.addContributor(contributor1.address, _amount)
+
+                  const _duration = await _newCampaign.getDuration()
+
+                  await time.increase(_duration)
+
+                  await _newCampaign.finishFunding()
+
+                  await stableMockToken.mint(_newCampaign.address, _amount)
+
+                  await expect(
+                      _newCampaign.connect(badActor).transferStableTokens(badActor.address, _amount)
+                  ).to.be.revertedWithCustomError(_newCampaign, "Campaign__NotTheSubmitter")
+              })
           })
 
           describe("#setContributionToZero", () => {

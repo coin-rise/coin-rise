@@ -46,10 +46,17 @@ developmentChains.includes(network.name)
                   const _duration = 90
                   const _minAmount = ethers.utils.parseEther("200")
                   const _campaignURI = "test"
+
+                  const _tierOne = ethers.utils.parseEther("2")
+                  const _tierTwo = ethers.utils.parseEther("4")
+                  const _tierThree = ethers.utils.parseEther("6")
+
+                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
                   let tx = await campaignManager.createNewCampaign(
                       _duration,
                       _minAmount,
-                      _campaignURI
+                      _campaignURI,
+                      _tokenTiers
                   )
                   const txReceipt = await tx.wait()
 
@@ -154,10 +161,18 @@ developmentChains.includes(network.name)
                           const _duration = 90
                           const _minAmount = ethers.utils.parseEther("200")
                           const _campaignURI = "test"
+
+                          const _tierOne = ethers.utils.parseEther("2")
+                          const _tierTwo = ethers.utils.parseEther("4")
+                          const _tierThree = ethers.utils.parseEther("6")
+
+                          const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
                           let tx = await campaignManager.createNewCampaign(
                               _duration,
                               _minAmount,
-                              _campaignURI
+                              _campaignURI,
+                              _tokenTiers
                           )
                           const txReceipt = await tx.wait()
 
