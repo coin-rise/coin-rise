@@ -12,6 +12,7 @@ import {
   storeFiles,
   makeFileObjects,
   retrieveData,
+  retrieveImg,
   loadData,
 } from "../components/Storage";
 
@@ -143,10 +144,10 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
-  
-/**
-* Get the status of the Funding
-*/
+
+  /**
+  * Get the status of the Funding
+  */
   const getFundingStatus = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -198,6 +199,33 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
+
+  /** Uses `URL.createObjectURL` free returned ObjectURL with `URL.RevokeObjectURL` when done with it.
+ * 
+ * @param {string} cid CID you want to retrieve
+ * @param {string} mime mimetype of image (optional, but useful)
+ * @returns ObjectURL
+ */
+  async function loadImgURL(cid, mime) {
+    if (cid == "" || cid == null || cid == undefined) {
+      return;
+    }
+    try {
+
+      const content = [];
+      const imageBlob = await retrieveImg(cid)
+      const imageObjectURL = URL.createObjectURL(new Blob(content, { type: mime }));
+      console.log(imageObjectURL);
+      return imageObjectURL;
+    } catch (error) {
+
+    }
+  }
+
+  async function setImage() {
+    document.getElementById("myImage").src = await loadImgURL("bafybeibtnqx7rf2mylyjjglh7scoi3ldo4hj3xk3mpkaqdnmhbf47dggsq", "image/jpg")
+  }
+
   const [CampaignsData, setCampaignsData] = useState();
   const getCampaignData = async (address) => {
     try {
@@ -213,14 +241,9 @@ const SpecificPage = () => {
   useEffect(() => {
     getCampaignData(id);
   }, []);
-  useEffect(()=>{
-    const a = '3097A544d68C09eaf57Fd71eedD8dF841D616425';
-    getNumberOfContributor(a);
-    getRemainingFundingTime(a);
-    isFundingActive(a);
-    getFundingStatus(a);
-    getTotalSupply(a);
-  },[]);
+  useEffect(() => {
+    setImage();
+  }, []);
   return (
     <Box px={4}>
       <Box display="flex">
@@ -317,6 +340,13 @@ const SpecificPage = () => {
           ]}
         />
       </Box>
+      <body>
+        <img id="myImage" />
+        <script>
+
+          setImage();
+        </script>
+      </body>
       <h1>Additional Information</h1>
       {CampaignsData?.extraInfo}
 
