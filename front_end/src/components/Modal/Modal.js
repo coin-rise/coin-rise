@@ -9,9 +9,9 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 700,
   backgroundColor: "white",
   p: 4,
+  borderRadius:"10px"
 };
 
 export default function BasicModal({ open, handleClose, children, props }) {

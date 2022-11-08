@@ -8,10 +8,18 @@ import ProejctPage from "./ProejctPage";
 import Sponsor1 from "../assets/Sponsor1.svg";
 import Sponsor2 from "../assets/Sponsor2.svg";
 import Sponsor3 from "../assets/Sponsor3.svg";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [data, setData] = useState([]);
+  const navigate=useNavigate()
+  function handleSubmit(){
+    navigate('/submit')
+  }
+  function handleFund(){
+    navigate('/project')
 
+  }
   return (
     <div
       style={{
@@ -48,8 +56,10 @@ function Home() {
             cursor: "pointer",
             marginRight: "20px",
           }}
+          onClick={handleSubmit}
         >
-          Register
+          Submit
+
         </button>
         <button
           style={{
@@ -65,6 +75,7 @@ function Home() {
             cursor: "pointer",
             border: "3px solid #11484F",
           }}
+          onClick={handleFund}
         >
           Fund a project
         </button>

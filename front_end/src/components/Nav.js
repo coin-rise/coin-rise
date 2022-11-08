@@ -222,7 +222,13 @@ function Nav({ children }) {
               }}
               mt={2}
             >
-              <p style={{ margin: 0, color: "white" }}>Github</p>
+              {" "}
+              <a
+                href="https://github.com/coin-rise/coin-rise"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                <p style={{ margin: 0, color: "white" }}>Github</p>
+              </a>
               <GithubLogo />
             </Box>
           </Box>

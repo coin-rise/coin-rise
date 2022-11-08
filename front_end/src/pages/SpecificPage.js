@@ -25,6 +25,27 @@ const SpecificPage = () => {
   function handleOpen() {
     setOpen(true);
   }
+  const [contributor, setContributor] = useState();
+  const [remaining, setRemaining] = useState();
+  const [totalSuply, setTotalSuply] = useState();
+  const [minAmount, setMinAmount] = useState();
+  const [userAddress, setUserAddress] = useState();
+  const [fundDetails, setFundDetails] = useState({ option: "", value: "" });
+  useEffect(() => {
+    const onNewSigner = async () => {
+      let addr;
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+
+        addr = await signer.getAddress();
+
+        setUserAddress(addr.toString());
+      }
+    };
+
+    onNewSigner();
+  }, [window.ethereum]);
   const style = {
     borderRadius: "10px",
     color: "white",
@@ -61,8 +82,8 @@ const SpecificPage = () => {
   };
 
   /**
-  * Get Number Of Contributors in the Campaign
-  */
+   * Get Number Of Contributors in the Campaign
+   */
   const getNumberOfContributor = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -78,8 +99,12 @@ const SpecificPage = () => {
 
         let numberContributor = await contract.getNumberOfContributor();
         const stylesMining = ["color: black", "background: yellow"].join(";");
-        console.log("%c number of Contributor =  %s", stylesMining, numberContributor);
-        return numberContributor;
+        console.log(
+          "%c number of Contributor =  %s",
+          stylesMining,
+          numberContributor
+        );
+        setContributor(numberContributor?.toNumber());
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -89,8 +114,8 @@ const SpecificPage = () => {
   };
 
   /**
-  * Get Remaining Funding Time of a Campaign
-  */
+   * Get Remaining Funding Time of a Campaign
+   */
   const getRemainingFundingTime = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -106,8 +131,12 @@ const SpecificPage = () => {
 
         let RemainingFundingTime = await contract.getRemainingFundingTime();
         const stylesMining = ["color: black", "background: yellow"].join(";");
-        console.log("%c Remaining Funding Time of a Campaign =  %s", stylesMining, RemainingFundingTime);
-        return RemainingFundingTime;
+        console.log(
+          "%c Remaining Funding Time of a Campaign =  %s",
+          stylesMining,
+          RemainingFundingTime
+        );
+        setRemaining(RemainingFundingTime?.toNumber());
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -117,8 +146,8 @@ const SpecificPage = () => {
   };
 
   /**
- * Get the status of the Funding
- */
+   * Get the status of the Funding
+   */
   const isFundingActive = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -143,10 +172,10 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
-  
-/**
-* Get the status of the Funding
-*/
+
+  /**
+   * Get the status of the Funding
+   */
   const getFundingStatus = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -162,7 +191,11 @@ const SpecificPage = () => {
 
         let successfulFunded = await contract.getFundingStatus();
         const stylesMining = ["color: black", "background: yellow"].join(";");
-        console.log("%c is Funding successful =  %s", stylesMining, successfulFunded);
+        console.log(
+          "%c is Funding successful =  %s",
+          stylesMining,
+          successfulFunded
+        );
         return successfulFunded;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -172,8 +205,8 @@ const SpecificPage = () => {
     }
   };
   /**
-  * Get the TotalSupply of the campaign
-  */
+   * Get the TotalSupply of the campaign
+   */
   const getTotalSupply = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -190,7 +223,34 @@ const SpecificPage = () => {
         let TotalSupply = await contract.getTotalSupply();
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log("%c is Funding Active =  %s", stylesMining, TotalSupply);
-        return TotalSupply;
+        setTotalSuply(TotalSupply?.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  /**
+   * Get the min amount of the campaign
+   */
+  const getMinAmount = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi.abi,
+          provider
+        );
+
+        let MinAmount = await contract.getMinAmount();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c min amount =  %s", stylesMining, MinAmount);
+        setMinAmount(MinAmount.toNumber());
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -213,14 +273,14 @@ const SpecificPage = () => {
   useEffect(() => {
     getCampaignData(id);
   }, []);
-  useEffect(()=>{
-    const a = '3097A544d68C09eaf57Fd71eedD8dF841D616425';
-    getNumberOfContributor(a);
-    getRemainingFundingTime(a);
-    isFundingActive(a);
-    getFundingStatus(a);
-    getTotalSupply(a);
-  },[]);
+  useEffect(() => {
+    getNumberOfContributor(id);
+    getRemainingFundingTime(id);
+    isFundingActive(id);
+    getFundingStatus(id);
+    getTotalSupply(id);
+    getMinAmount(id);
+  }, []);
   return (
     <Box px={4}>
       <Box display="flex">
@@ -249,7 +309,7 @@ const SpecificPage = () => {
                 fontWeight: 400,
               }}
             >
-              46%
+              {(totalSuply / minAmount) * 100} %
             </Avatar>
             <Box dispaly="flex" flexDirection="column">
               <h1 style={{ margin: 0 }}>{CampaignsData?.campaignName}</h1>
@@ -259,8 +319,13 @@ const SpecificPage = () => {
                   height="20px"
                   style={{ marginRight: "10px" }}
                 />
-                <p style={{ margin: 0 }}>25 days</p>
+                <p style={{ margin: 0 }}>
+                  {remaining && Math.floor(remaining / (3600 * 24))} days
+                </p>
               </Box>
+              <p style={{ margin: 0, marginTop: "10px" }}>
+                {contributor && contributor?.toNumber()} Contributors
+              </p>
             </Box>
           </Box>
           <Box display="flex" width="100%" justifyContent="center">
@@ -293,15 +358,17 @@ const SpecificPage = () => {
             justifyContent="flex-start"
             width="92%"
           >
-            <p style={{ margin: 0, width: "20%" }}>$546 Raised</p>
+            <p style={{ margin: 0, width: "20%" }}>
+              {totalSuply && totalSuply} $ Raised
+            </p>
             <BorderLinearProgress
               variant="determinate"
-              value={50}
+              value={totalSuply / minAmount}
               style={{ width: "60%" }}
             />{" "}
           </Box>
           <Box>
-            <p style={{ margin: 0 }}>1200 $ needed</p>
+            <p style={{ margin: 0 }}>{minAmount && minAmount} $ needed</p>
           </Box>
         </Box>
       </Box>
@@ -327,14 +394,30 @@ const SpecificPage = () => {
           tabsBar={["Fund", "Swap"]}
           tabsContent={[
             <div>
-              <h1 style={{ margin: 0 }}>
-                Wallet Connected : kj1k23j123axzc213123
-              </h1>
+              <div style={{ display: "flex" }}>
+                <h1 style={{ margin: 0 }}>Wallet Connected </h1>
+                <p> {userAddress}</p>
+              </div>
               <Box mt={4}>
-                <Inputs type="select" options={["Non-Profit"]} width={250} />
+                <h4 style={{ margin: 0 }}>Select stable coin</h4>
+                <Inputs
+                  type="select"
+                  options={["DAI", "USDC"]}
+                  width={250}
+                  onChange={(e) =>
+                    setFundDetails({ ...fundDetails, option: e.target.value })
+                  }
+                />
               </Box>
               <Box my={4}>
-                <Inputs type="text" width={450} />
+                <h4 style={{ margin: 0 }}>Funding Amount</h4>
+                <Inputs
+                  type="text"
+                  width={450}
+                  onChange={(e) =>
+                    setFundDetails({ ...fundDetails, value: e.target.value })
+                  }
+                />
               </Box>
               <button
                 style={{
