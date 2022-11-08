@@ -284,17 +284,19 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       .connect(submitter)
                       .transferStableTokensWithRequest(receiver.address, _sendingAmount, _duration)
 
-                  const _requests = await voting.getRequestInformation(campaign.address, 1)
+                  //   const _requests = await campaign.getAllRequests()
 
-                  console.log(_requests)
+                  await campaign.connect(contributor).voteOnTransferRequest(1, true)
 
-                  const _balanceBefor = await mockToken.balanceOf(receiver.address)
+                  const _balanceBefore = await mockToken.balanceOf(receiver.address)
 
                   await time.increase(_duration + 1)
 
                   await mockKeeperFunctions(campaignManager)
 
                   const _balanceAfter = await mockToken.balanceOf(receiver.address)
+                  console.log(_balanceBefore, _balanceAfter)
+                  assert(_balanceAfter.gt(_balanceBefore))
               })
           })
 
@@ -492,6 +494,8 @@ async function createNewCampaignWithVotes(campaignManager, caller) {
 
 async function mockKeeperFunctions(campaignManager) {
     const _answer = await campaignManager.checkUpkeep("0x")
+
+    // const data = ethers.utils.defaultAbiCoder.decode(["uint256", "address[]"], _answer.performData)
 
     await campaignManager.performUpkeep(_answer.performData)
 }

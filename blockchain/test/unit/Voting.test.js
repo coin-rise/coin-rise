@@ -132,6 +132,41 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   assert(_campaignVotingInfo.lastRequestId.eq(ethers.constants.One))
               })
+
+              it("failed when the amount of request is greater then the actual supply", async () => {
+                  const {
+                      voting,
+                      votingCampaign,
+                      submitter,
+                      contributor,
+                      mockToken,
+                      campaignManager,
+                      fundsReceiver,
+                  } = await loadFixture(deployVotingFixture)
+
+                  await finishCampaignSuccessfull(
+                      votingCampaign,
+                      mockToken,
+                      contributor,
+                      campaignManager
+                  )
+
+                  const _totalSupply = await votingCampaign.getTotalSupply()
+                  const _amount = _totalSupply.mul(ethers.constants.Two)
+
+                  //TODO: Write new test
+
+                  await expect(
+                      votingCampaign.transferStableTokensWithRequest(
+                          fundsReceiver.address,
+                          _amount,
+                          30
+                      )
+                  ).to.be.reverted
+                  //   await votingCampaign
+                  //       .connect(submitter)
+                  //       .transferStableTokensWithRequest(fundsReceiver.address, _amount, 30)
+              })
           })
 
           describe("#voteOnRequest", () => {
@@ -235,3 +270,18 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
           })
       })
+
+async function finishCampaignSuccessfull(campaign, mockToken, contributor, campaignManager) {
+    const _minAmount = await campaign.getMinAmount()
+
+    await mockToken.mint(contributor.address, _minAmount)
+    await mockToken.connect(contributor).approve(campaignManager.address, _minAmount)
+
+    await campaignManager.connect(contributor).contributeCampaign(_minAmount, campaign.address)
+
+    const _remainingTime = await campaign.getRemainingFundingTime()
+    await time.increase(_remainingTime)
+
+    const _data = await campaignManager.checkUpkeep("0x")
+    await campaignManager.performUpkeep(_data.performData)
+}

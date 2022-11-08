@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./Interfaces/ICampaign.sol";
 
-error Voting_AmountExceedTotalSupply();
+error Voting__AmountExceedTotalSupply();
 error Voting__NotTheManagerContract();
 error Voting__InformationAlreadyInitialized();
 error Voting__RequestNotVotable();
@@ -89,12 +89,13 @@ contract Voting {
         VotingInformation memory _info = campaignVotingInformations[msg.sender];
 
         if (_amount > _totalSupply - _info.totalRequestedAmount) {
-            revert Voting_AmountExceedTotalSupply();
+            revert Voting__AmountExceedTotalSupply();
         }
 
         uint256 _endDate = block.timestamp + _requestDuration;
 
         campaignVotingInformations[msg.sender].lastRequestId++;
+        campaignVotingInformations[msg.sender].totalRequests++;
         campaignVotingInformations[msg.sender].totalRequestedAmount += _amount;
 
         requestsFromCampaigns[msg.sender][
@@ -174,7 +175,7 @@ contract Voting {
         address _contributor,
         uint256 _requestId,
         bool _approve
-    ) external {
+    ) external isInitializedCampaign {
         address _campaign = msg.sender;
 
         RequestInformation memory _requestInfo = requestsFromCampaigns[
@@ -252,7 +253,7 @@ contract Voting {
 
         for (
             uint256 index;
-            index < campaignVotingInformations[_campaignAddress].lastRequestId;
+            index < campaignVotingInformations[_campaignAddress].totalRequests;
             index++
         ) {
             RequestInformation memory _info = requestsFromCampaigns[
@@ -268,7 +269,7 @@ contract Voting {
 
         for (
             uint256 index = 1;
-            index < campaignVotingInformations[_campaignAddress].lastRequestId;
+            index <= campaignVotingInformations[_campaignAddress].totalRequests;
             index++
         ) {
             RequestInformation memory _info = requestsFromCampaigns[
