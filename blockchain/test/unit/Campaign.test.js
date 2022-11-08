@@ -26,12 +26,26 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const minAmount = ethers.utils.parseEther("2")
               const campaignURI = "test"
 
+              const CoinRiseNFT = await ethers.getContractFactory("CoinRiseNFT")
+              const coinRiseNft = await CoinRiseNFT.deploy()
+
+              const _tierOne = ethers.utils.parseEther("2")
+              const _tierTwo = ethers.utils.parseEther("4")
+              const _tierThree = ethers.utils.parseEther("6")
+
+              const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+              const _requestingPayouts = false
+
               await campaignFactory.deployNewContract(
                   _deadline,
                   submitter.address,
                   stableMockToken.address,
+                  coinRiseNft.address,
                   minAmount,
-                  campaignURI
+                  campaignURI,
+                  _tokenTiers,
+                  _requestingPayouts
               )
 
               const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
@@ -51,21 +65,39 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   minAmount,
                   newSubmitter,
                   badActor,
+                  coinRiseNft,
               }
           }
 
           describe("#initialize", () => {
               it("reverts after trying to initialize the contract again", async () => {
-                  const { campaign, stableMockToken, submitter, minAmount, campaignURI } =
-                      await loadFixture(deployCampaignFixture)
+                  const {
+                      campaign,
+                      stableMockToken,
+                      submitter,
+                      minAmount,
+                      campaignURI,
+                      coinRiseNft,
+                  } = await loadFixture(deployCampaignFixture)
+
+                  const _tierOne = ethers.utils.parseEther("2")
+                  const _tierTwo = ethers.utils.parseEther("4")
+                  const _tierThree = ethers.utils.parseEther("6")
+
+                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
+                  const _requestingPayouts = false
 
                   await expect(
                       campaign.initialize(
                           30,
                           submitter.address,
                           stableMockToken.address,
+                          coinRiseNft.address,
                           minAmount,
-                          campaignURI
+                          campaignURI,
+                          _tokenTiers,
+                          _requestingPayouts
                       )
                   ).to.be.revertedWith("Initializable: contract is already initialized")
               })
@@ -237,6 +269,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _campaignURI = await _newCampaign.getCampaignURI()
 
                   assert.equal(_campaignURI, "newURI")
+              })
+          })
+
+          describe("#transferStableTokensAfterRequest", () => {
+              it("successfully transfer the tokens after the request was successful", async () => {
+                  const { _newCampaign } = await loadFixture(deployCampaignFixture)
               })
           })
       })

@@ -12,7 +12,7 @@ For the submitter:
 
 ## Roadmap
 
--   Adding Featuers like yield generating or NFT's creation for contributors
+-   writing staging tests for all possible scenarios
 
 ## Environment Variables
 
@@ -110,65 +110,54 @@ All ABIs and addresses can be retrieved after deployment under "./deployments/de
 
 Each campaign has its own smart contract. The addresses of the campaign can be found through the CampaignFactory.
 
-In this section all necessary functions are listed to interact with the protcol.
+### 1. Campaign Creation
 
-1. CampaignManager
+The creation of a campaign is carried out with CampaignManager Contract.
 
-&emsp; `createNewCampaign`
+<ins>Create a campaign without voting system:</ins>
 
-&emsp; `contributeCampaign`
+```
+  createNewCampaign(
+        uint256 _deadline,
+        uint256 _minAmount,
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers
+    )
+```
 
-&emsp; `setFees`
+| Parameter      | Type        | Description                                     |
+| :------------- | :---------- | :---------------------------------------------- |
+| `_deadline`    | `uint256`   | duration of the funding process                 |
+| `_minAmount`   | `uint256`   | minimum Amount of Tokens for successful funding |
+| `_campaignURI` | `string`    | IPFS link of the campaign data                  |
+| `_tokenTiers`  | `uint256[]` | funding breakpoints for token tiers of the NFT  |
 
-&emsp; `calculateFees`
+<ins>Create a campaign with voting system:</ins>
 
-&emsp; `getFees`
+```
+  function createNewCampaignWithVoting(
+        uint256 _deadline,
+        uint256 _minAmount,
+        string memory _campaignURI,
+        uint256[3] memory _tokenTiers,
+        uint256 _quorumPercentage
+    )
+```
 
-&emsp; `getActiveCampaigns`
-
-2. CampaignFactory
-
-&emsp; `getDeployedCampaignContracts`
-
-&emsp; `getLastDeployedCampaign`
-
-3. Campaign "Clone"
-
-&emsp; `transferStableTokens`
-
-&emsp; `updateSubmitterAddress`
-
-&emsp; `getEndDate`
-
-&emsp; `getStartDate`
-
-&emsp; `getDuration`
-
-&emsp; `getSubmitter`
-
-&emsp; `isFundingActive`
-
-&emsp; `getRemainingFundingTime`
-
-&emsp; `getContributor`
-
-&emsp; `getNumberOfContributor`
-
-&emsp; `getTotalSupply`
-
-4. CoinRiseTokenPool
-
-&emsp; `withdrawFreeStableTokens`
-
-&emsp; `getLockedTotalStableTokenSupply`
-
-&emsp; `getFreeTotalStableTokenSupply`
+| Parameter          | Type        | Description                                                                  |
+| :----------------- | :---------- | :--------------------------------------------------------------------------- |
+| `_deadline`        | `uint256`   | duration of the funding process                                              |
+| `_minAmount`       | `uint256`   | minimum Amount of Tokens for successful funding                              |
+| `_campaignURI`     | `string`    | IPFS link of the campaign data                                               |
+| `_tokenTiers`      | `uint256[]` | funding breakpoints for token tiers of the NFT                               |
+| `quorumPercentage` | `uint256`   | the required voting participation in percent points for a successful request |
 
 ## Smart Contracts Mumbai Deployments
 
 | Contracts             |                 Addresses                  |
 | :-------------------- | :----------------------------------------: |
-| Campaigns.sol         | 0xA711DD409b4deB723C327AA788be9bB067B77519 |
-| CampaignManager.sol   | 0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b |
-| CampaignFactory.sol   | 0xd98458e022ac999a547D49f9da37DCc6F4d1f19F |
-| CoinRiseTokenPool.sol | 0x52d1004F0F70B5b09cf6E8f10E168d5a95E34529 |
+| Campaign.sol          | 0x1140811c97d39426f60f41dF24324b64a4f04CbD |
+| CampaignManager.sol   | 0xCf15D36295c8BcA96256f9BE9485996aaAeD0FeD |
+| CampaignFactory.sol   | 0x84751ad92610dB12F7FBfc48e3794C9B105392D6 |
+| CoinRiseTokenPool.sol | 0xDd01B78AC25ccF51fD4D2867125902ce3c52823A |
+| Voting.sol            | 0x5298680FD826361a920c04Ba7940Aa7D91D9D689 |

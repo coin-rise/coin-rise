@@ -11,6 +11,10 @@ const { deployCampaignFactory } = require("./deployFactory")
 const { deployCampaign } = require("./deployCampaign")
 const { deployCoinRiseTokenPool } = require("./deployCoinRiseTokenPool")
 
+const { deployCoinRiseNft } = require("./deployCoinRiseNft")
+
+const { deployVoting } = require("./deployVoting")
+
 async function main() {
     await run("compile")
     const chainId = network.config.chainId
@@ -20,6 +24,8 @@ async function main() {
     console.log("================================")
     await deployCampaign(chainId)
     console.log("================================")
+    await deployCoinRiseNft(chainId)
+    console.log("================================")
     await deployCampaignFactory(chainId)
     console.log("================================")
 
@@ -28,6 +34,9 @@ async function main() {
 
     await deployCoinRiseTokenPool(chainId)
     console.log("================================")
+    await deployVoting(chainId)
+    console.log("================================")
+
     console.log("Finished Deploying!")
 }
 
