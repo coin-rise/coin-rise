@@ -446,6 +446,14 @@ contract CampaignManager is AutomationCompatible, Ownable {
         );
     }
 
+    function _transferTotalFundsToSubmitter(
+        uint256 _amount,
+        address _submitter,
+        address _campaignAddress
+    ) internal {
+        //TODO: Write a function in the coin rise token pool to send the funds directy to the submitter
+    }
+
     function _executeFinishedRequest(address _campaign, uint256 requestId)
         internal
     {}

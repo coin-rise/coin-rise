@@ -169,20 +169,6 @@ contract Campaign is Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
-    /**
-     * @dev - the submitter can transfer after the campaign is finished the tokens to an address
-     * @param _to - the address to receive the tokens
-     * @param _amount - the number of tokens to be transferred
-     */
-    function transferStableTokens(address _to, uint256 _amount)
-        external
-        onlySubmitter
-        fundingFinished
-        isSuccessfulFunded
-    {
-        _transferStableTokens(_to, _amount, false);
-    }
-
     function transferStableTokensAfterRequest(address _to, uint256 _amount)
         external
         isSuccessfulFunded
