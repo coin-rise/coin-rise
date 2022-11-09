@@ -1,7 +1,7 @@
 import { Web3Storage } from 'web3.storage'
 
 async function getAccessToken () {
-  return await process.env.WEB3STORAGE_TOKEN
+  return process.env.REACT_APP_WEB3STORAGE_TOKEN
 }
 
 async function makeStorageClient () {
@@ -30,6 +30,14 @@ function makeFileObjects (campaignName, campaignInfo, extraInfo, videoLink, cidI
     const files = [new File([blob], 'campaign.json')]
  
     return files
+}
+
+async function storeImg (files) {
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDE5NUU2RmU5MjA2M0IyZGZmODNGZDU5NUI5NTg0MDdEOGJCNkIxMjkiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjcxNDEyNjA2MjIsIm5hbWUiOiJjYW1wYWlnbkluZm8ifQ.rcON5wbxjYdkuBe4qaUeg4pgXnG_MCaf8mcoOxJQddo';
+  const client = new Web3Storage({ token })
+  const cid = await client.put(files, { name: 'Image' })
+  console.log('stored files with cid:', cid)
+  return cid
 }
 
 async function storeFiles (files) {
@@ -66,10 +74,8 @@ async function loadData(cid) {
 }
 
 async function loadImg(cid) {
-  const response = await fetch("https://ipfs.io/ipfs/"+cid+"marvel.jpg");
-  const content = await response.blob();
-  console.log(content); 
-  return content
+  const response = "https://ipfs.io/ipfs/"+cid;
+  return response
 }
 
 const retrieveData = async (cid) => {
@@ -82,11 +88,13 @@ const retrieveData = async (cid) => {
   }
 };
 
-const retrieveImg = async (cid) => {
+const retrieveImg = async (setImg, cid) => {
   try {
     const files = await retrieveFiles(cid);
-    const content = await loadImg(files[0].cid);
-    return content;
+    const url = await loadImg(files[0].cid);
+    setImg(url);
+    console(url,"url")
+    return url;
   } catch (error) {
     console.log("error", error);
   }
@@ -98,5 +106,7 @@ export{
     retrieveFiles,
     loadData,
     retrieveData,
-    retrieveImg
+    retrieveImg,
+    storeImg,
+    loadImg
 }
