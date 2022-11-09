@@ -65,10 +65,27 @@ async function loadData(cid) {
   return content
 }
 
+async function loadImg(cid) {
+  const response = await fetch("https://ipfs.io/ipfs/"+cid+"marvel.jpg");
+  const content = await response.blob();
+  console.log(content); 
+  return content
+}
+
 const retrieveData = async (cid) => {
   try {
     const files = await retrieveFiles(cid);
     const content = await loadData(files[0].cid);
+    return content;
+  } catch (error) {
+    console.log("error", error);
+  }
+};
+
+const retrieveImg = async (cid) => {
+  try {
+    const files = await retrieveFiles(cid);
+    const content = await loadImg(files[0].cid);
     return content;
   } catch (error) {
     console.log("error", error);
@@ -80,5 +97,6 @@ export{
     makeFileObjects,
     retrieveFiles,
     loadData,
-    retrieveData
+    retrieveData,
+    retrieveImg
 }
