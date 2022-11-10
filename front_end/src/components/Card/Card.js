@@ -12,6 +12,9 @@ import LinearProgress, {
 } from "@mui/material/LinearProgress";
 import { retrieveImg } from "../Storage";
 import CampaignAbi from "../../artifacts/contracts/Campaign.sol/Campaign.json";
+import contractManagerAbi from "../../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
+
+const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -214,9 +217,85 @@ const Card = ({
       console.log("error", error);
     }
   };
+  
+  /**
+   * contribute to a Campaign
+   */
+  const contributeCampaign = async (amount, campaignAddress) => {
+    if (!campaignAddress) {
+      console.log(`Error, Please enter a valid campaignAddress`);
+      return;
+    }
+
+    if (!amount && Number(amount)) {
+      console.log(`Error, Please enter a valid amount`);
+      return;
+    }
+
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          contractManagerAddress,
+          contractManagerAbi.abi,
+          signer
+        );
+        /**
+         *  Receive Emitted Event from Smart Contract
+         *  @dev See ContributorsUpdated emitted from our smart contract contributeCampaign function
+         */
+        contract.on("ContributorsUpdated", (ContributorAddress, campaignTokenAmount, campaignAddress) => {
+          console.log("Contributor address :", ContributorAddress);
+          console.log("campaign Token Amount :", campaignTokenAmount.toNumber());
+          console.log("Campaign address :", campaignAddress);
+        });
+        let tx = await contract.contributeCampaign(
+          BigNumber.from(amount),
+          campaignAddress
+        );
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c Create new campaign... please wait!  %s",
+          stylesMining,
+          tx.hash
+        );
+        //wait until a block containing our transaction has been mined and confirmed.
+        //NewCampaignCreated event has been emitted .
+        const receipt = await tx.wait();
+        const stylesReceipt = ["color: black", "background: #e9429b"].join(";");
+        console.log(
+          "%c you just contributed to Campaign %s ",
+          stylesReceipt,
+          tx.hash
+        );
+        /* Check our Transaction results */
+        if (receipt.status === 1) {
+          /**
+           * @dev NOTE: Switch up these links once we go to Production
+           * Currently set to use Polygon Mumbai Testnet
+           */
+          const stylesPolygon = ["color: white", "background: #7e44df"].join(
+            ";"
+          );
+          console.log(
+            `%c see transaction: https://polygonscan.com/tx/${tx.hash} %s`,
+            stylesPolygon,
+            tx.hash
+          );
+        }
+        return;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   useEffect(() => {
-    retrieveImg(setImg,cidImg);
+    retrieveImg(setImg, cidImg);
   }, [cidImg]);
 
   useEffect(() => {
