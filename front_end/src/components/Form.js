@@ -11,14 +11,17 @@ import {
   makeFileObjects,
   retrieveFiles,
   loadData,
+  storeImg
 } from "./Storage";
 import { ethers, BigNumber } from "ethers";
 import { CircularProgress } from "@mui/material";
 /* campaignManager Contract Address and Contract ABI */
 import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
+import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
 const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
 const campaignAddress = "0x1a111771e2FD5c1Ee970CdDd45a89268120Bc45A";
+const FactoryAddress = "0xd98458e022ac999a547D49f9da37DCc6F4d1f19F";
 
 function Form() {
   const [userAddress, setUserAddress] = useState();
@@ -56,25 +59,6 @@ function Form() {
     setUp();
   }, [signer]);
 
-  useEffect(() => {
-    const fetch = async () => {
-      if (campaignContract) {
-        console.log(await campaignContract.getEndDate());
-        console.log(await campaignContract.getStartDate());
-        console.log(await campaignContract.getDuration());
-        console.log(await campaignContract.getSubmitter());
-        console.log(await campaignContract.isFundingActive());
-        console.log(await campaignContract.getRemainingFundingTime());
-        console.log(await campaignContract.getContributor());
-        console.log(await campaignContract.getNumberOfContributor());
-        console.log(await campaignContract.getTotalSupply());
-        console.log(await campaignContract.getMinAmount());
-        console.log(await campaignContract.getCampaignURI());
-        console.log(await campaignContract.getFundingStatus());
-      }
-    };
-    fetch();
-  }, [campaignContract]);
 
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
@@ -98,7 +82,7 @@ function Form() {
     if (activeStep < 2) setActiveStep((prev) => prev + 1);
     else {
       setIsloading(true);
-      const cidImg = await storeFiles(campaign?.campaignImg);
+      const cidImg = await storeImg(campaign?.campaignImg);
       const files = await makeFileObjects(
         campaign?.campaignName,
         campaign?.campaignInfo,
@@ -111,8 +95,11 @@ function Form() {
         campaign?.campaignDuration,
         campaign?.minAmount,
         cid
-      ).then(() => setIsloading(false));
-      navigate(`/project/${mourad}`);
+      );
+      const newA = await getLastDeployedCampaign()
+      console.log(newA,"newA")
+      setIsloading(false);
+      navigate(`/project/${newA}`);
       // console.log(newComapaing,'newComapaing')
     }
   }
@@ -129,24 +116,8 @@ function Form() {
     <StepperInfo setCampaign={setCampaign} campaign={campaign} />,
     <FinalStepper setCampaign={setCampaign} campaign={campaign} />,
   ];
-  const [mourad, setMourad] = useState();
-  console.log(mourad, "mouradEddine");
+  const [newAddr, setNewAddr] = useState();
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    for (let i = 0; i < e.target.length - 1; i++) {
-      if (e.target[i].name === "checkbox") {
-        console.dir(e.target[i].checked);
-      } else if (e.target[i].name === "selectMultiple") {
-        console.dir(
-          Array.from(e.target[i].selectedOptions).map((o) => o.value)
-        );
-      } else {
-        console.dir(e.target[i].value);
-      }
-    }
-    console.log("submit");
-  }
 
   /**
    * Create a new Campaign for funding non-profit projects
@@ -179,7 +150,6 @@ function Form() {
         contract.on("NewCampaignCreated", (newCampaign, deadline) => {
           console.log("newCampaign address :", newCampaign);
           console.log("newCampaign deadline :", deadline.toNumber());
-          setMourad(newCampaign);
         });
         let tx = await contract.createNewCampaign(
           BigNumber.from(duration),
@@ -217,6 +187,38 @@ function Form() {
           );
         }
         return;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+   * Get last Deployed Campaign Contract
+   */
+   const getLastDeployedCampaign = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          FactoryAddress,
+          CampaignFactoryAbi.abi,
+          provider
+        );
+
+        let campaignList = await contract.getLastDeployedCampaign();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c Deployed Campaign Contracts addresses =  %s",
+          stylesMining,
+          campaignList
+        );
+        return campaignList;
       } else {
         console.log("Ethereum object doesn't exist!");
       }

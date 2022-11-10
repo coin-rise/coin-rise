@@ -10,6 +10,7 @@ import { styled } from "@mui/material/styles";
 import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
+import { retrieveImg } from "../Storage";
 import CampaignAbi from "../../artifacts/contracts/Campaign.sol/Campaign.json";
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -30,12 +31,14 @@ const Card = ({
   videoLink,
   extraInfo,
   address,
+  cidImg,
 }) => {
   const [value] = useState(50);
   const [contributor, setContributor] = useState();
   const [remaining, setRemaining] = useState();
   const [totalSuply, setTotalSuply] = useState();
   const [minAmount, setMinAmount] = useState();
+  const [img, setImg] = useState();
 
   const getNumberOfContributor = async (campaignaddress) => {
     try {
@@ -213,6 +216,10 @@ const Card = ({
   };
 
   useEffect(() => {
+    retrieveImg(setImg,cidImg);
+  }, [cidImg]);
+
+  useEffect(() => {
     getNumberOfContributor(address);
     getRemainingFundingTime(address);
     isFundingActive(address);
@@ -227,7 +234,7 @@ const Card = ({
       style={{ width: "400px", height: "478px", border: "1px solid #D9D9D9" }}
     >
       <img
-        src="https://pixl8-cloud-techuk.s3.eu-west-2.amazonaws.com/prod/public/f1afc92b-2d5d-42d3-bd1b4d75769849e5/750x421_highestperformance_/blockchainreimagined1200x628pxfinal.jpg"
+        src={img}
         width="100%"
         height="40%"
       />

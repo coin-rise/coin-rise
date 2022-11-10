@@ -14,6 +14,7 @@ import {
   retrieveData,
   retrieveImg,
   loadData,
+  loadImg
 } from "../components/Storage";
 
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
@@ -32,6 +33,7 @@ const SpecificPage = () => {
   const [minAmount, setMinAmount] = useState();
   const [userAddress, setUserAddress] = useState();
   const [fundDetails, setFundDetails] = useState({ option: "", value: "" });
+  const [img, setImg] = useState();
   useEffect(() => {
     const onNewSigner = async () => {
       let addr;
@@ -260,31 +262,6 @@ const SpecificPage = () => {
     }
   };
 
-  /** Uses `URL.createObjectURL` free returned ObjectURL with `URL.RevokeObjectURL` when done with it.
- * 
- * @param {string} cid CID you want to retrieve
- * @param {string} mime mimetype of image (optional, but useful)
- * @returns ObjectURL
- */
-  async function loadImgURL(cid, mime) {
-    if (cid == "" || cid == null || cid == undefined) {
-      return;
-    }
-    try {
-
-      const content = [];
-      const imageBlob = await retrieveImg(cid)
-      const imageObjectURL = URL.createObjectURL(new Blob(content, { type: mime }));
-      console.log(imageObjectURL);
-      return imageObjectURL;
-    } catch (error) {
-
-    }
-  }
-
-  async function setImage() {
-    document.getElementById("myImage").src = await loadImgURL("bafybeibtnqx7rf2mylyjjglh7scoi3ldo4hj3xk3mpkaqdnmhbf47dggsq", "image/jpg")
-  }
 
   const [CampaignsData, setCampaignsData] = useState();
   const getCampaignData = async (address) => {
@@ -297,19 +274,28 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
+
   const { id } = useParams();
   useEffect(() => {
     getCampaignData(id);
+    getNumberOfContributor(id);
+    getRemainingFundingTime(id);
+    isFundingActive(id);
+    getFundingStatus(id);
+    getTotalSupply(id);
+    getMinAmount(id);
   }, []);
+
   useEffect(() => {
-    setImage();
-  }, []);
+    retrieveImg(setImg, CampaignsData?.cidImg);
+  }, [CampaignsData]);
+  
   return (
     <Box px={4}>
       <Box display="flex">
         <Box width="50%">
           <img
-            src="https://pixl8-cloud-techuk.s3.eu-west-2.amazonaws.com/prod/public/f1afc92b-2d5d-42d3-bd1b4d75769849e5/750x421_highestperformance_/blockchainreimagined1200x628pxfinal.jpg"
+            src={img}
             width="100%"
             height="350px"
           />
@@ -407,13 +393,6 @@ const SpecificPage = () => {
           ]}
         />
       </Box>
-      <body>
-        <img id="myImage" />
-        <script>
-
-          setImage();
-        </script>
-      </body>
       <h1>Additional Information</h1>
       {CampaignsData?.extraInfo}
 
