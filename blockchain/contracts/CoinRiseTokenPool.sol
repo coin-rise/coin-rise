@@ -142,6 +142,11 @@ contract CoinRiseTokenPool is AccessControl {
         );
     }
 
+    /**
+     * @dev - after a not successfull campaign the supply of the campaign will go to the contributer pool
+     * @param _amount - the total supply of the campaign to send
+     * @param _campaignAddress - the address of the campaign with the funds
+     */
     function transferStableTokensToContributorPool(
         uint256 _amount,
         address _campaignAddress
@@ -150,6 +155,10 @@ contract CoinRiseTokenPool is AccessControl {
 
         if (_transfered) {
             revert CoinRiseTokenPool__TokensAlreadyTransfered();
+        }
+
+        if (lockedTotalStableTokenSupply < _amount) {
+            revert CoinRiseTokenPool__NotEnoughLockedStableCoins();
         }
 
         contributorTokenSupply += _amount;
@@ -165,6 +174,11 @@ contract CoinRiseTokenPool is AccessControl {
         );
     }
 
+    /**
+     * @dev - send the tokens of the contributor from the pool to the contributor
+     * @param _amount - the total amount to send to the contributor
+     * @param _to - the address of the contributor
+     */
     function sendTokensToContributor(uint256 _amount, address _to)
         external
         onlyRole(MANAGER_ROLE)
@@ -183,6 +197,10 @@ contract CoinRiseTokenPool is AccessControl {
         );
     }
 
+    /**
+     * @dev - withdraw the free supply to an authorized wallet
+     * @param _amount - amount of tokens to withdraw
+     */
     function withdrawFreeStableTokens(uint256 _amount)
         external
         onlyRole(WITHDRAW_ROLE)
@@ -203,6 +221,7 @@ contract CoinRiseTokenPool is AccessControl {
     }
 
     /* ====== Internal Functions ====== */
+
     function _transferFundsSafe(
         address _to,
         uint256 _amount,
@@ -224,6 +243,8 @@ contract CoinRiseTokenPool is AccessControl {
 
         transferedTokens[_campaignAddress] = true;
     }
+
+    /* ====== Pure/View Functions ====== */
 
     function getLockedTotalStableTokenSupply() external view returns (uint256) {
         return lockedTotalStableTokenSupply;

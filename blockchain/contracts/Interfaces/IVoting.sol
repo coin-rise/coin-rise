@@ -11,6 +11,7 @@ interface IVoting {
         uint256 noVotes;
         bool approved;
         bool executed;
+        string storedData;
     }
 
     struct VotingInformation {

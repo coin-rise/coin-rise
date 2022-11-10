@@ -43,6 +43,9 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               const _newCampaignAddress = await campaignFactory.getLastDeployedCampaign()
               const campaign = await ethers.getContractAt("Campaign", _newCampaignAddress)
 
+              const _role = await coinRiseTokenPool.WITHDRAW_ROLE()
+              await coinRiseTokenPool.connect(deployer).grantRole(_role, withdrawer.address)
+
               return {
                   deployer,
                   managerContract,
@@ -319,6 +322,70 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert(_freeSupply.eq(fees))
               })
 
+              it("fails to send the tokens from a campaign twice", async () => {
+                  const {
+                      campaign,
+                      submitter,
+                      coinRiseTokenPool,
+                      managerContract,
+                      mockToken,
+                      contributor,
+                  } = await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await campaign
+                      .connect(managerContract)
+                      .addContributor(contributor.address, totalAmount.sub(fees))
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .sendFundsToSubmitter(campaign.address)
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .sendFundsToSubmitter(campaign.address)
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__TokensAlreadyTransfered"
+                  )
+              })
+
+              it("fails to send the tokens when the amount is greater then the locked supply", async () => {
+                  const {
+                      campaign,
+                      submitter,
+                      coinRiseTokenPool,
+                      managerContract,
+                      mockToken,
+                      contributor,
+                  } = await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await campaign
+                      .connect(managerContract)
+                      .addContributor(contributor.address, totalAmount)
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .sendFundsToSubmitter(campaign.address)
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__NotEnoughLockedStableCoins"
+                  )
+              })
+
               it("fails if the sender does not have the manager role", async () => {
                   const { coinRiseTokenPool, managerContract, mockToken, badActor, campaign } =
                       await loadFixture(deployCoinRiseTokenPoolFixture)
@@ -338,5 +405,278 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               })
           })
 
-          describe("#transferStableTokensToContributorPool", () => {})
+          describe("#transferStableTokensToContributorPool", () => {
+              it("successfully transfer the tokens from the locked pool to the contributor pool", async () => {
+                  const { coinRiseTokenPool, managerContract, campaign, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .transferStableTokensToContributorPool(
+                          totalAmount.sub(fees),
+                          campaign.address
+                      )
+
+                  const _contributorPool = await coinRiseTokenPool.getContributorStableTokenSupply()
+
+                  assert(_contributorPool.eq(totalAmount.sub(fees)))
+              })
+
+              it("successfully emits an event after sending the tokens to contributor pool", async () => {
+                  const { coinRiseTokenPool, managerContract, campaign, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .transferStableTokensToContributorPool(
+                              totalAmount.sub(fees),
+                              campaign.address
+                          )
+                  )
+                      .to.emit(coinRiseTokenPool, "StableTokensUpdated")
+                      .withArgs(0, fees, totalAmount.sub(fees))
+              })
+
+              it("failed if the function caller is not the managerContract", async () => {
+                  const { coinRiseTokenPool, managerContract, campaign, mockToken, badActor } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  const _managerRole = await coinRiseTokenPool.MANAGER_ROLE()
+
+                  const _expectedRevertMsg = `AccessControl: account ${badActor.address.toLowerCase()} is missing role ${_managerRole}`
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(badActor)
+                          .transferStableTokensToContributorPool(
+                              totalAmount.sub(fees),
+                              campaign.address
+                          )
+                  ).to.revertedWith(_expectedRevertMsg)
+              })
+
+              it("failed to send the tokens from the same campaign twice", async () => {
+                  const { coinRiseTokenPool, managerContract, campaign, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(
+                      coinRiseTokenPool.address,
+                      totalAmount.mul(ethers.constants.Two)
+                  )
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount.mul(ethers.constants.Two), fees)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .transferStableTokensToContributorPool(
+                          totalAmount.sub(fees),
+                          campaign.address
+                      )
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .transferStableTokensToContributorPool(
+                              totalAmount.sub(fees),
+                              campaign.address
+                          )
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__TokensAlreadyTransfered"
+                  )
+              })
+
+              it("failed with a greater amount of tokens want to send than total supply", async () => {
+                  const { coinRiseTokenPool, managerContract, campaign, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .transferStableTokensToContributorPool(totalAmount, campaign.address)
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__NotEnoughLockedStableCoins"
+                  )
+              })
+          })
+
+          describe("#sendTokensToContributor", () => {
+              it("successfully transfer the tokens to the contributor", async () => {
+                  const { coinRiseTokenPool, managerContract, contributor, mockToken, campaign } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .transferStableTokensToContributorPool(
+                          totalAmount.sub(fees),
+                          campaign.address
+                      )
+
+                  const _contributorPool = await coinRiseTokenPool.getContributorStableTokenSupply()
+
+                  const _balanceBefore = await mockToken.balanceOf(contributor.address)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .sendTokensToContributor(_contributorPool, contributor.address)
+
+                  const _balanceAfter = await mockToken.balanceOf(contributor.address)
+
+                  const _expectedBalance = _balanceBefore.add(_contributorPool)
+
+                  const _poolAfter = await coinRiseTokenPool.getContributorStableTokenSupply()
+
+                  assert(_balanceAfter.eq(_expectedBalance))
+                  assert(_poolAfter.eq(ethers.constants.Zero))
+              })
+
+              it("failed to send the tokens to the contributor if the caller is not the managerContract", async () => {
+                  const {
+                      coinRiseTokenPool,
+                      badActor,
+                      contributor,
+                      mockToken,
+                      managerContract,
+                      campaign,
+                  } = await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .transferStableTokensToContributorPool(
+                          totalAmount.sub(fees),
+                          campaign.address
+                      )
+
+                  const _contributorPool = await coinRiseTokenPool.getContributorStableTokenSupply()
+
+                  const _managerRole = await coinRiseTokenPool.MANAGER_ROLE()
+
+                  const _expectedRevertMsg = `AccessControl: account ${badActor.address.toLowerCase()} is missing role ${_managerRole}`
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(badActor)
+                          .sendTokensToContributor(_contributorPool, contributor.address)
+                  ).to.be.revertedWith(_expectedRevertMsg)
+              })
+
+              it("failed if the sending amount is greater then the supply", async () => {
+                  const { coinRiseTokenPool, managerContract, contributor, mockToken, campaign } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .transferStableTokensToContributorPool(
+                          totalAmount.sub(fees),
+                          campaign.address
+                      )
+
+                  const _contributorPool = await coinRiseTokenPool.getContributorStableTokenSupply()
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(managerContract)
+                          .sendTokensToContributor(
+                              _contributorPool.mul(ethers.constants.Two),
+                              contributor.address
+                          )
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__NotEnoughContributorStableTokens"
+                  )
+              })
+          })
+
+          describe("#withdrawFreeStableTokens", () => {
+              it("successfuly withdraw the tokens the function caller", async () => {
+                  const { coinRiseTokenPool, withdrawer, managerContract, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  const _balanceBefore = await mockToken.balanceOf(withdrawer.address)
+                  await coinRiseTokenPool.connect(withdrawer).withdrawFreeStableTokens(fees)
+                  const _balanceAfter = await mockToken.balanceOf(withdrawer.address)
+
+                  assert(_balanceAfter.eq(_balanceBefore.add(fees)))
+              })
+
+              it("failed when the function caller has no withdraw rights", async () => {
+                  const { coinRiseTokenPool, badActor, managerContract, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  const _withdrawerRole = await coinRiseTokenPool.WITHDRAW_ROLE()
+
+                  const _expectedRevertMsg = `AccessControl: account ${badActor.address.toLowerCase()} is missing role ${_withdrawerRole}`
+
+                  await expect(
+                      coinRiseTokenPool.connect(badActor).withdrawFreeStableTokens(fees)
+                  ).to.be.revertedWith(_expectedRevertMsg)
+              })
+
+              it("failed to send an amount greater then the free supply", async () => {
+                  const { coinRiseTokenPool, withdrawer, managerContract, mockToken } =
+                      await loadFixture(deployCoinRiseTokenPoolFixture)
+
+                  await mockToken.mint(coinRiseTokenPool.address, totalAmount)
+                  await coinRiseTokenPool
+                      .connect(managerContract)
+                      .setNewTotalSupplies(totalAmount, fees)
+
+                  await expect(
+                      coinRiseTokenPool
+                          .connect(withdrawer)
+                          .withdrawFreeStableTokens(fees.mul(ethers.constants.Two))
+                  ).to.be.revertedWithCustomError(
+                      coinRiseTokenPool,
+                      "CoinRiseTokenPool__NotEnoughFreeStableTokens"
+                  )
+              })
+          })
       })
