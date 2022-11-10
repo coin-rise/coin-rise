@@ -314,11 +314,10 @@ contract CampaignManager is AutomationCompatible, Ownable {
                     bool _voting = _campaign.isCampaignVotable();
 
                     if (_voting) {
-                        _transferTotalFundsToCampaign(
-                            _totalFunds,
-                            _activeCampaigns[i]
-                        );
-                    } else {}
+                        _transferTotalFundsToCampaign(_activeCampaigns[i]);
+                    } else {
+                        _transferTotalFundsToSubmitter(_activeCampaigns[i]);
+                    }
                 } else {
                     _transferStableTokensToContributorPool(
                         _totalFunds,
@@ -436,27 +435,18 @@ contract CampaignManager is AutomationCompatible, Ownable {
         ICoinRiseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
     }
 
-    function _transferTotalFundsToCampaign(
-        uint256 _amount,
-        address _campaignAddress
-    ) internal requireDefinedTokenPool {
+    function _transferTotalFundsToCampaign(address _campaignAddress)
+        internal
+        requireDefinedTokenPool
+    {
         ICoinRiseTokenPool(tokenPool).sendFundsToCampaignContract(
-            _campaignAddress,
-            _amount
+            _campaignAddress
         );
     }
 
-    function _transferTotalFundsToSubmitter(
-        uint256 _amount,
-        address _submitter,
-        address _campaignAddress
-    ) internal {
-        //TODO: Write a function in the coin rise token pool to send the funds directy to the submitter
+    function _transferTotalFundsToSubmitter(address _campaignAddress) internal {
+        ICoinRiseTokenPool(tokenPool).sendFundsToSubmitter(_campaignAddress);
     }
-
-    function _executeFinishedRequest(address _campaign, uint256 requestId)
-        internal
-    {}
 
     function _isTokenPoolNotDefined() internal view {
         if (tokenPoolDefined) {
@@ -492,5 +482,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     function getStableTokenAddress() external view returns (address) {
         return stableToken;
+    }
+
+    function getTokenPool() external view returns (address) {
+        return address(tokenPool);
     }
 }

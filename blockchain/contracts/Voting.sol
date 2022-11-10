@@ -12,6 +12,7 @@ error Voting__CampaignNotInitialized();
 contract Voting {
     /* ====== Structures ====== */
     struct RequestInformation {
+        uint256 id;
         uint256 endDate;
         uint256 tokenAmount;
         address to;
@@ -103,6 +104,7 @@ contract Voting {
         requestsFromCampaigns[msg.sender][
             campaignVotingInformations[msg.sender].lastRequestId
         ] = RequestInformation(
+            campaignVotingInformations[msg.sender].lastRequestId,
             _endDate,
             _amount,
             _to,

@@ -169,6 +169,12 @@ contract Campaign is Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
+    /**
+     * @dev - transfer the tokens to a receiver address
+     * @notice - only possible to call this function in a voting campaign
+     * @param _to - the address of the tokens receiver
+     * @param _amount - the amount of tokens to send
+     */
     function transferStableTokensAfterRequest(address _to, uint256 _amount)
         external
         isSuccessfulFunded
@@ -181,12 +187,14 @@ contract Campaign is Initializable, OwnableUpgradeable {
     function transferStableTokensWithRequest(
         address _to,
         uint256 _amount,
-        uint256 _requestDuration
+        uint256 _requestDuration,
+        string memory _storedInformation
     ) external onlySubmitter isSuccessfulFunded fundingFinished {
         IVoting(votingContractAddress).requestForTokenTransfer(
             _to,
             _amount,
-            _requestDuration
+            _requestDuration,
+            _storedInformation
         );
     }
 

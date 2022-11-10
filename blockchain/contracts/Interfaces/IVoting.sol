@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 interface IVoting {
     struct RequestInformation {
+        uint256 id;
         uint256 endDate;
         uint256 tokenAmount;
         address to;
@@ -40,7 +41,8 @@ interface IVoting {
     function requestForTokenTransfer(
         address _to,
         uint256 _amount,
-        uint256 _requestDuration
+        uint256 _requestDuration,
+        string memory _storedInformation
     ) external;
 
     function intializeCampaignVotingInformation(

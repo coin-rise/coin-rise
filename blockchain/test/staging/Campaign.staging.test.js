@@ -1,18 +1,26 @@
 const { expect, assert } = require("chai")
 const { ethers, network } = require("hardhat")
 const { developmentChains, networkConfig } = require("../../helper-hardhat-config")
-const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers")
+
 const deployedContracts = require("../../deployments/deployedContracts.json")
 
 developmentChains.includes(network.name)
     ? describe.skip
     : describe("Campaign Protocol staging test", () => {
-          let chainId, stableToken, campaignManager, campaignFactory, accounts
+          let chainId,
+              stableToken,
+              campaignManager,
+              campaignFactory,
+              accounts,
+              duration,
+              minAmount,
+              campaignURI,
+              tokenTiers
           beforeEach(async () => {
               chainId = network.config.chainId
               accounts = await ethers.getSigners()
 
-              //Search the deployed contracts
+              //#1 Search the deployed contracts
               if (chainId in deployedContracts) {
                   const campaignManagerAddress = deployedContracts[chainId].CampaignManager.address
                   const campaignFactoryAddress = deployedContracts[chainId].CampaignFactory.address
@@ -38,6 +46,14 @@ developmentChains.includes(network.name)
                   )
 
                   stableToken = await ethers.getContractAt("MockToken", stableTokenAddress)
+              }
+
+              if (chainId in networkConfig) {
+                  duration = networkConfig[chainId].duration
+                  minAmount = networkConfig[chainId].minAmount
+                  campaignURI = networkConfig[chainId].campaignURI
+                  tokenTiers = networkConfig[chainId].tokenTiers
+              } else {
               }
           })
 
