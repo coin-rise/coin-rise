@@ -1,5 +1,5 @@
 import React from "react";
-import {Checkbox} from '@mui/material/';
+import { Radio } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 
@@ -43,15 +43,21 @@ const useStyles = makeStyles({
     },
   },
 });
-const RadioBox = ( props ) => {
+const RadioContainer = (props) => {
   const classes = useStyles();
   return (
-    <Checkbox
+    <Radio
+      color="default"
+      disableRipple
+      checkedIcon={
+        <span className={clsx(classes.iconRadio, classes.checkedIconRadio)} />
+      }
+      icon={<span className={classes.iconRadio} />}
       {...props}
-      data-cy="male-input"
-      inputProps={{ "aria-label": "A" }}
+      data-cy="other-input"
+      inputProps={{ "aria-label": "D" }}
     />
   );
 };
 
-export default RadioBox;
+export default RadioContainer;

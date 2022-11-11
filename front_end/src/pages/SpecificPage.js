@@ -8,6 +8,7 @@ import BasicModal from "../components/Modal/Modal";
 import Inputs from "../components/Ui";
 import { ethers, BigNumber } from "ethers";
 import { useParams } from "react-router-dom";
+
 import {
   storeFiles,
   makeFileObjects,
@@ -18,15 +19,32 @@ import {
 } from "../components/Storage";
 import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
 import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
+import ScrollBar from "../components/ScrollBar/Scroll";
+import Radio from "../components/Radio/Radio";
 const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
 
 const SpecificPage = () => {
   const [open, setOpen] = useState(false);
+  const [openVote, setOpenVote] = useState(false);
+  const [openRequest, setOpenRequest] = useState(false);
+
+  function handleCloseVote() {
+    setOpenVote(false);
+  }
+  function handleCloseRequest() {
+    setOpenRequest(false);
+  }
   function handleClose() {
     setOpen(false);
   }
   function handleOpen() {
     setOpen(true);
+  }
+  function handleOpenVote() {
+    setOpenVote(true);
+  }
+  function handleOpenRequest() {
+    setOpenRequest(true);
   }
   const [contributor, setContributor] = useState();
   const [remaining, setRemaining] = useState();
@@ -35,6 +53,11 @@ const SpecificPage = () => {
   const [userAddress, setUserAddress] = useState();
   const [fundDetails, setFundDetails] = useState({ option: "", value: "" });
   const [img, setImg] = useState();
+  const [radioCheck, setRadioCheck] = useState();
+  function handleCheck(e) {
+    setRadioCheck(e.target.value);
+  }
+
   useEffect(() => {
     const onNewSigner = async () => {
       let addr;
@@ -431,6 +454,44 @@ const SpecificPage = () => {
               Fund
             </button>
           </Box>
+          <Box display="flex" width="100%" justifyContent="center">
+            <button
+              style={{
+                color: "black",
+                backgroundColor: "white",
+                borderRadius: "10px",
+                fontFamily: "Sen",
+                fontStyle: "normal",
+                fontWeight: 700,
+                fontSize: "25px",
+                lineHeight: "30px",
+                padding: "10px 85px",
+                cursor: "pointer",
+              }}
+              onClick={handleOpenVote}
+            >
+              vote
+            </button>
+          </Box>
+          <Box display="flex" width="100%" justifyContent="center">
+            <button
+              style={{
+                color: "black",
+                backgroundColor: "white",
+                borderRadius: "10px",
+                fontFamily: "Sen",
+                fontStyle: "normal",
+                fontWeight: 700,
+                fontSize: "25px",
+                lineHeight: "30px",
+                padding: "10px 85px",
+                cursor: "pointer",
+              }}
+              onClick={handleOpenRequest}
+            >
+              Request
+            </button>
+          </Box>
         </Box>
       </Box>
 
@@ -524,6 +585,177 @@ const SpecificPage = () => {
             <div>e</div>,
           ]}
         />
+      </BasicModal>
+      <BasicModal open={openRequest} handleClose={handleCloseRequest}>
+        <ScrollBar maxHeight="80vh">
+          <Box p={4}>
+            <Box my={4}>
+              <h4 style={{ margin: 0, marginBottom: "5px" }}>
+                Title of Request
+              </h4>
+              <Inputs type="text" width={450} />
+            </Box>
+            <Box my={4}>
+              <h4 style={{ margin: 0, marginBottom: "5px" }}>
+                Reason for Request
+              </h4>
+              <Inputs type="area" rows={6} width={450} />
+            </Box>
+            <Box my={4}>
+              <h4 style={{ margin: 0, marginBottom: "5px" }}>
+                Request Duration
+              </h4>
+              <Inputs type="text" width={450} />
+            </Box>
+            <Box my={4}>
+              <h4 style={{ margin: 0, marginBottom: "5px" }}>Amount</h4>
+              <Inputs type="text" width={450} />
+            </Box>
+            <Box my={4}>
+              <h4 style={{ margin: 0, marginBottom: "5px" }}>Wallet Address</h4>
+              <Inputs type="text" width={450} />
+            </Box>
+            <Box display="flex" justifyContent="center" widht="100%">
+              <button
+                style={{
+                  color: "white",
+                  backgroundColor: "#11484F",
+                  borderRadius: "10px",
+                  fontFamily: "Sen",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  fontSize: "25px",
+                  lineHeight: "30px",
+                  padding: "10px 85px",
+                  cursor: "pointer",
+                }}
+              >
+                Request Fund
+              </button>
+            </Box>
+          </Box>
+        </ScrollBar>
+      </BasicModal>
+      <BasicModal open={openVote} handleClose={handleCloseVote}>
+        <Box p={4} position="relative" width="500px">
+          <div style={{ display: "flex", marginBottom: "30px" }}>
+            <h4 style={{ margin: 0, marginBottom: "5px" }}>Title of Request</h4>
+            <h4
+              style={{
+                margin: 0,
+                marginBottom: "5px",
+                position: "absolute",
+                right: 30,
+              }}
+            >
+              title
+            </h4>
+          </div>
+          <div style={{ display: "flex", marginBottom: "30px" }}>
+            <h4 style={{ margin: 0, marginBottom: "5px" }}>
+              Reason for Request
+            </h4>
+            <h4
+              style={{
+                margin: 0,
+                marginBottom: "5px",
+                position: "absolute",
+                right: 30,
+              }}
+            >
+              reason
+            </h4>
+          </div>
+          <div style={{ display: "flex", marginBottom: "30px" }}>
+            <h4 style={{ margin: 0, marginBottom: "5px" }}>Request Duration</h4>
+            <h4
+              style={{
+                margin: 0,
+                marginBottom: "5px",
+                position: "absolute",
+                right: 30,
+              }}
+            >
+              duration
+            </h4>
+          </div>
+          <div style={{ display: "flex", marginBottom: "30px" }}>
+            <h4 style={{ margin: 0, marginBottom: "5px" }}>Amount</h4>
+            <h4
+              style={{
+                margin: 0,
+                marginBottom: "5px",
+                position: "absolute",
+                right: 30,
+              }}
+            >
+              Amount
+            </h4>
+          </div>
+          <div style={{ display: "flex", marginBottom: "30px" }}>
+            <h4 style={{ margin: 0, marginBottom: "5px" }}>Wallet Address</h4>
+            <h4
+              style={{
+                margin: 0,
+                marginBottom: "5px",
+                position: "absolute",
+                right: 30,
+              }}
+            >
+              wallet
+            </h4>
+          </div>
+          <div
+            style={{ display: "flex", justifyContent: "center", width: "100%" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              Yes
+              <Radio
+                checked={radioCheck === "yes"}
+                onChange={handleCheck}
+                value="yes"
+              />
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              No
+              <Radio
+                checked={radioCheck === "no"}
+                onChange={handleCheck}
+                value="no"
+              />
+            </div>
+          </div>
+          <Box display="flex" justifyContent="center" widht="100%">
+            <button
+              style={{
+                color: "white",
+                backgroundColor: "#11484F",
+                borderRadius: "10px",
+                fontFamily: "Sen",
+                fontStyle: "normal",
+                fontWeight: 700,
+                fontSize: "25px",
+                lineHeight: "30px",
+                padding: "10px 85px",
+                cursor: "pointer",
+              }}
+            >
+              Vote
+            </button>
+          </Box>
+        </Box>
       </BasicModal>
     </Box>
   );

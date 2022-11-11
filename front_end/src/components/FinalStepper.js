@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import Inputs from "./Ui/index";
-import CheckBox from "./Radio/Radio";
+import CheckBox from "./CheckBox/CheckBox";
 
 const FinalStepper = ({ setCampaign, campaign }) => {
   const nftsBadge = [
