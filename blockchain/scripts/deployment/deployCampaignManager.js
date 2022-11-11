@@ -35,14 +35,11 @@ async function deployCampaignManager(chainId) {
 
             // it the contract is deployed to a testnet deploy a mock DAI token
             if (network.name == "mumbai") {
-                const MockToken = await ethers.getContractFactory("MockToken")
-                const coinRiseDai = await MockToken.deploy("CoinRiseDAI", "CRDAI")
-
-                await coinRiseDai.deployTransaction.wait(waitBlockConfirmations)
-
-                await verify(coinRiseDai.address, ["CoinRiseDAI", "CRDAI"])
-
-                stableTokenAddress = coinRiseDai.address
+                // const MockToken = await ethers.getContractFactory("MockToken")
+                // const coinRiseDai = await MockToken.deploy("CoinRiseDAI", "CRDAI")
+                // await coinRiseDai.deployTransaction.wait(waitBlockConfirmations)
+                // await verify(coinRiseDai.address, ["CoinRiseDAI", "CRDAI"])
+                // stableTokenAddress = coinRiseDai.address
             }
             const campaignManager = await CampaignManager.deploy(
                 campaignFactoryAddress,
@@ -77,6 +74,13 @@ async function deployCampaignManager(chainId) {
                 campaignFactoryAddress
             )
             tx = await campaignFactory.transferOwnership(campaignManager.address)
+            await tx.wait(1)
+
+            console.log("Set the addresses in the NFT contract")
+
+            const coinRiseNFT = await ethers.getContractAt("CoinRiseNFT", coinRiseNftAddress)
+
+            tx = await coinRiseNFT.setRoles(campaignManager.address)
             await tx.wait(1)
         } else {
             console.log(

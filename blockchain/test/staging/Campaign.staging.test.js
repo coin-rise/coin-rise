@@ -15,7 +15,8 @@ developmentChains.includes(network.name)
               duration,
               minAmount,
               campaignURI,
-              tokenTiers
+              tokenTiers,
+              decimals
           beforeEach(async () => {
               chainId = network.config.chainId
               accounts = await ethers.getSigners()
@@ -46,6 +47,7 @@ developmentChains.includes(network.name)
                   )
 
                   stableToken = await ethers.getContractAt("MockToken", stableTokenAddress)
+                  decimals = await stableToken.decimals()
               }
 
               if (chainId in networkConfig) {
@@ -59,13 +61,15 @@ developmentChains.includes(network.name)
 
           describe("#contributeCampaign", () => {
               it("#Scenario 1 : successfully contribute a campaign and send the funds from the campaign", async () => {
+                  const _powDecimals = ethers.BigNumber.from("10").pow(decimals)
+
                   const _duration = 90
-                  const _minAmount = ethers.utils.parseEther("200")
+                  const _minAmount = ethers.BigNumber.from("20").mul(_powDecimals)
                   const _campaignURI = "test"
 
-                  const _tierOne = ethers.utils.parseEther("2")
-                  const _tierTwo = ethers.utils.parseEther("4")
-                  const _tierThree = ethers.utils.parseEther("6")
+                  const _tierOne = ethers.BigNumber.from("5").mul(_powDecimals)
+                  const _tierTwo = ethers.BigNumber.from("10").mul(_powDecimals)
+                  const _tierThree = ethers.BigNumber.from("15").mul(_powDecimals)
 
                   const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
                   let tx = await campaignManager.createNewCampaign(
@@ -87,18 +91,17 @@ developmentChains.includes(network.name)
                   )
                   const owner = accounts[0]
 
-                  tx = await stableToken.mint(owner.address, ethers.utils.parseEther("400"))
-                  await tx.wait()
+                  const _approveAmount = ethers.BigNumber.from("25").mul(_powDecimals)
 
-                  const _approveAmount = ethers.utils.parseEther("400")
                   tx = await stableToken.approve(campaignManager.address, _approveAmount)
                   await tx.wait()
 
                   try {
                       console.log(
-                          `Conribute to the campaign ${campaignAddress} with ${ethers.utils.formatEther(
-                              _approveAmount
-                          )} CRDAI`
+                          `Conribute to the campaign ${campaignAddress} with ${ethers.utils.formatUnits(
+                              _approveAmount,
+                              decimals
+                          )} USDC`
                       )
                       await campaignManager.contributeCampaign(_approveAmount, campaignAddress)
                   } catch (e) {
@@ -123,37 +126,17 @@ developmentChains.includes(network.name)
                                   console.log("The campaign was succesful funded!")
                                   const _supply = await campaignContract.getTotalSupply()
                                   console.log(
-                                      `Transfer the funded ${ethers.utils.formatEther(
-                                          _supply
-                                      )} CRDAI to ${owner.address}`
+                                      `Transfer the funded ${ethers.utils.formatUnits(
+                                          _supply,
+                                          decimals
+                                      )} USDC to ${owner.address}`
                                   )
-
-                                  const _balanceBeforeSending = await stableToken.balanceOf(
-                                      owner.address
-                                  )
-
-                                  const _expectedBalance = _balanceBeforeSending.add(_supply)
-
-                                  const tx = await campaignContract.transferStableTokens(
-                                      owner.address,
-                                      _supply
-                                  )
-
-                                  const txReceipt = await tx.wait(1)
 
                                   const _balanceAfterSending = await stableToken.balanceOf(
                                       owner.address
                                   )
 
-                                  assert(_balanceAfterSending.eq(_expectedBalance))
-
-                                  console.log(
-                                      `Fundings Sent -> to: ${
-                                          txReceipt.events[1].args.to
-                                      } ; amount: ${ethers.utils.formatEther(
-                                          txReceipt.events[1].args.amount
-                                      )} CRDAI `
-                                  )
+                                  assert(_balanceAfterSending.eq(_supply))
                               }
 
                               resolve()
@@ -174,13 +157,15 @@ developmentChains.includes(network.name)
                       if (balanceOfMatic.gt(ethers.utils.parseEther("0.05"))) {
                           console.log("Ready for testing")
 
+                          const _powDecimals = ethers.BigNumber.from("10").pow(decimals)
+
                           const _duration = 90
-                          const _minAmount = ethers.utils.parseEther("200")
+                          const _minAmount = ethers.BigNumber.from("20").mul(_powDecimals)
                           const _campaignURI = "test"
 
-                          const _tierOne = ethers.utils.parseEther("2")
-                          const _tierTwo = ethers.utils.parseEther("4")
-                          const _tierThree = ethers.utils.parseEther("6")
+                          const _tierOne = ethers.BigNumber.from("5").mul(_powDecimals)
+                          const _tierTwo = ethers.BigNumber.from("10").mul(_powDecimals)
+                          const _tierThree = ethers.BigNumber.from("15").mul(_powDecimals)
 
                           const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
 
@@ -190,25 +175,14 @@ developmentChains.includes(network.name)
                               _campaignURI,
                               _tokenTiers
                           )
-                          const txReceipt = await tx.wait()
+                          await tx.wait()
 
-                          let campaignAddress
-                          for (i = 0; i < txReceipt.events.length; i++) {
-                              if (txReceipt.events[i].event == "NewCampaignCreated") {
-                                  campaignAddress = txReceipt.events[i].args.newCampaign
-                              }
-                          }
+                          const campaignAddress = await campaignFactory.getLastDeployedCampaign()
                           console.log(
                               `New Campaign was created with an adress ${campaignAddress} on ${network.name}`
                           )
 
-                          tx = await stableToken.mint(
-                              contributor.address,
-                              ethers.utils.parseEther("100")
-                          )
-                          await tx.wait()
-
-                          const _approveAmount = ethers.utils.parseEther("100")
+                          const _approveAmount = ethers.BigNumber.from("15").mul(_powDecimals)
                           tx = await stableToken
                               .connect(contributor)
                               .approve(campaignManager.address, _approveAmount)
@@ -216,8 +190,9 @@ developmentChains.includes(network.name)
 
                           try {
                               console.log(
-                                  `Conribute to the campaign ${campaignAddress} with ${ethers.utils.formatEther(
-                                      _approveAmount
+                                  `Conribute to the campaign ${campaignAddress} with ${ethers.utils.formatUnits(
+                                      _approveAmount,
+                                      6
                                   )} CRDAI (Contributor: ${contributor.address})`
                               )
                               await campaignManager
@@ -245,9 +220,10 @@ developmentChains.includes(network.name)
                                               contributor.address
                                           )
                                           console.log(
-                                              `${ethers.utils.formatEther(
-                                                  _supply
-                                              )} CRDAI tokens can be claimed by the contract ${campaignAddress}`
+                                              `${ethers.utils.formatUnits(
+                                                  _supply,
+                                                  decimals
+                                              )} USDC tokens can be claimed by the contract ${campaignAddress}`
                                           )
 
                                           const _balanceBefore = await stableToken.balanceOf(
@@ -266,9 +242,10 @@ developmentChains.includes(network.name)
                                               contributor.address
                                           )
                                           console.log(
-                                              `New balance of the contributor ${ethers.utils.formatEther(
-                                                  _balanceAfterSending
-                                              )} CRDAI`
+                                              `New balance of the contributor ${ethers.utils.formatUnits(
+                                                  _balanceAfterSending,
+                                                  decimals
+                                              )} USDC`
                                           )
 
                                           assert(_balanceAfterSending.eq(_expectedBalance))

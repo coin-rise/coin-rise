@@ -29,7 +29,7 @@ const networkConfig = {
         name: "mumbai",
         swapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
         wMatic: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-        DAI: "0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747", // Attention: This is official the USDC token
+        DAI: "0xE097d6B3100777DC31B34dC2c58fB524C2e76921", // Attention: This is official the USDC token
         keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
         linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
         registryContract: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",

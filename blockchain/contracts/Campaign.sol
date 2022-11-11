@@ -18,6 +18,7 @@ error Campaign_SuccessfulFunded();
 error Campaign__PayoutsNeedSuccessfulApproved();
 error Campaign__SenderIsNotContributor();
 error Campaign__SenderIsNotVotingContract();
+error Campaign__TokenTiersNotAccepted();
 
 contract Campaign is Initializable, OwnableUpgradeable {
     enum TokenTier {
@@ -150,6 +151,11 @@ contract Campaign is Initializable, OwnableUpgradeable {
         uint256[3] memory _tokenTiers,
         bool _requestingPayouts
     ) external initializer {
+        bool _tiersChecked = checkForAccepatbleTokenTiers(_tokenTiers);
+
+        if (!_tiersChecked) {
+            revert Campaign__TokenTiersNotAccepted();
+        }
         duration = _duration;
 
         submitter = _submitter;
@@ -207,6 +213,25 @@ contract Campaign is Initializable, OwnableUpgradeable {
             _requestId,
             _approve
         );
+    }
+
+    function mintCampaignNFT()
+        external
+        onlyContributor
+        isSuccessfulFunded
+        fundingFinished
+    {
+        ContributorInfo memory _info = contributors[msg.sender];
+        (TokenTier _tier, bool _allowable) = checkForTokenTier(
+            _info.contributionAmount
+        );
+
+        if (_allowable) {
+            contributors[msg.sender].tier = _tier;
+            contributors[msg.sender].allowableToMint = true;
+
+            coinRiseToken.safeMint(msg.sender, uint256(_info.tier));
+        }
     }
 
     /**
@@ -338,6 +363,22 @@ contract Campaign is Initializable, OwnableUpgradeable {
     }
 
     /* ========== View Functions ========== */
+
+    function checkForAccepatbleTokenTiers(uint256[3] memory _tokenTiers)
+        public
+        pure
+        returns (bool)
+    {
+        if (_tokenTiers[1] < _tokenTiers[0]) {
+            return false;
+        } else {
+            if (_tokenTiers[2] < _tokenTiers[1]) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 
     function checkForTokenTier(uint256 _amount)
         public

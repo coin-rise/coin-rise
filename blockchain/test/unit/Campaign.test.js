@@ -38,6 +38,10 @@ const { duration } = require("@nomicfoundation/hardhat-network-helpers/dist/src/
                   coinRiseNft.address
               )
 
+              await coinRiseNft.setRoles(campaignManager.address)
+
+              await coinRiseNft.setNewTokenURIs(["1", "2", "3"])
+
               const CoinRiseTokenPool = await ethers.getContractFactory("CoinRiseTokenPool")
               const coinRiseTokenPool = await CoinRiseTokenPool.deploy(
                   mockToken.address,
@@ -187,6 +191,28 @@ const { duration } = require("@nomicfoundation/hardhat-network-helpers/dist/src/
                   const _balanceAfter = await mockToken.balanceOf(receiver.address)
 
                   assert(_balanceAfter.gt(_balanceBefore))
+              })
+          })
+
+          describe("#mintCampaignNFT", () => {
+              it("successfully mint a NFT for the contributor", async () => {
+                  const {
+                      campaignManager,
+                      deployer,
+                      submitter,
+                      campaignFactory,
+                      mockToken,
+                      contributor1,
+                  } = await loadFixture(deployCampaignFixture)
+                  await campaignFactory.connect(deployer).transferOwnership(campaignManager.address)
+                  await campaignManager
+                      .connect(submitter)
+                      .createNewCampaignWithVoting(deadline, minAmount, "xx", tokenTiers, 4)
+                  const campaignAddress = await campaignFactory.getLastDeployedCampaign()
+                  const campaign = await ethers.getContractAt("Campaign", campaignAddress)
+                  await fundSuccessfulCampaign(campaign, campaignManager, mockToken, contributor1)
+
+                  await campaign.connect(contributor1).mintCampaignNFT()
               })
           })
       })
