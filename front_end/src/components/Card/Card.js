@@ -11,10 +11,10 @@ import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
 import { retrieveImg } from "../Storage";
-import CampaignAbi from "../../artifacts/contracts/Campaign.sol/Campaign.json";
-import contractManagerAbi from "../../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
+import deployedContracts from "../../deployments/deployedContracts.json"
 
-const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
+const MumbaiID = 80001;
+const CampaignAbi = deployedContracts[MumbaiID].Campaign.abi
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,

@@ -17,11 +17,17 @@ import {
   loadData,
   loadImg,
 } from "../components/Storage";
-import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
-import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
+import IERC20 from "../artifacts/token/ERC20/ERC20.sol/ERC20.json";
+
+import deployedContracts from "../deployments/deployedContracts.json"
+
 import ScrollBar from "../components/ScrollBar/Scroll";
 import Radio from "../components/Radio/Radio";
-const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
+
+const MumbaiID = 80001;
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
+const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi
+const campaignManagerAddress = deployedContracts[MumbaiID].CampaignManager.address
 
 const SpecificPage = () => {
   const [open, setOpen] = useState(false);
@@ -92,7 +98,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -120,7 +126,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -152,7 +158,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -184,7 +190,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -212,7 +218,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -243,7 +249,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -270,7 +276,7 @@ const SpecificPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -315,10 +321,17 @@ const SpecificPage = () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(
-          contractManagerAddress,
-          contractManagerAbi.abi,
+          campaignManagerAddress,
+          campaignManagerAbi,
           signer
         );
+
+        const stableTokenAddress = await contract.getStableTokenAddress()
+        const stableToken = new ethers.Contract(
+          stableTokenAddress,
+          IERC20.abi,
+          signer 
+          )
         /**
          *  Receive Emitted Event from Smart Contract
          *  @dev See ContributorsUpdated emitted from our smart contract contributeCampaign function
@@ -334,6 +347,8 @@ const SpecificPage = () => {
             console.log("Campaign address :", campaignAddress);
           }
         );
+        let appr = await stableToken.approve(campaignManagerAddress, amount);
+        await appr.wait();
         let tx = await contract.contributeCampaign(
           BigNumber.from(amount),
           campaignAddress
@@ -431,7 +446,7 @@ const SpecificPage = () => {
                 </p>
               </Box>
               <p style={{ margin: 0, marginTop: "10px" }}>
-                {contributor && contributor?.toNumber()} Contributors
+                {contributor && contributor} Contributors
               </p>
             </Box>
           </Box>

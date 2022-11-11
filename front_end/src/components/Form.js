@@ -11,17 +11,23 @@ import {
   makeFileObjects,
   retrieveFiles,
   loadData,
-  storeImg,
+  storeImg
 } from "./Storage";
 import { ethers, BigNumber } from "ethers";
 import { CircularProgress } from "@mui/material";
+
+import deployedContracts from "../deployments/deployedContracts.json"
+const MumbaiID = 80001;
 /* campaignManager Contract Address and Contract ABI */
-import contractManagerAbi from "../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
-import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
-import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
-const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
-const campaignAddress = "0x1a111771e2FD5c1Ee970CdDd45a89268120Bc45A";
-const FactoryAddress = "0xd98458e022ac999a547D49f9da37DCc6F4d1f19F";
+const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi
+const campaignFactoryAbi = deployedContracts[MumbaiID].CampaignFactory.abi
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
+
+
+
+const campaignManagerAddress = deployedContracts[MumbaiID].CampaignManager.address
+const campaignFactoryAddress = deployedContracts[MumbaiID].CampaignFactory.address
+
 
 function Form() {
   const [userAddress, setUserAddress] = useState();
@@ -29,8 +35,6 @@ function Form() {
   const [signer, setSigner] = useState();
   const [isLoading, setIsloading] = useState(false);
   const navigate = useNavigate();
-
-  // wallet adress
 
   useEffect(() => {
     const onNewSigner = async () => {
@@ -48,16 +52,6 @@ function Form() {
     onNewSigner();
   }, [window.ethereum]);
 
-  useEffect(() => {
-    const setUp = async () => {
-      if (signer) {
-        setCampaignContract(
-          new ethers.Contract(campaignAddress, CampaignAbi, signer)
-        );
-      }
-    };
-    setUp();
-  }, [signer]);
 
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
@@ -72,11 +66,6 @@ function Form() {
     minAmount: "",
     campaignVideo: "",
     extraInformation: "",
-    vote: false,
-    nftGold: "",
-    nftSilver: "",
-    nftBronze: "",
-    minVotePercentage: "",
   });
 
   function handleChange(e) {
@@ -95,13 +84,19 @@ function Form() {
         cidImg
       );
       const cid = await storeFiles(files);
+      const nftsBadge = [
+        campaign?.nftGold,
+        campaign?.nftSilver,
+        campaign?.nftBronze,
+      ];
       await CreateNewCampaign(
         campaign?.campaignDuration,
         campaign?.minAmount,
-        cid
+        cid,
+        nftsBadge
       );
-      const newA = await getLastDeployedCampaign();
-      console.log(newA, "newA");
+      const newA = await getLastDeployedCampaign()
+      console.log(newA, "newA")
       setIsloading(false);
       navigate(`/project/${newA}`);
       // console.log(newComapaing,'newComapaing')
@@ -122,10 +117,11 @@ function Form() {
   ];
   const [newAddr, setNewAddr] = useState();
 
+
   /**
    * Create a new Campaign for funding non-profit projects
    */
-  const CreateNewCampaign = async (duration, minamount, cid_ipfs) => {
+  const CreateNewCampaign = async (duration, minamount, cid_ipfs, NFTAmount) => {
     if (!duration && Number(duration)) {
       console.log(`Error, Please enter a valid deadline`);
       return;
@@ -136,14 +132,21 @@ function Form() {
       return;
     }
 
+    for (let i = 0; i < NFTAmount.length; i++) {
+      if (!NFTAmount[i] && Number(NFTAmount[i])) {
+        console.log(`Error, Please enter a NFT threshold`);
+        return;
+      }
+    }
+
     try {
       const { ethereum } = window;
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(
-          contractManagerAddress,
-          contractManagerAbi.abi,
+          campaignManagerAddress,
+          campaignManagerAbi,
           signer
         );
         /**
@@ -157,7 +160,8 @@ function Form() {
         let tx = await contract.createNewCampaign(
           BigNumber.from(duration),
           BigNumber.from(minamount),
-          cid_ipfs
+          cid_ipfs,
+          NFTAmount
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
@@ -209,18 +213,18 @@ function Form() {
           process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
         );
         const contract = new ethers.Contract(
-          FactoryAddress,
-          CampaignFactoryAbi.abi,
+          campaignFactoryAddress,
+          campaignFactoryAbi,
           provider
         );
 
         let campaignList = await contract.getLastDeployedCampaign();
         const stylesMining = ["color: black", "background: yellow"].join(";");
-        console.log(
+        /*console.log(
           "%c Deployed Campaign Contracts addresses =  %s",
           stylesMining,
           campaignList
-        );
+        );*/
         return campaignList;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -229,6 +233,7 @@ function Form() {
       console.log("error", error);
     }
   };
+
 
   return (
     <Box>

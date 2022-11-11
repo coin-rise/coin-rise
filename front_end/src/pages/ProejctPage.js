@@ -12,10 +12,14 @@ import {
   loadData,
   retrieveData
 } from "../components/Storage";
-import CampaignAbi from "../artifacts/contracts/Campaign.sol/Campaign.json";
-import CampaignFactoryAbi from "../artifacts/contracts/CampaignFactory.sol/CampaignFactory.json";
+import deployedContracts from "../deployments/deployedContracts.json"
 
-const FactoryAddress = "0xd98458e022ac999a547D49f9da37DCc6F4d1f19F";
+const MumbaiID = 80001;
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
+const campaignFactoryAbi= deployedContracts[MumbaiID].CampaignFactory.abi
+
+const campaignFactoryAddress = deployedContracts[MumbaiID].CampaignFactory.address
+
 
 const ProejctPage = () => {
   /**
@@ -29,8 +33,8 @@ const ProejctPage = () => {
           process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
         );
         const contract = new ethers.Contract(
-          FactoryAddress,
-          CampaignFactoryAbi.abi,
+          campaignFactoryAddress,
+          campaignFactoryAbi,
           provider
         );
 
@@ -62,7 +66,7 @@ const ProejctPage = () => {
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          campaignAbi,
           provider
         );
 
@@ -84,7 +88,7 @@ const ProejctPage = () => {
   const makeObj = async (campaignList) => {
     try {
       let campaignObj = [];
-      const promises = campaignList.slice(25).map(async campaignAddr => {
+      const promises = campaignList.slice(10).map(async campaignAddr => {
         let cid_i = await getCampaignURI(campaignAddr);
         let content = await loadData(cid_i);
         content.address = campaignAddr;

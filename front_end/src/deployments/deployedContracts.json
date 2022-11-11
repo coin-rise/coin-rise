@@ -1,0 +1,3850 @@
+{
+    "31337": {
+        "Campaign": {
+            "abi": [
+                { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+                { "inputs": [], "name": "Campaign_AmountExceedTotalSupply", "type": "error" },
+                { "inputs": [], "name": "Campaign_SuccessfulFunded", "type": "error" },
+                { "inputs": [], "name": "Campaign_TokenAmountIsZero", "type": "error" },
+                { "inputs": [], "name": "Campaign__AddressIsZeroAddress", "type": "error" },
+                { "inputs": [], "name": "Campaign__FundingFinished", "type": "error" },
+                { "inputs": [], "name": "Campaign__FundingNotFinished", "type": "error" },
+                { "inputs": [], "name": "Campaign__NotSuccessfulFunded", "type": "error" },
+                { "inputs": [], "name": "Campaign__NotTheSubmitter", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "Campaign__PayoutsNeedSuccessfulApproved",
+                    "type": "error"
+                },
+                { "inputs": [], "name": "Campaign__SenderIsNotContributor", "type": "error" },
+                { "inputs": [], "name": "Campaign__SenderIsNotVotingContract", "type": "error" },
+                { "inputs": [], "name": "Campaign__TokenTiersNotAccepted", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint8",
+                            "name": "version",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "Initialized",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "SubmitterAddressChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "TokensTransfered",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "enum Campaign.TokenTier",
+                            "name": "tier",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "UpdateContributor",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+                    ],
+                    "name": "addContributor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        }
+                    ],
+                    "name": "checkForAccepatbleTokenTiers",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "pure",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "checkForTokenTier",
+                    "outputs": [
+                        { "internalType": "enum Campaign.TokenTier", "name": "", "type": "uint8" },
+                        { "internalType": "bool", "name": "", "type": "bool" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "name": "contributors",
+                    "outputs": [
+                        {
+                            "internalType": "enum Campaign.TokenTier",
+                            "name": "tier",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "contributionAmount",
+                            "type": "uint256"
+                        },
+                        { "internalType": "bool", "name": "tokenMinted", "type": "bool" },
+                        { "internalType": "bool", "name": "allowableToMint", "type": "bool" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "finishFunding",
+                    "outputs": [{ "internalType": "bool", "name": "successful", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getAllRequests",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "internalType": "uint256", "name": "id", "type": "uint256" },
+                                { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "tokenAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "address", "name": "to", "type": "address" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalVotes",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "yesVotes",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "uint256", "name": "noVotes", "type": "uint256" },
+                                { "internalType": "bool", "name": "approved", "type": "bool" },
+                                { "internalType": "bool", "name": "executed", "type": "bool" },
+                                { "internalType": "string", "name": "storedData", "type": "string" }
+                            ],
+                            "internalType": "struct IVoting.RequestInformation[]",
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getCampaignURI",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "getContributor",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "getContributorInfo",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "enum Campaign.TokenTier",
+                                    "name": "tier",
+                                    "type": "uint8"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "contributionAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "bool", "name": "tokenMinted", "type": "bool" },
+                                {
+                                    "internalType": "bool",
+                                    "name": "allowableToMint",
+                                    "type": "bool"
+                                }
+                            ],
+                            "internalType": "struct Campaign.ContributorInfo",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getDuration",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getEndDate",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFundingStatus",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getMinAmount",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getNumberOfContributor",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getRemainingFundingTime",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStartDate",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getSubmitter",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTokenTiers",
+                    "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTotalSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getVotingContractAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_duration", "type": "uint256" },
+                        { "internalType": "address", "name": "_submitter", "type": "address" },
+                        { "internalType": "address", "name": "_token", "type": "address" },
+                        { "internalType": "address", "name": "_coinRiseToken", "type": "address" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        { "internalType": "bool", "name": "_requestingPayouts", "type": "bool" }
+                    ],
+                    "name": "initialize",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "isCampaignVotable",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "isFundingActive",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "mintCampaignNFT",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "setContributionToZero",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+                    ],
+                    "name": "transferStableTokensAfterRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        {
+                            "internalType": "uint256",
+                            "name": "_requestDuration",
+                            "type": "uint256"
+                        },
+                        { "internalType": "string", "name": "_storedInformation", "type": "string" }
+                    ],
+                    "name": "transferStableTokensWithRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "string", "name": "_newURI", "type": "string" }],
+                    "name": "updateCampaignURI",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_submitter", "type": "address" }
+                    ],
+                    "name": "updateSubmitterAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "updateVotingContractAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "bool", "name": "_approve", "type": "bool" }
+                    ],
+                    "name": "voteOnTransferRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x0e9E606349443b533347D443bA3E00FDa4D93690"
+        },
+        "CampaignFactory": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_implementationContract",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newContract",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "deployedNewCloneContract",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "address", "name": "_submitter", "type": "address" },
+                        { "internalType": "address", "name": "_token", "type": "address" },
+                        { "internalType": "address", "name": "_coinRiseToken", "type": "address" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        { "internalType": "bool", "name": "_requestingPayouts", "type": "bool" }
+                    ],
+                    "name": "deployNewContract",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getDeployedCampaignContracts",
+                    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getImplementationContract",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getLastDeployedCampaign",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0xD3735cbb1D8D3c8E67e3d85CF3d5689455176ff3"
+        },
+        "CampaignManager": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_campaignFactory",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "_stableTokenAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "_coinRiseTokenAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "CampaignManager__AmountIsZero", "type": "error" },
+                { "inputs": [], "name": "CampaignManager__CampaignDoesNotExist", "type": "error" },
+                { "inputs": [], "name": "CampaignManager__NoTokenPoolIsDefined", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "CampaignManager__TokenPoolAlreadyDefined",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CampaignManager__VotingContractAlreadyDefined",
+                    "type": "error"
+                },
+                { "inputs": [], "name": "OnlySimulatedBackend", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "funds",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "bool",
+                            "name": "successful",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "CampaignFinished",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "ContributorsUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "newFee",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FeesUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newCampaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "duration",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "NewCampaignCreated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "totalAmount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "TokenTransferedToContributor",
+                    "type": "event"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "calculateFees",
+                    "outputs": [{ "internalType": "uint256", "name": "_fees", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }],
+                    "name": "checkUpkeep",
+                    "outputs": [
+                        { "internalType": "bool", "name": "upkeepNeeded", "type": "bool" },
+                        { "internalType": "bytes", "name": "performData", "type": "bytes" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address[]",
+                            "name": "_campaignAddresses",
+                            "type": "address[]"
+                        }
+                    ],
+                    "name": "claimTokensFromUnsuccessfulCampaigns",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "contributeCampaign",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        }
+                    ],
+                    "name": "createNewCampaign",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_quorumPercentage",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "createNewCampaignWithVoting",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getActiveCampaigns",
+                    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFees",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStableTokenAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTokenPool",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes", "name": "performData", "type": "bytes" }],
+                    "name": "performUpkeep",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_newFees", "type": "uint256" }
+                    ],
+                    "name": "setFees",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "setTokenPoolAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "setVotingContractAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0xB3650921A544d33190F1A4740bE423Ec713980eE"
+        },
+        "CoinRiseTokenPool": {
+            "abi": [
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_stableToken", "type": "address" },
+                        {
+                            "internalType": "address",
+                            "name": "_campaignManagerAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "CoinRiseTokenPool__NoTokensSent", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughContributorStableTokens",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughFreeStableTokens",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughLockedStableCoins",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__TokensAlreadyTransfered",
+                    "type": "error"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FundingsSentToCampaign",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "submitter",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FundingsSentToSubmitter",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RegistryAddressUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "previousAdminRole",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "newAdminRole",
+                            "type": "bytes32"
+                        }
+                    ],
+                    "name": "RoleAdminChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleGranted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleRevoked",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "lockedTotalSupply",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "freeTotalSupply",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "contributorSupply",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "StableTokensUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "WithdrawFreeStableTokenFunds",
+                    "type": "event"
+                },
+                {
+                    "inputs": [],
+                    "name": "DEFAULT_ADMIN_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MANAGER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "SENDER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "WITHDRAW_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getCampaignManagerAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getContributorStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFreeTotalStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getLockedTotalStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+                    "name": "getRoleAdmin",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStableTokenAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "grantRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "hasRole",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "renounceRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "revokeRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "sendFundsToCampaignContract",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "sendFundsToSubmitter",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_to", "type": "address" }
+                    ],
+                    "name": "sendTokensToContributor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_fees", "type": "uint256" }
+                    ],
+                    "name": "setNewTotalSupplies",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+                    ],
+                    "name": "supportsInterface",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "transferStableTokensToContributorPool",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "withdrawFreeStableTokens",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0xa54C848fF17DE43816e63cE639540E4a0cb244ba"
+        },
+        "CoinRiseNFT": {
+            "abi": [
+                { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+                { "inputs": [], "name": "CoinRiseNFT__TokenURIsNotFound", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "owner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "approved",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Approval",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "owner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "bool",
+                            "name": "approved",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "ApprovalForAll",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "previousAdminRole",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "newAdminRole",
+                            "type": "bytes32"
+                        }
+                    ],
+                    "name": "RoleAdminChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleGranted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleRevoked",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Transfer",
+                    "type": "event"
+                },
+                {
+                    "inputs": [],
+                    "name": "DEFAULT_ADMIN_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MANAGER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MINTER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "approve",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                    "name": "balanceOf",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "getApproved",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+                    "name": "getRoleAdmin",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "grantRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "hasRole",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "owner", "type": "address" },
+                        { "internalType": "address", "name": "operator", "type": "address" }
+                    ],
+                    "name": "isApprovedForAll",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "name",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "ownerOf",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "renounceRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "revokeRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "uriId", "type": "uint256" }
+                    ],
+                    "name": "safeMint",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "safeTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+                        { "internalType": "bytes", "name": "data", "type": "bytes" }
+                    ],
+                    "name": "safeTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "operator", "type": "address" },
+                        { "internalType": "bool", "name": "approved", "type": "bool" }
+                    ],
+                    "name": "setApprovalForAll",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "campaign", "type": "address" }
+                    ],
+                    "name": "setMinterRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "string[]", "name": "_tokenURIs", "type": "string[]" }
+                    ],
+                    "name": "setNewTokenURIs",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_managerContract", "type": "address" }
+                    ],
+                    "name": "setRoles",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+                    ],
+                    "name": "supportsInterface",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "symbol",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "index", "type": "uint256" }],
+                    "name": "tokenByIndex",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "owner", "type": "address" },
+                        { "internalType": "uint256", "name": "index", "type": "uint256" }
+                    ],
+                    "name": "tokenOfOwnerByIndex",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "tokenURI",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "totalSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "transferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x17a405D74A3EA82123DB52590a8aE729827Bb3d8"
+        },
+        "Voting": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_managerContractAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "Voting__AmountExceedTotalSupply", "type": "error" },
+                { "inputs": [], "name": "Voting__CampaignNotInitialized", "type": "error" },
+                { "inputs": [], "name": "Voting__InformationAlreadyInitialized", "type": "error" },
+                { "inputs": [], "name": "Voting__NotTheManagerContract", "type": "error" },
+                { "inputs": [], "name": "Voting__RequestNotVotable", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "requestId",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "requestEndDate",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "RequestSubmitted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "totalVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "yesVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "noVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "lastVoter",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RequestVotesUpdated",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "executeRequest",
+                    "outputs": [{ "internalType": "bool", "name": "approved", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "getFinishedRequestsFromCampaign",
+                    "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_campaignAddress",
+                            "type": "address"
+                        },
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" }
+                    ],
+                    "name": "getRequestInformation",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "internalType": "uint256", "name": "id", "type": "uint256" },
+                                { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "tokenAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "address", "name": "to", "type": "address" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalVotes",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "yesVotes",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "uint256", "name": "noVotes", "type": "uint256" },
+                                { "internalType": "bool", "name": "approved", "type": "bool" },
+                                { "internalType": "bool", "name": "executed", "type": "bool" },
+                                { "internalType": "string", "name": "storedData", "type": "string" }
+                            ],
+                            "internalType": "struct Voting.RequestInformation",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "getVotingInformation",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "uint256",
+                                    "name": "lastRequestId",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalRequestedAmount",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalRequests",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "quorumPercentage",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "bool", "name": "initialized", "type": "bool" }
+                            ],
+                            "internalType": "struct Voting.VotingInformation",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_quorumPercentage",
+                            "type": "uint256"
+                        },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "intializeCampaignVotingInformation",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        {
+                            "internalType": "uint256",
+                            "name": "_requestDuration",
+                            "type": "uint256"
+                        },
+                        { "internalType": "string", "name": "_storedInformation", "type": "string" }
+                    ],
+                    "name": "requestForTokenTransfer",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" },
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "bool", "name": "_approve", "type": "bool" }
+                    ],
+                    "name": "voteOnRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x151087E77a918D33df147e748E3beA54c2C08C21"
+        }
+    },
+    "80001": {
+        "Campaign": {
+            "abi": [
+                { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+                { "inputs": [], "name": "Campaign_AmountExceedTotalSupply", "type": "error" },
+                { "inputs": [], "name": "Campaign_SuccessfulFunded", "type": "error" },
+                { "inputs": [], "name": "Campaign_TokenAmountIsZero", "type": "error" },
+                { "inputs": [], "name": "Campaign__AddressIsZeroAddress", "type": "error" },
+                { "inputs": [], "name": "Campaign__FundingFinished", "type": "error" },
+                { "inputs": [], "name": "Campaign__FundingNotFinished", "type": "error" },
+                { "inputs": [], "name": "Campaign__NotSuccessfulFunded", "type": "error" },
+                { "inputs": [], "name": "Campaign__NotTheSubmitter", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "Campaign__PayoutsNeedSuccessfulApproved",
+                    "type": "error"
+                },
+                { "inputs": [], "name": "Campaign__SenderIsNotContributor", "type": "error" },
+                { "inputs": [], "name": "Campaign__SenderIsNotVotingContract", "type": "error" },
+                { "inputs": [], "name": "Campaign__TokenTiersNotAccepted", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint8",
+                            "name": "version",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "Initialized",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "SubmitterAddressChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "TokensTransfered",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "enum Campaign.TokenTier",
+                            "name": "tier",
+                            "type": "uint8"
+                        }
+                    ],
+                    "name": "UpdateContributor",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+                    ],
+                    "name": "addContributor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        }
+                    ],
+                    "name": "checkForAccepatbleTokenTiers",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "pure",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "checkForTokenTier",
+                    "outputs": [
+                        { "internalType": "enum Campaign.TokenTier", "name": "", "type": "uint8" },
+                        { "internalType": "bool", "name": "", "type": "bool" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "name": "contributors",
+                    "outputs": [
+                        {
+                            "internalType": "enum Campaign.TokenTier",
+                            "name": "tier",
+                            "type": "uint8"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "contributionAmount",
+                            "type": "uint256"
+                        },
+                        { "internalType": "bool", "name": "tokenMinted", "type": "bool" },
+                        { "internalType": "bool", "name": "allowableToMint", "type": "bool" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "finishFunding",
+                    "outputs": [{ "internalType": "bool", "name": "successful", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getAllRequests",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "internalType": "uint256", "name": "id", "type": "uint256" },
+                                { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "tokenAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "address", "name": "to", "type": "address" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalVotes",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "yesVotes",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "uint256", "name": "noVotes", "type": "uint256" },
+                                { "internalType": "bool", "name": "approved", "type": "bool" },
+                                { "internalType": "bool", "name": "executed", "type": "bool" },
+                                { "internalType": "string", "name": "storedData", "type": "string" }
+                            ],
+                            "internalType": "struct IVoting.RequestInformation[]",
+                            "name": "",
+                            "type": "tuple[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getCampaignURI",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "getContributor",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "getContributorInfo",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "enum Campaign.TokenTier",
+                                    "name": "tier",
+                                    "type": "uint8"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "contributionAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "bool", "name": "tokenMinted", "type": "bool" },
+                                {
+                                    "internalType": "bool",
+                                    "name": "allowableToMint",
+                                    "type": "bool"
+                                }
+                            ],
+                            "internalType": "struct Campaign.ContributorInfo",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getDuration",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getEndDate",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFundingStatus",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getMinAmount",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getNumberOfContributor",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getRemainingFundingTime",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStartDate",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getSubmitter",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTokenTiers",
+                    "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTotalSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getVotingContractAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_duration", "type": "uint256" },
+                        { "internalType": "address", "name": "_submitter", "type": "address" },
+                        { "internalType": "address", "name": "_token", "type": "address" },
+                        { "internalType": "address", "name": "_coinRiseToken", "type": "address" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        { "internalType": "bool", "name": "_requestingPayouts", "type": "bool" }
+                    ],
+                    "name": "initialize",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "isCampaignVotable",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "isFundingActive",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "mintCampaignNFT",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" }
+                    ],
+                    "name": "setContributionToZero",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" }
+                    ],
+                    "name": "transferStableTokensAfterRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        {
+                            "internalType": "uint256",
+                            "name": "_requestDuration",
+                            "type": "uint256"
+                        },
+                        { "internalType": "string", "name": "_storedInformation", "type": "string" }
+                    ],
+                    "name": "transferStableTokensWithRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "string", "name": "_newURI", "type": "string" }],
+                    "name": "updateCampaignURI",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_submitter", "type": "address" }
+                    ],
+                    "name": "updateSubmitterAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "updateVotingContractAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "bool", "name": "_approve", "type": "bool" }
+                    ],
+                    "name": "voteOnTransferRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x0E9C9eCb62F8e5c99414cF605E0372f43A45e8df"
+        },
+        "CampaignFactory": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_implementationContract",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newContract",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "deployedNewCloneContract",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "address", "name": "_submitter", "type": "address" },
+                        { "internalType": "address", "name": "_token", "type": "address" },
+                        { "internalType": "address", "name": "_coinRiseToken", "type": "address" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        { "internalType": "bool", "name": "_requestingPayouts", "type": "bool" }
+                    ],
+                    "name": "deployNewContract",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getDeployedCampaignContracts",
+                    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getImplementationContract",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getLastDeployedCampaign",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x5999a9B4cd45f25d8ed2fF70a78E30293F10F4c1"
+        },
+        "CampaignManager": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_campaignFactory",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "_stableTokenAddress",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "_coinRiseTokenAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "CampaignManager__AmountIsZero", "type": "error" },
+                { "inputs": [], "name": "CampaignManager__CampaignDoesNotExist", "type": "error" },
+                { "inputs": [], "name": "CampaignManager__NoTokenPoolIsDefined", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "CampaignManager__TokenPoolAlreadyDefined",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CampaignManager__VotingContractAlreadyDefined",
+                    "type": "error"
+                },
+                { "inputs": [], "name": "OnlySimulatedBackend", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "funds",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "bool",
+                            "name": "successful",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "CampaignFinished",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "ContributorsUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "newFee",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FeesUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newCampaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "duration",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "NewCampaignCreated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "contributor",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "totalAmount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "TokenTransferedToContributor",
+                    "type": "event"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "calculateFees",
+                    "outputs": [{ "internalType": "uint256", "name": "_fees", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes", "name": "", "type": "bytes" }],
+                    "name": "checkUpkeep",
+                    "outputs": [
+                        { "internalType": "bool", "name": "upkeepNeeded", "type": "bool" },
+                        { "internalType": "bytes", "name": "performData", "type": "bytes" }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address[]",
+                            "name": "_campaignAddresses",
+                            "type": "address[]"
+                        }
+                    ],
+                    "name": "claimTokensFromUnsuccessfulCampaigns",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "contributeCampaign",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        }
+                    ],
+                    "name": "createNewCampaign",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_deadline", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_minAmount", "type": "uint256" },
+                        { "internalType": "string", "name": "_campaignURI", "type": "string" },
+                        {
+                            "internalType": "uint256[3]",
+                            "name": "_tokenTiers",
+                            "type": "uint256[3]"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_quorumPercentage",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "createNewCampaignWithVoting",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getActiveCampaigns",
+                    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFees",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStableTokenAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getTokenPool",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes", "name": "performData", "type": "bytes" }],
+                    "name": "performUpkeep",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_newFees", "type": "uint256" }
+                    ],
+                    "name": "setFees",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "setTokenPoolAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_newAddress", "type": "address" }
+                    ],
+                    "name": "setVotingContractAddress",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "newOwner", "type": "address" }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0xE93ef8ECFC83aFa0201fAADc86A726420773EEb4"
+        },
+        "CoinRiseTokenPool": {
+            "abi": [
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_stableToken", "type": "address" },
+                        {
+                            "internalType": "address",
+                            "name": "_campaignManagerAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "CoinRiseTokenPool__NoTokensSent", "type": "error" },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughContributorStableTokens",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughFreeStableTokens",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__NotEnoughLockedStableCoins",
+                    "type": "error"
+                },
+                {
+                    "inputs": [],
+                    "name": "CoinRiseTokenPool__TokensAlreadyTransfered",
+                    "type": "error"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FundingsSentToCampaign",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "submitter",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "FundingsSentToSubmitter",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "newAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RegistryAddressUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "previousAdminRole",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "newAdminRole",
+                            "type": "bytes32"
+                        }
+                    ],
+                    "name": "RoleAdminChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleGranted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleRevoked",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "lockedTotalSupply",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "freeTotalSupply",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "contributorSupply",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "StableTokensUpdated",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "WithdrawFreeStableTokenFunds",
+                    "type": "event"
+                },
+                {
+                    "inputs": [],
+                    "name": "DEFAULT_ADMIN_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MANAGER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "SENDER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "WITHDRAW_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getCampaignManagerAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getContributorStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getFreeTotalStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getLockedTotalStableTokenSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+                    "name": "getRoleAdmin",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "getStableTokenAddress",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "grantRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "hasRole",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "renounceRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "revokeRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "sendFundsToCampaignContract",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "sendFundsToSubmitter",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_to", "type": "address" }
+                    ],
+                    "name": "sendTokensToContributor",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "uint256", "name": "_fees", "type": "uint256" }
+                    ],
+                    "name": "setNewTotalSupplies",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+                    ],
+                    "name": "supportsInterface",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "transferStableTokensToContributorPool",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "_amount", "type": "uint256" }],
+                    "name": "withdrawFreeStableTokens",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x0b21422c1ae8A6d3ec4fd4e0D74B5E2BfB599BaC"
+        },
+        "CoinRiseNFT": {
+            "abi": [
+                { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
+                { "inputs": [], "name": "CoinRiseNFT__TokenURIsNotFound", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "owner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "approved",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Approval",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "owner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "bool",
+                            "name": "approved",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "ApprovalForAll",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "previousAdminRole",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "newAdminRole",
+                            "type": "bytes32"
+                        }
+                    ],
+                    "name": "RoleAdminChanged",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleGranted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "role",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "sender",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RoleRevoked",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "Transfer",
+                    "type": "event"
+                },
+                {
+                    "inputs": [],
+                    "name": "DEFAULT_ADMIN_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MANAGER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "MINTER_ROLE",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "approve",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }],
+                    "name": "balanceOf",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "getApproved",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+                    "name": "getRoleAdmin",
+                    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "grantRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "hasRole",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "owner", "type": "address" },
+                        { "internalType": "address", "name": "operator", "type": "address" }
+                    ],
+                    "name": "isApprovedForAll",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "name",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "ownerOf",
+                    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "renounceRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+                        { "internalType": "address", "name": "account", "type": "address" }
+                    ],
+                    "name": "revokeRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "uriId", "type": "uint256" }
+                    ],
+                    "name": "safeMint",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "safeTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+                        { "internalType": "bytes", "name": "data", "type": "bytes" }
+                    ],
+                    "name": "safeTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "operator", "type": "address" },
+                        { "internalType": "bool", "name": "approved", "type": "bool" }
+                    ],
+                    "name": "setApprovalForAll",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "campaign", "type": "address" }
+                    ],
+                    "name": "setMinterRole",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "string[]", "name": "_tokenURIs", "type": "string[]" }
+                    ],
+                    "name": "setNewTokenURIs",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_managerContract", "type": "address" }
+                    ],
+                    "name": "setRoles",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
+                    ],
+                    "name": "supportsInterface",
+                    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "symbol",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "index", "type": "uint256" }],
+                    "name": "tokenByIndex",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "owner", "type": "address" },
+                        { "internalType": "uint256", "name": "index", "type": "uint256" }
+                    ],
+                    "name": "tokenOfOwnerByIndex",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+                    "name": "tokenURI",
+                    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "totalSupply",
+                    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "from", "type": "address" },
+                        { "internalType": "address", "name": "to", "type": "address" },
+                        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+                    ],
+                    "name": "transferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x75E368e68C7888712AFCDe9323D6Dcb6b212c153"
+        },
+        "Voting": {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_managerContractAddress",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                { "inputs": [], "name": "Voting__AmountExceedTotalSupply", "type": "error" },
+                { "inputs": [], "name": "Voting__CampaignNotInitialized", "type": "error" },
+                { "inputs": [], "name": "Voting__InformationAlreadyInitialized", "type": "error" },
+                { "inputs": [], "name": "Voting__NotTheManagerContract", "type": "error" },
+                { "inputs": [], "name": "Voting__RequestNotVotable", "type": "error" },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "campaign",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "requestId",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "requestEndDate",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "RequestSubmitted",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "totalVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "yesVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "noVotes",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "address",
+                            "name": "lastVoter",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "RequestVotesUpdated",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "executeRequest",
+                    "outputs": [{ "internalType": "bool", "name": "approved", "type": "bool" }],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "getFinishedRequestsFromCampaign",
+                    "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "_campaignAddress",
+                            "type": "address"
+                        },
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" }
+                    ],
+                    "name": "getRequestInformation",
+                    "outputs": [
+                        {
+                            "components": [
+                                { "internalType": "uint256", "name": "id", "type": "uint256" },
+                                { "internalType": "uint256", "name": "endDate", "type": "uint256" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "tokenAmount",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "address", "name": "to", "type": "address" },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalVotes",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "yesVotes",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "uint256", "name": "noVotes", "type": "uint256" },
+                                { "internalType": "bool", "name": "approved", "type": "bool" },
+                                { "internalType": "bool", "name": "executed", "type": "bool" },
+                                { "internalType": "string", "name": "storedData", "type": "string" }
+                            ],
+                            "internalType": "struct Voting.RequestInformation",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "getVotingInformation",
+                    "outputs": [
+                        {
+                            "components": [
+                                {
+                                    "internalType": "uint256",
+                                    "name": "lastRequestId",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalRequestedAmount",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "totalRequests",
+                                    "type": "uint256"
+                                },
+                                {
+                                    "internalType": "uint256",
+                                    "name": "quorumPercentage",
+                                    "type": "uint256"
+                                },
+                                { "internalType": "bool", "name": "initialized", "type": "bool" }
+                            ],
+                            "internalType": "struct Voting.VotingInformation",
+                            "name": "",
+                            "type": "tuple"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_quorumPercentage",
+                            "type": "uint256"
+                        },
+                        { "internalType": "address", "name": "_campaignAddress", "type": "address" }
+                    ],
+                    "name": "intializeCampaignVotingInformation",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_to", "type": "address" },
+                        { "internalType": "uint256", "name": "_amount", "type": "uint256" },
+                        {
+                            "internalType": "uint256",
+                            "name": "_requestDuration",
+                            "type": "uint256"
+                        },
+                        { "internalType": "string", "name": "_storedInformation", "type": "string" }
+                    ],
+                    "name": "requestForTokenTransfer",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        { "internalType": "address", "name": "_contributor", "type": "address" },
+                        { "internalType": "uint256", "name": "_requestId", "type": "uint256" },
+                        { "internalType": "bool", "name": "_approve", "type": "bool" }
+                    ],
+                    "name": "voteOnRequest",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                }
+            ],
+            "address": "0x1114a64b6B6b374BdfB58fDF4d8Cf5b998F53BFC"
+        }
+    }
+}
