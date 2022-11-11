@@ -42,6 +42,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
               await campaignManager.setVotingContractAddress(voting.address)
               await campaignManager.setTokenPoolAddress(coinRiseTokenPool.address)
 
+              await coinRiseNft.setRoles(campaignManager.address)
+
               const _deadline = 30
               const _minAmount = ethers.utils.parseEther("1")
               const _campaignURI = "IPFS LINK"

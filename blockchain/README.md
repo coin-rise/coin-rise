@@ -167,12 +167,11 @@ The creation of a campaign is carried out with CampaignManager Contract.
 
 ## Smart Contracts Mumbai Deployments
 
-| Contracts              |                 Addresses                  |
-| :--------------------- | :----------------------------------------: |
-| Campaign.sol           | 0xA01F427F0F47eb73f5eefa98E2DD6F242530C97b |
-| CampaignManager.sol    | 0x23674A05155e79d09946E669D330Dec65788B185 |
-| CampaignFactory.sol    | 0xE96A7958569ce2683c1889CA8B9be87e15A7081d |
-| CoinRiseTokenPool.sol  | 0x025804f16b7388A048B310A0b62E69368C15650d |
-| Voting.sol             | 0x9c00062ac794ae698dfD75D0b0f005C055EC764C |
-| CoinRiseNFT.sol        | 0x6E05D52E296a2eCfB444025F65c63872cFAEE310 |
-| MockDAI Token (mumbai) | 0xDD5FC320b0188F92e15f10c739DcAE0bD93d5921 |
+| Contracts             |                 Addresses                  |
+| :-------------------- | :----------------------------------------: |
+| Campaign.sol          | 0x0E9C9eCb62F8e5c99414cF605E0372f43A45e8df |
+| CampaignManager.sol   | 0xE93ef8ECFC83aFa0201fAADc86A726420773EEb4 |
+| CampaignFactory.sol   | 0x5999a9B4cd45f25d8ed2fF70a78E30293F10F4c1 |
+| CoinRiseTokenPool.sol | 0x0b21422c1ae8A6d3ec4fd4e0D74B5E2BfB599BaC |
+| Voting.sol            | 0x1114a64b6B6b374BdfB58fDF4d8Cf5b998F53BFC |
+| CoinRiseNFT.sol       | 0x75E368e68C7888712AFCDe9323D6Dcb6b212c153 |

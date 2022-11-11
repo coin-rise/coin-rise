@@ -6,6 +6,7 @@ import "./Interfaces/ICampaignFactory.sol";
 import "./Interfaces/ICampaign.sol";
 import "./Interfaces/IVoting.sol";
 import "./Interfaces/ICoinRiseTokenPool.sol";
+import "./Interfaces/ICoinRiseNFT.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -412,6 +413,8 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
         address _newCampaign = campaignFactory.getLastDeployedCampaign();
         activeCampaigns.push(_newCampaign);
+
+        ICoinRiseNFT(coinRiseTokenAddress).setMinterRole(_newCampaign);
 
         emit NewCampaignCreated(_newCampaign, _deadline);
 

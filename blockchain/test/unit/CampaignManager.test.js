@@ -46,6 +46,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
               await campaignFactory.transferOwnership(campaignManager.address)
 
+              await coinRiseNft.setRoles(campaignManager.address)
+
               return {
                   campaignManager,
                   owner,
