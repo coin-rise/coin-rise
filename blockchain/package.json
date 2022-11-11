@@ -6,7 +6,7 @@
     "scripts": {
         "compile": "hardhat compile",
         "test": "hardhat test ",
-        "test-staging": "hardhat test  --network mumbai",
+        "test-staging": "hardhat test --network mumbai",
         "deploy": "hardhat run scripts/deployment/main.js",
         "lint": "solhint 'contracts/*.sol'",
         "lint:fix": "solhint 'contracts/**/*.sol' --fix",

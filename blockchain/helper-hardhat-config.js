@@ -1,3 +1,6 @@
+const { ethers } = require("ethers")
+const { utils } = ethers
+
 const networkConfig = {
     default: {
         name: "hardhat",
@@ -30,6 +33,10 @@ const networkConfig = {
         keeperRegistry: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
         linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
         registryContract: "0x02777053d6764996e594c3E88AF1D58D5363a2e6",
+        duration: 90,
+        minAmount: utils.parseEther("2"),
+        campaignURI: "This is a test CID",
+        tokenTiers: [utils.parseEther("0.1"), utils.parseEther("0.2"), utils.parseEther("0.5")],
     },
     137: {
         name: "polygon",

@@ -311,11 +311,13 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
                 uint256 _totalFunds = _campaign.getTotalSupply();
                 if (_totalFunds > 0 && _successfulFunded) {
-                    //TODO: If campaign is not a voting campaign send the funds directly to the submitter
-                    _transferTotalFundsToCampaign(
-                        _totalFunds,
-                        _activeCampaigns[i]
-                    );
+                    bool _voting = _campaign.isCampaignVotable();
+
+                    if (_voting) {
+                        _transferTotalFundsToCampaign(_activeCampaigns[i]);
+                    } else {
+                        _transferTotalFundsToSubmitter(_activeCampaigns[i]);
+                    }
                 } else {
                     _transferStableTokensToContributorPool(
                         _totalFunds,
@@ -396,7 +398,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         string memory _campaignURI,
         uint256[3] memory _tokenTiers,
         bool _requestingPayouts
-    ) public returns (address) {
+    ) internal returns (address) {
         campaignFactory.deployNewContract(
             _deadline,
             msg.sender,
@@ -433,19 +435,18 @@ contract CampaignManager is AutomationCompatible, Ownable {
         ICoinRiseTokenPool(tokenPool).sendTokensToContributor(_amount, _to);
     }
 
-    function _transferTotalFundsToCampaign(
-        uint256 _amount,
-        address _campaignAddress
-    ) internal requireDefinedTokenPool {
+    function _transferTotalFundsToCampaign(address _campaignAddress)
+        internal
+        requireDefinedTokenPool
+    {
         ICoinRiseTokenPool(tokenPool).sendFundsToCampaignContract(
-            _campaignAddress,
-            _amount
+            _campaignAddress
         );
     }
 
-    function _executeFinishedRequest(address _campaign, uint256 requestId)
-        internal
-    {}
+    function _transferTotalFundsToSubmitter(address _campaignAddress) internal {
+        ICoinRiseTokenPool(tokenPool).sendFundsToSubmitter(_campaignAddress);
+    }
 
     function _isTokenPoolNotDefined() internal view {
         if (tokenPoolDefined) {
@@ -481,5 +482,9 @@ contract CampaignManager is AutomationCompatible, Ownable {
 
     function getStableTokenAddress() external view returns (address) {
         return stableToken;
+    }
+
+    function getTokenPool() external view returns (address) {
+        return address(tokenPool);
     }
 }

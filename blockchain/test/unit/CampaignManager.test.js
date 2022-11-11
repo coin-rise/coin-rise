@@ -282,7 +282,12 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   const _duration = 30
                   await campaign
                       .connect(submitter)
-                      .transferStableTokensWithRequest(receiver.address, _sendingAmount, _duration)
+                      .transferStableTokensWithRequest(
+                          receiver.address,
+                          _sendingAmount,
+                          _duration,
+                          "xx"
+                      )
 
                   //   const _requests = await campaign.getAllRequests()
 
@@ -295,7 +300,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   await mockKeeperFunctions(campaignManager)
 
                   const _balanceAfter = await mockToken.balanceOf(receiver.address)
-                  console.log(_balanceBefore, _balanceAfter)
+
                   assert(_balanceAfter.gt(_balanceBefore))
               })
           })
@@ -354,7 +359,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                   assert.equal(_fundingActive, false)
               })
 
-              it("succesfully transfer the funds from the pool to the campaign contract", async () => {
+              it("succesfully transfer the funds from the pool to the submitter with non voting campaign", async () => {
                   const {
                       campaignManager,
                       contributor,
@@ -390,9 +395,10 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await campaignManager.connect(keeper).performUpkeep(answer.performData)
 
-                  const _campaignBalance = await mockToken.balanceOf(_campaignAddress)
+                  const _submitterBalance = await mockToken.balanceOf(submitter.address)
                   const _expectedBalance = ethers.utils.parseEther("9.9")
-                  assert(_campaignBalance.eq(_expectedBalance))
+
+                  assert(_submitterBalance.eq(_expectedBalance))
               })
           })
 

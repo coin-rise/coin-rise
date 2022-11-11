@@ -12,6 +12,7 @@ error Voting__CampaignNotInitialized();
 contract Voting {
     /* ====== Structures ====== */
     struct RequestInformation {
+        uint256 id;
         uint256 endDate;
         uint256 tokenAmount;
         address to;
@@ -20,6 +21,7 @@ contract Voting {
         uint256 noVotes;
         bool approved;
         bool executed;
+        string storedData;
     }
 
     struct VotingInformation {
@@ -82,7 +84,8 @@ contract Voting {
     function requestForTokenTransfer(
         address _to,
         uint256 _amount,
-        uint256 _requestDuration
+        uint256 _requestDuration,
+        string memory _storedInformation
     ) external isInitializedCampaign {
         uint256 _totalSupply = ICampaign(msg.sender).getTotalSupply();
 
@@ -100,7 +103,18 @@ contract Voting {
 
         requestsFromCampaigns[msg.sender][
             campaignVotingInformations[msg.sender].lastRequestId
-        ] = RequestInformation(_endDate, _amount, _to, 0, 0, 0, false, false);
+        ] = RequestInformation(
+            campaignVotingInformations[msg.sender].lastRequestId,
+            _endDate,
+            _amount,
+            _to,
+            0,
+            0,
+            0,
+            false,
+            false,
+            _storedInformation
+        );
 
         emit RequestSubmitted(
             msg.sender,

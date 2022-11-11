@@ -45,8 +45,8 @@ async function deployCoinRiseTokenPool(chainId) {
 
             if (!developmentChains.includes(network.name)) {
                 await verify(coinRiseTokenPool.address, [
-                    campaignManagerAddress,
                     stableTokenAddress,
+                    campaignManagerAddress,
                 ])
             }
 

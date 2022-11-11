@@ -2,10 +2,9 @@
 pragma solidity ^0.8.4;
 
 interface ICoinRiseTokenPool {
-    function sendFundsToCampaignContract(
-        address _campaignAddress,
-        uint256 _amount
-    ) external;
+    function sendFundsToCampaignContract(address _campaignAddress) external;
+
+    function sendFundsToSubmitter(address _campaignAddress) external;
 
     function withdrawFreeStableTokens(uint256 _amount) external;
 

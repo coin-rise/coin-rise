@@ -124,7 +124,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await votingCampaign
                       .connect(submitter)
-                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90)
+                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90, "xx")
 
                   const _campaignVotingInfo = await voting.getVotingInformation(
                       votingCampaign.address
@@ -160,7 +160,8 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
                       votingCampaign.transferStableTokensWithRequest(
                           fundsReceiver.address,
                           _amount,
-                          30
+                          30,
+                          "xx"
                       )
                   ).to.be.reverted
                   //   await votingCampaign
@@ -203,7 +204,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await votingCampaign
                       .connect(submitter)
-                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90)
+                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90, "xx")
 
                   const _info = await voting.getVotingInformation(votingCampaign.address)
 
@@ -256,7 +257,7 @@ const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers"
 
                   await votingCampaign
                       .connect(submitter)
-                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90)
+                      .transferStableTokensWithRequest(fundsReceiver.address, _supply, 90, "xx")
 
                   const _info = await voting.getVotingInformation(votingCampaign.address)
 

@@ -1,18 +1,26 @@
 const { expect, assert } = require("chai")
 const { ethers, network } = require("hardhat")
 const { developmentChains, networkConfig } = require("../../helper-hardhat-config")
-const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers")
+
 const deployedContracts = require("../../deployments/deployedContracts.json")
 
 developmentChains.includes(network.name)
     ? describe.skip
     : describe("Campaign Protocol staging test", () => {
-          let chainId, stableToken, campaignManager, campaignFactory, accounts
+          let chainId,
+              stableToken,
+              campaignManager,
+              campaignFactory,
+              accounts,
+              duration,
+              minAmount,
+              campaignURI,
+              tokenTiers
           beforeEach(async () => {
               chainId = network.config.chainId
               accounts = await ethers.getSigners()
 
-              //Search the deployed contracts
+              //#1 Search the deployed contracts
               if (chainId in deployedContracts) {
                   const campaignManagerAddress = deployedContracts[chainId].CampaignManager.address
                   const campaignFactoryAddress = deployedContracts[chainId].CampaignFactory.address
@@ -39,6 +47,14 @@ developmentChains.includes(network.name)
 
                   stableToken = await ethers.getContractAt("MockToken", stableTokenAddress)
               }
+
+              if (chainId in networkConfig) {
+                  duration = networkConfig[chainId].duration
+                  minAmount = networkConfig[chainId].minAmount
+                  campaignURI = networkConfig[chainId].campaignURI
+                  tokenTiers = networkConfig[chainId].tokenTiers
+              } else {
+              }
           })
 
           describe("#contributeCampaign", () => {
@@ -46,10 +62,17 @@ developmentChains.includes(network.name)
                   const _duration = 90
                   const _minAmount = ethers.utils.parseEther("200")
                   const _campaignURI = "test"
+
+                  const _tierOne = ethers.utils.parseEther("2")
+                  const _tierTwo = ethers.utils.parseEther("4")
+                  const _tierThree = ethers.utils.parseEther("6")
+
+                  const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
                   let tx = await campaignManager.createNewCampaign(
                       _duration,
                       _minAmount,
-                      _campaignURI
+                      _campaignURI,
+                      _tokenTiers
                   )
                   const txReceipt = await tx.wait()
 
@@ -154,10 +177,18 @@ developmentChains.includes(network.name)
                           const _duration = 90
                           const _minAmount = ethers.utils.parseEther("200")
                           const _campaignURI = "test"
+
+                          const _tierOne = ethers.utils.parseEther("2")
+                          const _tierTwo = ethers.utils.parseEther("4")
+                          const _tierThree = ethers.utils.parseEther("6")
+
+                          const _tokenTiers = [_tierOne, _tierTwo, _tierThree]
+
                           let tx = await campaignManager.createNewCampaign(
                               _duration,
                               _minAmount,
-                              _campaignURI
+                              _campaignURI,
+                              _tokenTiers
                           )
                           const txReceipt = await tx.wait()
 

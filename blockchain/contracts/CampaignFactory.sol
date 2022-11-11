@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Campaign.sol";
 
 contract CampaignFactory is Ownable {
-    /** State variables */
+    /* ====== State variables ====== */
     address private implementationContract;
 
     address[] private deployedCampaignContracts;
@@ -15,7 +15,11 @@ contract CampaignFactory is Ownable {
         implementationContract = _implementationContract;
     }
 
-    /** Functions */
+    /* ====== Events ====== */
+
+    event deployedNewCloneContract(address newContract);
+
+    /* ====== Functions ====== */
 
     /**
      * @dev create and setup a new crowdfunding campaign
@@ -49,6 +53,8 @@ contract CampaignFactory is Ownable {
         Campaign(_clone).transferOwnership(msg.sender);
 
         deployedCampaignContracts.push(_clone);
+
+        emit deployedNewCloneContract(_clone);
     }
 
     /** View Functions */
