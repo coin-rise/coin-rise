@@ -277,7 +277,9 @@ const Card = ({
       </Box>
       <Box ml={2} mt={2} display="flex" alignItems="center">
         <Clock width="20px" height="20px" style={{ marginRight: "10px" }} />
-        <p style={{ margin: 0 }}>{remaining && remaining} days</p>
+        <p style={{ margin: 0 }}>
+          {remaining && Math.floor(remaining / (3600 * 24))} days
+        </p>
       </Box>
     </Box>
   );

@@ -11,7 +11,7 @@ import {
   makeFileObjects,
   retrieveFiles,
   loadData,
-  storeImg
+  storeImg,
 } from "./Storage";
 import { ethers, BigNumber } from "ethers";
 import { CircularProgress } from "@mui/material";
@@ -59,7 +59,6 @@ function Form() {
     setUp();
   }, [signer]);
 
-
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
   const [campaign, setCampaign] = useState({
@@ -73,6 +72,11 @@ function Form() {
     minAmount: "",
     campaignVideo: "",
     extraInformation: "",
+    vote: false,
+    nftGold: "",
+    nftSilver: "",
+    nftBronze: "",
+    minVotePercentage: "",
   });
 
   function handleChange(e) {
@@ -96,8 +100,8 @@ function Form() {
         campaign?.minAmount,
         cid
       );
-      const newA = await getLastDeployedCampaign()
-      console.log(newA,"newA")
+      const newA = await getLastDeployedCampaign();
+      console.log(newA, "newA");
       setIsloading(false);
       navigate(`/project/${newA}`);
       // console.log(newComapaing,'newComapaing')
@@ -117,7 +121,6 @@ function Form() {
     <FinalStepper setCampaign={setCampaign} campaign={campaign} />,
   ];
   const [newAddr, setNewAddr] = useState();
-
 
   /**
    * Create a new Campaign for funding non-profit projects
@@ -198,7 +201,7 @@ function Form() {
   /**
    * Get last Deployed Campaign Contract
    */
-   const getLastDeployedCampaign = async () => {
+  const getLastDeployedCampaign = async () => {
     try {
       const { ethereum } = window;
       if (ethereum) {
