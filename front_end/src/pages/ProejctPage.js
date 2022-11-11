@@ -84,15 +84,16 @@ const ProejctPage = () => {
   const makeObj = async (campaignList) => {
     try {
       let campaignObj = [];
-      for (let i = 23; i < campaignList.length; i++) {
-        let cid_i = await getCampaignURI(campaignList[i]);
+      const promises = campaignList.slice(25).map(async campaignAddr => {
+        let cid_i = await getCampaignURI(campaignAddr);
         let content = await loadData(cid_i);
-        content.address = campaignList[i];
+        content.address = campaignAddr;
         campaignObj.push(content);
-      }
+      })
+      await Promise.all(promises)
       return campaignObj;
     } catch (error) {
-      console.log("error", error);
+      console.error("error", error);
     }
   };
   useEffect(() => {

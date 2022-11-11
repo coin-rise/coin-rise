@@ -10,6 +10,8 @@ import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
 import { ReactComponent as TwitterLogo } from "./../assets/Twitter.svg";
 import { ReactComponent as GithubLogo } from "./../assets/Github.svg";
+import { ReactComponent as Logo } from "./../assets/CoinLogo.svg";
+
 import Inputs from "./Ui";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
@@ -151,8 +153,7 @@ function Nav({ children }) {
             justifyContent="flex-start"
             alignItems="center"
           >
-            <Typography className={classes.coin}>Coin</Typography>
-            <Typography className={classes.rise}>Rise</Typography>
+            <Logo/>
           </Box>
           <Box
             display="flex"

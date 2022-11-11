@@ -12,6 +12,9 @@ import LinearProgress, {
 } from "@mui/material/LinearProgress";
 import { retrieveImg } from "../Storage";
 import CampaignAbi from "../../artifacts/contracts/Campaign.sol/Campaign.json";
+import contractManagerAbi from "../../artifacts/contracts/CampaignManager.sol/CampaignManager.json";
+
+const contractManagerAddress = "0x02D7E5f45A7ae98d8aa572Db8df54165aD4bF88b";
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -216,7 +219,7 @@ const Card = ({
   };
 
   useEffect(() => {
-    retrieveImg(setImg,cidImg);
+    retrieveImg(setImg, cidImg);
   }, [cidImg]);
 
   useEffect(() => {
@@ -233,11 +236,7 @@ const Card = ({
       mr={2}
       style={{ width: "400px", height: "478px", border: "1px solid #D9D9D9" }}
     >
-      <img
-        src={img}
-        width="100%"
-        height="40%"
-      />
+      <img src={img} width="100%" height="40%" />
       <Box mx={2} mt={2}>
         <Box display="flex" width="100%">
           <Box display="flex" justifyContent="flex-start" width="100%">
