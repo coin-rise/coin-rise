@@ -398,7 +398,7 @@ contract CampaignManager is AutomationCompatible, Ownable {
         string memory _campaignURI,
         uint256[3] memory _tokenTiers,
         bool _requestingPayouts
-    ) public returns (address) {
+    ) internal returns (address) {
         campaignFactory.deployNewContract(
             _deadline,
             msg.sender,

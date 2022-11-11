@@ -1,18 +1,17 @@
 # Coin Rise Blockchain
 
-crowdfunding platform with crypto for non-profit projects
+crowdfunding platform with crypto for non-profit projects.
 
 the following graphic provides an overview of the project process
-
-For the user:
-![Flow Chart user coin-rise](./assets/UserExperience.jpg)
 
 For the submitter:
 ![Flow Chart submitter coin-rise](./assets/SubmitterExperience.jpg)
 
+For the user:
+![Flow Chart user coin-rise](./assets/UserExperience.jpg)
+
 ## Roadmap
 
--   automatisation for sending the funds of a non voting campaign to the submitter
 -   writing staging tests for all possible scenarios
 
 ## Environment Variables
@@ -111,7 +110,7 @@ All ABIs and addresses can be retrieved after deployment under "./deployments/de
 
 Each campaign has its own smart contract. The addresses of the campaign can be found through the CampaignFactory.
 
-### 1. Campaign Creation
+### 1. Campaign Creation (Submitter)
 
 The creation of a campaign is carried out with CampaignManager Contract.
 
@@ -136,7 +135,7 @@ The creation of a campaign is carried out with CampaignManager Contract.
 <ins>Create a campaign with voting system:</ins>
 
 ```
-  function createNewCampaignWithVoting(
+  createNewCampaignWithVoting(
         uint256 _deadline,
         uint256 _minAmount,
         string memory _campaignURI,
@@ -153,12 +152,27 @@ The creation of a campaign is carried out with CampaignManager Contract.
 | `_tokenTiers`      | `uint256[]` | funding breakpoints for token tiers of the NFT                               |
 | `quorumPercentage` | `uint256`   | the required voting participation in percent points for a successful request |
 
+### 2. Campaign Contributions (Users)
+
+<ins>Contribute to a campaign as an user:</ins>
+
+```
+  contributeCampaign(uint256 _amount, address _campaignAddress)
+```
+
+| Parameter   | Type      | Description                                                                   |
+| :---------- | :-------- | :---------------------------------------------------------------------------- |
+| `_amount`   | `uint256` | amount of tokens want to spend                                                |
+| `_campaign` | `address` | The address of the campaign. All campaigns can be viewed via campaign factory |
+
 ## Smart Contracts Mumbai Deployments
 
-| Contracts             |                 Addresses                  |
-| :-------------------- | :----------------------------------------: |
-| Campaign.sol          | 0x1140811c97d39426f60f41dF24324b64a4f04CbD |
-| CampaignManager.sol   | 0xCf15D36295c8BcA96256f9BE9485996aaAeD0FeD |
-| CampaignFactory.sol   | 0x84751ad92610dB12F7FBfc48e3794C9B105392D6 |
-| CoinRiseTokenPool.sol | 0xDd01B78AC25ccF51fD4D2867125902ce3c52823A |
-| Voting.sol            | 0x5298680FD826361a920c04Ba7940Aa7D91D9D689 |
+| Contracts              |                 Addresses                  |
+| :--------------------- | :----------------------------------------: |
+| Campaign.sol           | 0xA01F427F0F47eb73f5eefa98E2DD6F242530C97b |
+| CampaignManager.sol    | 0x23674A05155e79d09946E669D330Dec65788B185 |
+| CampaignFactory.sol    | 0xE96A7958569ce2683c1889CA8B9be87e15A7081d |
+| CoinRiseTokenPool.sol  | 0x025804f16b7388A048B310A0b62E69368C15650d |
+| Voting.sol             | 0x9c00062ac794ae698dfD75D0b0f005C055EC764C |
+| CoinRiseNFT.sol        | 0x6E05D52E296a2eCfB444025F65c63872cFAEE310 |
+| MockDAI Token (mumbai) | 0xDD5FC320b0188F92e15f10c739DcAE0bD93d5921 |
