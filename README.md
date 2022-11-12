@@ -3,18 +3,18 @@ Crowdfunding platforms generally use the standard financial system which exclude
 ## What it does
 Coin rise is a Crowdfunding platform that uses crypto and stable coins to fund projects and help the most needed people in the world who lack access to international financial services.
 
-The platform introduce two method to fund your project:
+The platform introduce two method to fund your project:  
 
-First one is normal project submission 
+- First one is normal project submission   
 A project submitter can submit his campaign on this platform where he can specify the minimum amount needed and the duration of the campaign.
 On the other hand, users can see his campaign on our platform and decide to fund it with stablecoins USDC, if the deadline came and the campaign had raised a total supply greater than the minimum amount needed, the contract will send automatically the funds to the submitter if not and the campaign fails, the contract will return the funds to contributors.
 
-Second method:
-Send fund by chunks that’s defined by the project submitter and voted by contributors
+- Second method:  
+Send fund by chunks that’s defined by the project submitter and voted by contributors   
 
 The purpose of voting system is to give more transparency about spending the money:
--the submitter can choose this option and this will give him more credibility and he can propose how he will be spending the money
-- the contributor on the other hand can vote if a part of the allocated fund should be spent on the submitter proposal or not
+-the submitter can choose this option and this will give him more credibility and he can propose how he will be spending the money  
+-the contributor on the other hand can vote if a part of the allocated fund should be spent on the submitter proposal or not  
 for example if the submitter propose that he should get the funds on 3 chunks to build a school ( example: first one will be buying material, 2nd : building , 3rd: painting )
 the contributor can see the progress of the project and vote if other chunks should be sent to the submitter or not ( if not , the funds should be returned to contributors)
 
