@@ -11,10 +11,10 @@ import LinearProgress, {
   linearProgressClasses,
 } from "@mui/material/LinearProgress";
 import { retrieveImg } from "../Storage";
-import deployedContracts from "../../deployments/deployedContracts.json"
+import deployedContracts from "../../deployments/deployedContracts.json";
 
 const MumbaiID = 80001;
-const CampaignAbi = deployedContracts[MumbaiID].Campaign.abi
+const CampaignAbi = deployedContracts[MumbaiID].Campaign.abi;
 
 export const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 10,
@@ -42,6 +42,8 @@ const Card = ({
   const [totalSuply, setTotalSuply] = useState();
   const [minAmount, setMinAmount] = useState();
   const [img, setImg] = useState();
+  console.log(totalSuply, "totalSuply");
+  console.log(address, "address");
 
   const getNumberOfContributor = async (campaignaddress) => {
     try {
@@ -52,7 +54,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -84,7 +86,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -116,7 +118,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -144,7 +146,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -175,7 +177,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -202,7 +204,7 @@ const Card = ({
         );
         const contract = new ethers.Contract(
           campaignaddress,
-          CampaignAbi.abi,
+          CampaignAbi,
           provider
         );
 
@@ -267,7 +269,7 @@ const Card = ({
             <p>{totalSuply && totalSuply}$ Raised</p>
           </Box>
           <Box display="flex" justifyContent="flex-end" width="100%">
-            {(totalSuply / minAmount) * 100}%
+            {Math.floor((totalSuply / minAmount) * 100)}%
           </Box>
         </Box>
         <BorderLinearProgress
