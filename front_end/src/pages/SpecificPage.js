@@ -60,6 +60,9 @@ const SpecificPage = () => {
   const [fundDetails, setFundDetails] = useState({ option: "", value: "" });
   const [img, setImg] = useState();
   const [radioCheck, setRadioCheck] = useState();
+  const [contibution, setContribution] = useState();
+  const [submitterAddress, setSubmitterAddress] = useState();
+
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
@@ -292,6 +295,64 @@ const SpecificPage = () => {
     }
   };
 
+  /**
+   * Get Contributor contribution
+   */
+  const getContributor = async (campaignaddress, contributorAddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          campaignAbi,
+          provider
+        );
+
+        let contribution = await contract.getContributor(contributorAddress);
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c contribution =  %s", stylesMining, contribution);
+        setContribution(contribution.toNumber());
+        return contribution;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+  * Get Submitter address
+  */
+  const getSubmitter = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          campaignAbi,
+          provider
+        );
+
+        let Submitter = await contract.getSubmitter();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c Submitter address =  %s", stylesMining, Submitter);
+        setSubmitterAddress(Submitter.toString());
+        return Submitter;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const [CampaignsData, setCampaignsData] = useState();
   const getCampaignData = async (address) => {
     try {
@@ -330,8 +391,8 @@ const SpecificPage = () => {
         const stableToken = new ethers.Contract(
           stableTokenAddress,
           IERC20.abi,
-          signer 
-          )
+          signer
+        )
         /**
          *  Receive Emitted Event from Smart Contract
          *  @dev See ContributorsUpdated emitted from our smart contract contributeCampaign function
@@ -401,6 +462,8 @@ const SpecificPage = () => {
     getFundingStatus(id);
     getTotalSupply(id);
     getMinAmount(id);
+    getSubmitter(id);
+    getContributor(id, userAddress);
   }, []);
 
   useEffect(() => {
