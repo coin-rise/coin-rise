@@ -16,6 +16,7 @@ import {
   retrieveImg,
   loadData,
   loadImg,
+  makeRequestObjects
 } from "../components/Storage";
 import IERC20 from "../artifacts/token/ERC20/ERC20.sol/ERC20.json";
 
@@ -65,6 +66,7 @@ const SpecificPage = () => {
   const [submitterAddress, setSubmitterAddress] = useState();
   const [isActive, setIsActive] = useState();
   const [campaignVotable, setCampaignVotable] = useState();
+  const [allRequests, setAllRequests] = useState([]);
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
@@ -359,7 +361,7 @@ const SpecificPage = () => {
   /**
    * is Campaign Votable
    */
-   const isCampaignVotable = async (campaignaddress) => {
+  const isCampaignVotable = async (campaignaddress) => {
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -385,13 +387,72 @@ const SpecificPage = () => {
     }
   };
 
+  /**
+ * Get All Requests Info
+ */
+  const getAllRequests = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          campaignAbi,
+          provider
+        );
+
+        let AllRequests = await contract.getAllRequests();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c Submitter address =  %s", stylesMining, AllRequests);
+        setAllRequests(AllRequests);
+        return AllRequests;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+
+
   const [CampaignsData, setCampaignsData] = useState();
+  const [campaignsRequests, setCampaignsRequests] = useState();
   const getCampaignData = async (address) => {
     try {
       let cid_i = await getCampaignURI(address);
       let content = await loadData(cid_i);
       setCampaignsData(content);
       return content;
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+
+  const StoreRequestsInfo = async () => {
+    try {
+      /*const files = await makeRequestObjects(
+        campaign?.requestTitle,
+        campaign?.requestInfo
+      );
+      const cid = await storeFiles(files);
+      return cid;*/
+    } catch (error) {
+      console.error("error", error);
+    }
+  };
+
+
+  const getCampaignRequestsInfo = async (address, ReqId) => {
+    try {
+      let RequestInformation = await getAllRequests(address);
+      /* let cid_i = RequestInformation[ReqId];
+       let content = await loadData(cid_i);
+       setCampaignsRequests(content);
+       return content;*/
     } catch (error) {
       console.log("error", error);
     }
@@ -441,6 +502,7 @@ const SpecificPage = () => {
           }
         );
         let appr = await stableToken.approve(campaignManagerAddress, amount);
+        console.log("approve... please wait!",);
         await appr.wait();
         let tx = await contract.contributeCampaign(
           BigNumber.from(amount),
@@ -448,7 +510,7 @@ const SpecificPage = () => {
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
-          "%c Create new campaign... please wait!  %s",
+          "%c contribute to campaign... please wait!  %s",
           stylesMining,
           tx.hash
         );
@@ -484,6 +546,157 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
+
+  const transferStableTokensWithRequest = async (campaignAddress, to, amount, requestDuration, cidIpfs) => {
+    if (!campaignAddress) {
+      console.log(`Error, Please enter a valid campaign Address`);
+      return;
+    }
+
+    if (!to) {
+      console.log(`Error, Please enter a valid destination Address`);
+      return;
+    }
+
+    if (!amount && Number(amount)) {
+      console.log(`Error, Please enter a valid amount`);
+      return;
+    }
+
+    if (!cidIpfs) {
+      console.log(`Error, Please enter a valid IPFS CID`);
+      return;
+    }
+
+    if (!requestDuration && Number(requestDuration)) {
+      console.log(`Error, Please enter a valid request Duration`);
+      return;
+    }
+
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          campaignAddress,
+          campaignAbi,
+          signer
+        );
+
+        let tx = await contract.transferStableTokensWithRequest(
+          to,
+          BigNumber.from(amount),
+          BigNumber.from(requestDuration),
+          cidIpfs
+        );
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c transfer StableTokens With Request... please wait!  %s",
+          stylesMining,
+          tx.hash
+        );
+        //wait until a block containing our transaction has been mined and confirmed.
+        const receipt = await tx.wait();
+        const stylesReceipt = ["color: black", "background: #e9429b"].join(";");
+        console.log(
+          "%c you just passed a request %s ",
+          stylesReceipt,
+          tx.hash
+        );
+        /* Check our Transaction results */
+        if (receipt.status === 1) {
+          /**
+           * @dev NOTE: Switch up these links once we go to Production
+           * Currently set to use Polygon Mumbai Testnet
+           */
+          const stylesPolygon = ["color: white", "background: #7e44df"].join(
+            ";"
+          );
+          console.log(
+            `%c see transaction: https://polygonscan.com/tx/${tx.hash} %s`,
+            stylesPolygon,
+            tx.hash
+          );
+        }
+        return;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const voteOnTransferRequest = async (campaignAddress, requestId, approve) => {
+    if (!campaignAddress) {
+      console.log(`Error, Please enter a valid campaign Address`);
+      return;
+    }
+
+    if (!requestId && Number(requestId)) {
+      console.log(`Error, Please enter a valid requestId`);
+      return;
+    }
+
+    if (!approve) {
+      console.log(`Error, Please enter a valid approve`);
+      return;
+    }
+
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          campaignAddress,
+          campaignAbi,
+          signer
+        );
+
+        let tx = await contract.voteOnTransferRequest(
+          BigNumber.from(requestId),
+          approve,
+        );
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c vote On Transfer Request... please wait!  %s",
+          stylesMining,
+          tx.hash
+        );
+        //wait until a block containing our transaction has been mined and confirmed.
+        const receipt = await tx.wait();
+        const stylesReceipt = ["color: black", "background: #e9429b"].join(";");
+        console.log(
+          "%c you have just voted a proposal %s ",
+          stylesReceipt,
+          tx.hash
+        );
+        /* Check our Transaction results */
+        if (receipt.status === 1) {
+          /**
+           * @dev NOTE: Switch up these links once we go to Production
+           * Currently set to use Polygon Mumbai Testnet
+           */
+          const stylesPolygon = ["color: white", "background: #7e44df"].join(
+            ";"
+          );
+          console.log(
+            `%c see transaction: https://polygonscan.com/tx/${tx.hash} %s`,
+            stylesPolygon,
+            tx.hash
+          );
+        }
+        return;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const { id } = useParams();
 
   useEffect(() => {
