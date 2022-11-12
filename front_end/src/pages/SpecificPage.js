@@ -64,6 +64,7 @@ const SpecificPage = () => {
   const [contibution, setContribution] = useState();
   const [submitterAddress, setSubmitterAddress] = useState();
   const [isActive, setIsActive] = useState();
+  const [campaignVotable, setCampaignVotable] = useState();
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
@@ -355,6 +356,35 @@ const SpecificPage = () => {
     }
   };
 
+  /**
+   * is Campaign Votable
+   */
+   const isCampaignVotable = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          campaignAbi,
+          provider
+        );
+
+        let Votable = await contract.isCampaignVotable();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c is Campaign Votable =  %s", stylesMining, Votable);
+        setCampaignVotable(Votable.toString());
+        return Votable;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const [CampaignsData, setCampaignsData] = useState();
   const getCampaignData = async (address) => {
     try {
@@ -466,6 +496,7 @@ const SpecificPage = () => {
     getMinAmount(id);
     getSubmitter(id);
     getContributor(id, userAddress);
+    isCampaignVotable(id);
   }, [userAddress]);
 
   useEffect(() => {
@@ -538,7 +569,7 @@ const SpecificPage = () => {
               Fund
             </button>
           </Box>
-          {contibution !== 0 && (
+          {contibution !== 0 /*&& campaignVotable == true*/ && (
             <Box display="flex" width="100%" justifyContent="center">
               <button
                 style={{
@@ -559,7 +590,7 @@ const SpecificPage = () => {
               </button>
             </Box>
           )}
-          {submitterAddress === userAddress && (
+          {submitterAddress === userAddress /*&& campaignVotable == true*/ && (
             <Box display="flex" width="100%" justifyContent="center">
               <button
                 style={{

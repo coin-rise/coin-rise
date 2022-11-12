@@ -87,12 +87,25 @@ function Form() {
         campaign?.nftSilver,
         campaign?.nftBronze,
       ];
-      await CreateNewCampaign(
-        campaign?.campaignDuration,
-        campaign?.minAmount,
-        cid,
-        nftsBadge
-      );
+      if (campaign?.vote == false || campaign?.vote == undefined) {
+        console.log("CreateNewCampaign without vote",campaign?.vote)
+        await CreateNewCampaign(
+          campaign?.campaignDuration,
+          campaign?.minAmount,
+          cid,
+          nftsBadge
+        );
+      } else {
+        console.log("CreateNewCampaign with vote",campaign?.vote)
+        await createNewCampaignWithVoting(
+          campaign?.campaignDuration,
+          campaign?.minAmount,
+          cid,
+          nftsBadge,
+          campaign?.minVotePercentage
+        );
+      }
+
       const newA = await getLastDeployedCampaign();
       console.log(newA, "newA");
       setIsloading(false);
@@ -164,6 +177,102 @@ function Form() {
           BigNumber.from(minamount),
           cid_ipfs,
           NFTAmount
+        );
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log(
+          "%c Create new campaign... please wait!  %s",
+          stylesMining,
+          tx.hash
+        );
+        //wait until a block containing our transaction has been mined and confirmed.
+        //NewCampaignCreated event has been emitted .
+        const receipt = await tx.wait();
+        const stylesReceipt = ["color: black", "background: #e9429b"].join(";");
+        console.log(
+          "%c🍵 We just added new campaign %s ",
+          stylesReceipt,
+          tx.hash
+        );
+        /* Check our Transaction results */
+        if (receipt.status === 1) {
+          /**
+           * @dev NOTE: Switch up these links once we go to Production
+           * Currently set to use Polygon Mumbai Testnet
+           */
+          const stylesPolygon = ["color: white", "background: #7e44df"].join(
+            ";"
+          );
+          console.log(
+            `%c🧬 new campaign added, see transaction: https://polygonscan.com/tx/${tx.hash} %s`,
+            stylesPolygon,
+            tx.hash
+          );
+        }
+        return;
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  /**
+  * Create a new Campaign with voting for funding non-profit projects
+  */
+  const createNewCampaignWithVoting = async (
+    duration,
+    minamount,
+    cid_ipfs,
+    NFTAmount,
+    votePercentage
+  ) => {
+    if (!duration && Number(duration)) {
+      console.log(`Error, Please enter a valid deadline`);
+      return;
+    }
+
+    if (!minamount && Number(minamount)) {
+      console.log(`Error, Please enter a valid amount`);
+      return;
+    }
+
+    for (let i = 0; i < NFTAmount.length; i++) {
+      if (!NFTAmount[i] && Number(NFTAmount[i])) {
+        console.log(`Error, Please enter a NFT threshold`);
+        return;
+      }
+    }
+
+    if (!votePercentage && Number(votePercentage)) {
+      console.log(`Error, Please enter a valid vote Percentage`);
+      return;
+    }
+
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          campaignManagerAddress,
+          campaignManagerAbi,
+          signer
+        );
+        /**
+         *  Receive Emitted Event from Smart Contract
+         *  @dev See newAttributeAdded emitted from our smart contract add_new_attribute function
+         */
+        contract.on("NewCampaignCreated", (newCampaign, deadline) => {
+          console.log("newCampaign address :", newCampaign);
+          console.log("newCampaign deadline :", deadline.toNumber());
+        });
+        let tx = await contract.createNewCampaignWithVoting(
+          BigNumber.from(duration),
+          BigNumber.from(minamount),
+          cid_ipfs,
+          NFTAmount,
+          votePercentage
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
