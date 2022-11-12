@@ -11,23 +11,22 @@ import {
   makeFileObjects,
   retrieveFiles,
   loadData,
-  storeImg
+  storeImg,
 } from "./Storage";
 import { ethers, BigNumber } from "ethers";
 import { CircularProgress } from "@mui/material";
 
-import deployedContracts from "../deployments/deployedContracts.json"
+import deployedContracts from "../deployments/deployedContracts.json";
 const MumbaiID = 80001;
 /* campaignManager Contract Address and Contract ABI */
-const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi
-const campaignFactoryAbi = deployedContracts[MumbaiID].CampaignFactory.abi
-const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
+const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi;
+const campaignFactoryAbi = deployedContracts[MumbaiID].CampaignFactory.abi;
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi;
 
-
-
-const campaignManagerAddress = deployedContracts[MumbaiID].CampaignManager.address
-const campaignFactoryAddress = deployedContracts[MumbaiID].CampaignFactory.address
-
+const campaignManagerAddress =
+  deployedContracts[MumbaiID].CampaignManager.address;
+const campaignFactoryAddress =
+  deployedContracts[MumbaiID].CampaignFactory.address;
 
 function Form() {
   const [userAddress, setUserAddress] = useState();
@@ -51,7 +50,6 @@ function Form() {
 
     onNewSigner();
   }, [window.ethereum]);
-
 
   const [textTrack, setTextTrack] = useState("");
   const [activeStep, setActiveStep] = useState(0);
@@ -95,8 +93,8 @@ function Form() {
         cid,
         nftsBadge
       );
-      const newA = await getLastDeployedCampaign()
-      console.log(newA, "newA")
+      const newA = await getLastDeployedCampaign();
+      console.log(newA, "newA");
       setIsloading(false);
       navigate(`/project/${newA}`);
       // console.log(newComapaing,'newComapaing')
@@ -117,11 +115,15 @@ function Form() {
   ];
   const [newAddr, setNewAddr] = useState();
 
-
   /**
    * Create a new Campaign for funding non-profit projects
    */
-  const CreateNewCampaign = async (duration, minamount, cid_ipfs, NFTAmount) => {
+  const CreateNewCampaign = async (
+    duration,
+    minamount,
+    cid_ipfs,
+    NFTAmount
+  ) => {
     if (!duration && Number(duration)) {
       console.log(`Error, Please enter a valid deadline`);
       return;
@@ -233,7 +235,6 @@ function Form() {
       console.log("error", error);
     }
   };
-
 
   return (
     <Box>

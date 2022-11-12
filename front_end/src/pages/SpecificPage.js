@@ -64,7 +64,6 @@ const SpecificPage = () => {
   const [contibution, setContribution] = useState();
   const [submitterAddress, setSubmitterAddress] = useState();
   const [isActive, setIsActive] = useState();
-
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
@@ -328,8 +327,8 @@ const SpecificPage = () => {
   };
 
   /**
-  * Get Submitter address
-  */
+   * Get Submitter address
+   */
   const getSubmitter = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -467,7 +466,7 @@ const SpecificPage = () => {
     getMinAmount(id);
     getSubmitter(id);
     getContributor(id, userAddress);
-  }, []);
+  }, [userAddress]);
 
   useEffect(() => {
     retrieveImg(setImg, CampaignsData?.cidImg);
@@ -539,44 +538,48 @@ const SpecificPage = () => {
               Fund
             </button>
           </Box>
-          <Box display="flex" width="100%" justifyContent="center">
-            <button
-              style={{
-                color: "black",
-                backgroundColor: "white",
-                borderRadius: "10px",
-                fontFamily: "Sen",
-                fontStyle: "normal",
-                fontWeight: 700,
-                fontSize: "25px",
-                lineHeight: "30px",
-                padding: "10px 85px",
-                cursor: "pointer",
-              }}
-              onClick={handleOpenVote}
-            >
-              vote
-            </button>
-          </Box>
-          <Box display="flex" width="100%" justifyContent="center">
-            <button
-              style={{
-                color: "black",
-                backgroundColor: "white",
-                borderRadius: "10px",
-                fontFamily: "Sen",
-                fontStyle: "normal",
-                fontWeight: 700,
-                fontSize: "25px",
-                lineHeight: "30px",
-                padding: "10px 85px",
-                cursor: "pointer",
-              }}
-              onClick={handleOpenRequest}
-            >
-              Request
-            </button>
-          </Box>
+          {contibution !== 0 && (
+            <Box display="flex" width="100%" justifyContent="center">
+              <button
+                style={{
+                  color: "black",
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  fontFamily: "Sen",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  fontSize: "25px",
+                  lineHeight: "30px",
+                  padding: "10px 85px",
+                  cursor: "pointer",
+                }}
+                onClick={handleOpenVote}
+              >
+                vote
+              </button>
+            </Box>
+          )}
+          {submitterAddress === userAddress && (
+            <Box display="flex" width="100%" justifyContent="center">
+              <button
+                style={{
+                  color: "black",
+                  backgroundColor: "white",
+                  borderRadius: "10px",
+                  fontFamily: "Sen",
+                  fontStyle: "normal",
+                  fontWeight: 700,
+                  fontSize: "25px",
+                  lineHeight: "30px",
+                  padding: "10px 85px",
+                  cursor: "pointer",
+                }}
+                onClick={handleOpenRequest}
+              >
+                Request
+              </button>
+            </Box>
+          )}
         </Box>
       </Box>
 
