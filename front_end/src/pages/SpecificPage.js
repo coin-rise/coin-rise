@@ -19,15 +19,16 @@ import {
 } from "../components/Storage";
 import IERC20 from "../artifacts/token/ERC20/ERC20.sol/ERC20.json";
 
-import deployedContracts from "../deployments/deployedContracts.json"
+import deployedContracts from "../deployments/deployedContracts.json";
 
 import ScrollBar from "../components/ScrollBar/Scroll";
 import Radio from "../components/Radio/Radio";
 
 const MumbaiID = 80001;
-const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
-const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi
-const campaignManagerAddress = deployedContracts[MumbaiID].CampaignManager.address
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi;
+const campaignManagerAbi = deployedContracts[MumbaiID].CampaignManager.abi;
+const campaignManagerAddress =
+  deployedContracts[MumbaiID].CampaignManager.address;
 
 const SpecificPage = () => {
   const [open, setOpen] = useState(false);
@@ -62,6 +63,7 @@ const SpecificPage = () => {
   const [radioCheck, setRadioCheck] = useState();
   const [contibution, setContribution] = useState();
   const [submitterAddress, setSubmitterAddress] = useState();
+  const [isActive, setIsActive] = useState();
 
   function handleCheck(e) {
     setRadioCheck(e.target.value);
@@ -200,6 +202,7 @@ const SpecificPage = () => {
         let isactive = await contract.isFundingActive();
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log("%c is Funding Active =  %s", stylesMining, isactive);
+        setIsActive(isactive);
         return isactive;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -387,12 +390,12 @@ const SpecificPage = () => {
           signer
         );
 
-        const stableTokenAddress = await contract.getStableTokenAddress()
+        const stableTokenAddress = await contract.getStableTokenAddress();
         const stableToken = new ethers.Contract(
           stableTokenAddress,
           IERC20.abi,
           signer
-        )
+        );
         /**
          *  Receive Emitted Event from Smart Contract
          *  @dev See ContributorsUpdated emitted from our smart contract contributeCampaign function
@@ -479,7 +482,7 @@ const SpecificPage = () => {
         <Box width="50%" m={4}>
           <Box
             display="flex"
-            width="100%"
+            width="50%"
             alignItems="center"
             justifyContent="space-between"
           >
@@ -494,20 +497,24 @@ const SpecificPage = () => {
                 fontWeight: 400,
               }}
             >
-              {(totalSuply / minAmount) * 100} %
+              {Math.floor((totalSuply / minAmount) * 100)} %
             </Avatar>
             <Box dispaly="flex" flexDirection="column">
               <h1 style={{ margin: 0 }}>{CampaignsData?.campaignName}</h1>
-              <Box mt={3} display="flex" alignItems="center">
-                <Clock
-                  width="20px"
-                  height="20px"
-                  style={{ marginRight: "10px" }}
-                />
-                <p style={{ margin: 0 }}>
-                  {remaining && Math.floor(remaining / (3600 * 24))} days
-                </p>
-              </Box>
+              {isActive ? (
+                <Box mt={3} display="flex" alignItems="center">
+                  <Clock
+                    width="20px"
+                    height="20px"
+                    style={{ marginRight: "10px" }}
+                  />
+                  <p style={{ margin: 0 }}>
+                    {remaining && Math.floor(remaining / (3600 * 24))} days
+                  </p>
+                </Box>
+              ) : (
+                <p style={{ margin: 0, color: "red" }}>Failed</p>
+              )}
               <p style={{ margin: 0, marginTop: "10px" }}>
                 {contributor && contributor} Contributors
               </p>
