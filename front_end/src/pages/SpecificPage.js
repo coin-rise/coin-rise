@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { BorderLinearProgress } from "../components/Card/Card";
 import { ReactComponent as Clock } from "../assets/Clock.svg";
+import { ReactComponent as Contribution } from "../assets/Contribution.svg";
+
 import Avatar from "@mui/material/Avatar";
 import BasicTabs from "../components/Tabs";
 import BasicModal from "../components/Modal/Modal";
@@ -790,7 +792,7 @@ const SpecificPage = () => {
         <Box width="50%" m={4}>
           <Box
             display="flex"
-            width="50%"
+            width="62%"
             alignItems="center"
             justifyContent="space-between"
           >
@@ -832,9 +834,12 @@ const SpecificPage = () => {
                   </p>
                 </Box>
               )}
-              <p style={{ margin: 0, marginTop: "10px" }}>
-                {contributor && contributor} Contributors
-              </p>
+              <Box display="flex" alignItems="center" mt={1}>
+                <Contribution width={20} style={{marginRight:'10px'}} />
+                <p style={{ margin: 0 }}>
+                  {contributor && contributor} Contributors
+                </p>
+              </Box>
             </Box>
           </Box>
           <Box mb={2} display="flex" width="100%" justifyContent="center">

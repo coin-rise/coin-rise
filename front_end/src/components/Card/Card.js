@@ -3,6 +3,8 @@ import { Box, Typography } from "@mui/material";
 import { ReactComponent as Like } from "../../assets/Like.svg";
 import { ReactComponent as Clock } from "../../assets/Clock.svg";
 import { ReactComponent as VoteIcon } from "../../assets/VoteIcon.svg";
+import { ReactComponent as Contribution } from "../../assets/Contribution.svg";
+
 
 import { ethers, BigNumber } from "ethers";
 import CircularProgress, {
@@ -354,12 +356,7 @@ const Card = ({
             </Box>
           )}
         </Box>
-        <Box
-          display="flex"
-          justifyContent="flex-end"
-          width="100%"
-          alignItems="center"
-        >
+        <Box display="flex" justifyContent="flex-end" alignItems="center">
           {campaignVotable && (
             <Box
               display="flex"
@@ -367,7 +364,18 @@ const Card = ({
               width="100%"
               alignItems="center"
             >
-              <VoteIcon />
+              <VoteIcon width={20} />
+            </Box>
+          )}
+          {isActive && (
+            <Box
+              display="flex"
+              justifyContent="flex-end"
+              width="100%"
+              alignItems="center"
+              ml={0.5}
+            >
+              <Contribution width={20} />
             </Box>
           )}
         </Box>
