@@ -72,6 +72,7 @@ const SpecificPage = () => {
   const [succesfullFunding, setSuccesfullFunding] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRequest, setIsLoadingRequest] = useState(false);
+  const [isLoadingVote, setIsLoadingVote] = useState(false);
   const [allRequests, setAllRequests] = useState([]);
   const [selectRequest, setSelectRequest] = useState([]);
   function handleTab(tab) {
@@ -694,6 +695,7 @@ const SpecificPage = () => {
 
     try {
       const { ethereum } = window;
+      setIsLoadingVote(true);
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
@@ -704,7 +706,7 @@ const SpecificPage = () => {
         );
 
         let tx = await contract.voteOnTransferRequest(
-          BigNumber.from(requestId+1),
+          BigNumber.from(requestId + 1),
           approve
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
@@ -736,6 +738,8 @@ const SpecificPage = () => {
             tx.hash
           );
         }
+        setIsLoading(false);
+        handleCloseVote();
         return;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -756,16 +760,18 @@ const SpecificPage = () => {
     getTotalSupply(id);
     getMinAmount(id);
     getSubmitter(id);
-    getContributor(id, userAddress);
     isCampaignVotable(id);
+  }, []);
+  useEffect(() => {
     getCampaignRequestsInfo(id, selectRequest);
     getAllRequests(id);
-  }, [userAddress, selectRequest, campaignsRequests]);
-
+  }, [selectRequest, campaignsRequests]);
   useEffect(() => {
     retrieveImg(setImg, CampaignsData?.cidImg);
   }, [CampaignsData]);
-
+  useEffect(() => {
+    getContributor(id, userAddress);
+  }, [userAddress]);
   return (
     <Box px={4}>
       <Box display="flex">
@@ -1201,7 +1207,7 @@ const SpecificPage = () => {
                 voteOnTransferRequest(id, selectRequest, changeRadio)
               }
             >
-              Vote
+              {isLoadingVote ? <CircularProgress /> : "Vote"}
             </button>
           </Box>
         </Box>
