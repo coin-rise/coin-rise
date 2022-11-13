@@ -82,7 +82,6 @@ const SpecificPage = () => {
     amount: "",
     wallet: "",
   });
-  console.log(request, "requestwajih");
 
   useEffect(() => {
     const onNewSigner = async () => {
@@ -455,10 +454,12 @@ const SpecificPage = () => {
   const getCampaignRequestsInfo = async (address, ReqId) => {
     try {
       let RequestInformation = await getAllRequests(address);
-      /* let cid_i = RequestInformation[ReqId];
+      console.log("RequestInformation",RequestInformation)
+       let cid_i = RequestInformation && RequestInformation[ReqId] && RequestInformation[ReqId][9];
        let content = await loadData(cid_i);
+       console.log("Information",content)
        setCampaignsRequests(content);
-       return content;*/
+       //return content;
     } catch (error) {
       console.log("error", error);
     }
@@ -740,6 +741,7 @@ const SpecificPage = () => {
     getSubmitter(id);
     getContributor(id, userAddress);
     isCampaignVotable(id);
+    getCampaignRequestsInfo(id, 0);
   }, [userAddress]);
 
   useEffect(() => {
