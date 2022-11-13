@@ -443,12 +443,12 @@ const SpecificPage = () => {
 
   const StoreRequestsInfo = async () => {
     try {
-      /*const files = await makeRequestObjects(
-        campaign?.requestTitle,
-        campaign?.requestInfo
+      const files = await makeRequestObjects(
+        request?.title,
+        request?.reason
       );
       const cid = await storeFiles(files);
-      return cid;*/
+      return cid;
     } catch (error) {
       console.error("error", error);
     }
@@ -461,6 +461,22 @@ const SpecificPage = () => {
        let content = await loadData(cid_i);
        setCampaignsRequests(content);
        return content;*/
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const makeRequest = async () => {
+    try {
+      const cid = await StoreRequestsInfo();
+      await transferStableTokensWithRequest(
+        id,
+        request?.wallet,
+        request?.amount,
+        request?.duration,
+        cid
+      )
+      console.log("request done")
     } catch (error) {
       console.log("error", error);
     }
@@ -1020,6 +1036,7 @@ const SpecificPage = () => {
                   padding: "10px 85px",
                   cursor: "pointer",
                 }}
+                onClick={makeRequest}
               >
                 Request Fund
               </button>
