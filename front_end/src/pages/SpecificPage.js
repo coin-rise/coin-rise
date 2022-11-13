@@ -765,7 +765,7 @@ const SpecificPage = () => {
   useEffect(() => {
     getCampaignRequestsInfo(id, selectRequest);
     getAllRequests(id);
-  }, [selectRequest, campaignsRequests]);
+  }, [selectRequest]);
   useEffect(() => {
     retrieveImg(setImg, CampaignsData?.cidImg);
   }, [CampaignsData]);
