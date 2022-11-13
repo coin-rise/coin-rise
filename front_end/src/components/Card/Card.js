@@ -44,6 +44,7 @@ const Card = ({
   const [isActive, setIsActive] = useState();
   const [succesfullFunding, setSuccesfullFunding] = useState();
   const [img, setImg] = useState();
+  const [campaignVotable, setCampaignVotable] = useState();
   console.log(totalSuply, "totalSuply");
   console.log(address, "address");
 
@@ -100,6 +101,32 @@ const Card = ({
           RemainingFundingTime
         );
         setRemaining(RemainingFundingTime?.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const isCampaignVotable = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          CampaignAbi,
+          provider
+        );
+
+        let Votable = await contract.isCampaignVotable();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c is Campaign Votable =  %s", stylesMining, Votable);
+        setCampaignVotable(Votable);
+        return Votable;
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -233,6 +260,7 @@ const Card = ({
     getFundingStatus(address);
     getTotalSupply(address);
     getMinAmount(address);
+    isCampaignVotable(address);
   }, []);
   return (
     <Box
@@ -279,25 +307,40 @@ const Card = ({
           value={totalSuply / minAmount > 1 ? 100 : totalSuply / minAmount}
         />
       </Box>
-      {isActive ? (
-        <Box ml={2} mt={2} display="flex" alignItems="center">
-          <Clock width="20px" height="20px" style={{ marginRight: "10px" }} />
-          <p style={{ margin: 0 }}>
-            {remaining && Math.floor(remaining / (3600 * 24))} days
-          </p>
+      <Box display="flex" mt={2} px={2} alignItems="center">
+        <Box display="flex" justifyContent="flex-start" width="100%">
+          {isActive ? (
+            <Box display="flex" alignItems="center">
+              <Clock
+                width="20px"
+                height="20px"
+                style={{ marginRight: "10px" }}
+              />
+              <p style={{ margin: 0 }}>
+                {remaining && Math.floor(remaining / (3600 * 24))} days
+              </p>
+            </Box>
+          ) : (
+            <Box>
+              <p
+                style={{
+                  margin: 0,
+                  color: succesfullFunding ? "green" : "red",
+                }}
+              >
+                {succesfullFunding ? "Success" : "Failed"}
+              </p>
+            </Box>
+          )}
         </Box>
-      ) : (
-        <Box ml={3} mt={2}>
-          <p
-            style={{
-              margin: 0,
-              color: succesfullFunding ? "green" : "red",
-            }}
-          >
-            {succesfullFunding ? "Success" : "Failed"}
-          </p>
+        <Box display="flex" justifyContent="flex-end" width="100%">
+          {campaignVotable && (
+            <Box display="flex" justifyContent="flex-end" width="100%">
+              Votable
+            </Box>
+          )}
         </Box>
-      )}
+      </Box>
     </Box>
   );
 };
