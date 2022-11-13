@@ -63,6 +63,8 @@ const SpecificPage = () => {
   const [fundDetails, setFundDetails] = useState({ option: "", value: "" });
   const [img, setImg] = useState();
   const [radioCheck, setRadioCheck] = useState();
+  const changeRadio =
+    radioCheck === "no" ? false : radioCheck === "yes" ? true : undefined;
   const [contibution, setContribution] = useState();
   const [submitterAddress, setSubmitterAddress] = useState();
   const [isActive, setIsActive] = useState();
@@ -70,8 +72,15 @@ const SpecificPage = () => {
   const [succesfullFunding, setSuccesfullFunding] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingRequest, setIsLoadingRequest] = useState(false);
-
   const [allRequests, setAllRequests] = useState([]);
+  const [selectRequest, setSelectRequest] = useState([]);
+  function handleTab(tab) {
+    let newTab = [];
+    for (let i = 0; i < tab?.length; i++) {
+      newTab.push("Request" + " " + i);
+    }
+    return newTab;
+  }
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
@@ -430,6 +439,9 @@ const SpecificPage = () => {
 
   const [CampaignsData, setCampaignsData] = useState();
   const [campaignsRequests, setCampaignsRequests] = useState();
+  const [otherRequest, setOtherRequest] = useState([]);
+  console.log(campaignsRequests, "campaignsRequests");
+
   const getCampaignData = async (address) => {
     try {
       let cid_i = await getCampaignURI(address);
@@ -454,12 +466,17 @@ const SpecificPage = () => {
   const getCampaignRequestsInfo = async (address, ReqId) => {
     try {
       let RequestInformation = await getAllRequests(address);
-      console.log("RequestInformation",RequestInformation)
-       let cid_i = RequestInformation && RequestInformation[ReqId] && RequestInformation[ReqId][9];
-       let content = await loadData(cid_i);
-       console.log("Information",content)
-       setCampaignsRequests(content);
-       //return content;
+      const RequestCopie = [...RequestInformation];
+      setOtherRequest(RequestCopie);
+      console.log("RequestInformation", RequestInformation);
+      let cid_i =
+        RequestInformation &&
+        RequestInformation[ReqId] &&
+        RequestInformation[ReqId][9];
+      let content = await loadData(cid_i);
+      console.log("Information", content);
+      setCampaignsRequests(content);
+      //return content;
     } catch (error) {
       console.log("error", error);
     }
@@ -687,7 +704,7 @@ const SpecificPage = () => {
         );
 
         let tx = await contract.voteOnTransferRequest(
-          BigNumber.from(requestId),
+          BigNumber.from(requestId+1),
           approve
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
@@ -741,8 +758,9 @@ const SpecificPage = () => {
     getSubmitter(id);
     getContributor(id, userAddress);
     isCampaignVotable(id);
-    getCampaignRequestsInfo(id, 0);
-  }, [userAddress]);
+    getCampaignRequestsInfo(id, selectRequest);
+    getAllRequests(id);
+  }, [userAddress, selectRequest, campaignsRequests]);
 
   useEffect(() => {
     retrieveImg(setImg, CampaignsData?.cidImg);
@@ -1048,8 +1066,19 @@ const SpecificPage = () => {
         </ScrollBar>
       </BasicModal>
       <BasicModal open={openVote} handleClose={handleCloseVote}>
-        <Box p={4} position="relative" width="500px">
-          <div style={{ display: "flex", marginBottom: "30px" }}>
+        <Box p={4} position="relative" width="800px">
+          <h4 style={{ margin: 0, marginBottom: "5px" }}>Select Request</h4>
+          <Inputs
+            type="select"
+            options={handleTab(allRequests)}
+            width={500}
+            onChange={(e) =>
+              setSelectRequest(parseInt(e.target.value.slice(7)))
+            }
+          />
+          <div
+            style={{ display: "flex", marginBottom: "30px", marginTop: "30px" }}
+          >
             <h4 style={{ margin: 0, marginBottom: "5px" }}>Title of Request</h4>
             <h4
               style={{
@@ -1059,7 +1088,7 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              title
+              {campaignsRequests?.requestTitle}
             </h4>
           </div>
           <div style={{ display: "flex", marginBottom: "30px" }}>
@@ -1074,7 +1103,7 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              reason
+              {campaignsRequests?.requestInfo}
             </h4>
           </div>
           <div style={{ display: "flex", marginBottom: "30px" }}>
@@ -1087,7 +1116,9 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              duration
+              {otherRequest &&
+                otherRequest[selectRequest] &&
+                otherRequest[selectRequest][1]?.toNumber()}
             </h4>
           </div>
           <div style={{ display: "flex", marginBottom: "30px" }}>
@@ -1100,7 +1131,9 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              Amount
+              {otherRequest &&
+                otherRequest[selectRequest] &&
+                otherRequest[selectRequest][2]?.toNumber() * 0.000001}
             </h4>
           </div>
           <div style={{ display: "flex", marginBottom: "30px" }}>
@@ -1113,7 +1146,9 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              wallet
+              {otherRequest &&
+                otherRequest[selectRequest] &&
+                otherRequest[selectRequest][3]}
             </h4>
           </div>
           <div
@@ -1162,6 +1197,9 @@ const SpecificPage = () => {
                 padding: "10px 85px",
                 cursor: "pointer",
               }}
+              onClick={() =>
+                voteOnTransferRequest(id, selectRequest, changeRadio)
+              }
             >
               Vote
             </button>
