@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { BorderLinearProgress } from "../components/Card/Card";
 import { ReactComponent as Clock } from "../assets/Clock.svg";
 import { ReactComponent as Contribution } from "../assets/Contribution.svg";
+import { ReactComponent as Voters } from "../assets/Voters.svg";
 
 import Avatar from "@mui/material/Avatar";
 import BasicTabs from "../components/Tabs";
@@ -835,7 +836,7 @@ const SpecificPage = () => {
                 </Box>
               )}
               <Box display="flex" alignItems="center" mt={1}>
-                <Contribution width={20} style={{marginRight:'10px'}} />
+                <Contribution width={20} style={{ marginRight: "10px" }} />
                 <p style={{ margin: 0 }}>
                   {contributor && contributor} Contributors
                 </p>
@@ -1101,13 +1102,12 @@ const SpecificPage = () => {
             }
           />
           <div
-            style={{ display: "flex", marginBottom: "30px", marginTop: "30px" }}
+            style={{ display: "flex",alignItems:'center', marginBottom: "30px", marginTop: "30px" }}
           >
-            <h4 style={{ margin: 0, marginBottom: "5px" }}>Title of Request</h4>
+            <h4 style={{ margin: 0 }}>Title of Request</h4>
             <h4
               style={{
                 margin: 0,
-                marginBottom: "5px",
                 position: "absolute",
                 right: 30,
               }}
@@ -1115,14 +1115,13 @@ const SpecificPage = () => {
               {campaignsRequests?.requestTitle}
             </h4>
           </div>
-          <div style={{ display: "flex", marginBottom: "30px" }}>
-            <h4 style={{ margin: 0, marginBottom: "5px" }}>
+          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+            <h4 style={{ margin: 0 }}>
               Reason for Request
             </h4>
             <h4
               style={{
                 margin: 0,
-                marginBottom: "5px",
                 position: "absolute",
                 right: 30,
               }}
@@ -1130,12 +1129,11 @@ const SpecificPage = () => {
               {campaignsRequests?.requestInfo}
             </h4>
           </div>
-          <div style={{ display: "flex", marginBottom: "30px" }}>
-            <h4 style={{ margin: 0, marginBottom: "5px" }}>Request Duration</h4>
+          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+            <h4 style={{ margin: 0 }}>Request Duration</h4>
             <h4
               style={{
                 margin: 0,
-                marginBottom: "5px",
                 position: "absolute",
                 right: 30,
               }}
@@ -1143,27 +1141,25 @@ const SpecificPage = () => {
               {leftDate < 0 ? 0 : leftDate} days
             </h4>
           </div>
-          <div style={{ display: "flex", marginBottom: "30px" }}>
-            <h4 style={{ margin: 0, marginBottom: "5px" }}>Amount</h4>
+          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+            <h4 style={{ margin: 0 }}>Amount</h4>
             <h4
               style={{
                 margin: 0,
-                marginBottom: "5px",
                 position: "absolute",
                 right: 30,
               }}
             >
               {otherRequest &&
                 otherRequest[selectRequest] &&
-                otherRequest[selectRequest][2]?.toNumber() * 0.000001}
+                otherRequest[selectRequest][2]?.toNumber() * 0.000001}$
             </h4>
           </div>
-          <div style={{ display: "flex", marginBottom: "30px" }}>
-            <h4 style={{ margin: 0, marginBottom: "5px" }}>Wallet Address</h4>
+          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+            <h4 style={{ margin: 0 }}>Wallet Address</h4>
             <h4
               style={{
                 margin: 0,
-                marginBottom: "5px",
                 position: "absolute",
                 right: 30,
               }}
@@ -1171,6 +1167,23 @@ const SpecificPage = () => {
               {otherRequest &&
                 otherRequest[selectRequest] &&
                 otherRequest[selectRequest][3]}
+            </h4>
+          </div>
+          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+            <h4 style={{ margin: 0 }}>Total Voters</h4>
+            <h4
+              style={{
+                margin: 0,
+                position: "absolute",
+                right: 30,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Voters width={20} style={{ marginRight: "5px" }} />
+              {otherRequest &&
+                otherRequest[selectRequest] &&
+                otherRequest[selectRequest][4]?.toNumber()}
             </h4>
           </div>
           <div
