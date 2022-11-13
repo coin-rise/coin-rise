@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { ReactComponent as Like } from "../../assets/Like.svg";
 import { ReactComponent as Clock } from "../../assets/Clock.svg";
+import { ReactComponent as VoteIcon } from "../../assets/VoteIcon.svg";
+
 import { ethers, BigNumber } from "ethers";
 import CircularProgress, {
   circularProgressClasses,
@@ -288,9 +290,26 @@ const Card = ({
       <Box mt={2} ml={2}>
         <p style={{ margin: 0 }}>{campaignInfo && campaignInfo}</p>
       </Box>
-
-      <Box mt={5} ml={2}>
-        <h4 style={{ margin: 0 }}>Philantropy</h4>
+      <Box px={2}>
+        <Box mt={5} display="flex" width="100%" alignItems="center">
+          <Box display="flex" justifyContent="flex-start" width="100%">
+            <h4 style={{ margin: 0 }}>Philantropy</h4>
+          </Box>
+          <Box display="flex" justifyContent="flex-end" width="100%">
+            {isActive && (
+              <p
+                style={{
+                  margin: 0,
+                  color: "#294918",
+                  fontWeight: 400,
+                  fontFamily: "Sen",
+                }}
+              >
+                On going Funding
+              </p>
+            )}
+          </Box>
+        </Box>
       </Box>
 
       <Box mx={2} mt={2}>
@@ -333,10 +352,20 @@ const Card = ({
             </Box>
           )}
         </Box>
-        <Box display="flex" justifyContent="flex-end" width="100%">
+        <Box
+          display="flex"
+          justifyContent="flex-end"
+          width="100%"
+          alignItems="center"
+        >
           {campaignVotable && (
-            <Box display="flex" justifyContent="flex-end" width="100%">
-              Votable
+            <Box
+              display="flex"
+              justifyContent="flex-end"
+              width="100%"
+              alignItems="center"
+            >
+              <VoteIcon />
             </Box>
           )}
         </Box>
