@@ -69,6 +69,7 @@ const SpecificPage = () => {
   const [campaignVotable, setCampaignVotable] = useState();
   const [succesfullFunding, setSuccesfullFunding] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingRequest, setIsLoadingRequest] = useState(false);
 
   const [allRequests, setAllRequests] = useState([]);
   function handleCheck(e) {
@@ -443,10 +444,7 @@ const SpecificPage = () => {
 
   const StoreRequestsInfo = async () => {
     try {
-      const files = await makeRequestObjects(
-        request?.title,
-        request?.reason
-      );
+      const files = await makeRequestObjects(request?.title, request?.reason);
       const cid = await storeFiles(files);
       return cid;
     } catch (error) {
@@ -468,6 +466,7 @@ const SpecificPage = () => {
 
   const makeRequest = async () => {
     try {
+      setIsLoadingRequest(true);
       const cid = await StoreRequestsInfo();
       await transferStableTokensWithRequest(
         id,
@@ -475,8 +474,10 @@ const SpecificPage = () => {
         request?.amount,
         request?.duration,
         cid
-      )
-      console.log("request done")
+      );
+      setIsLoadingRequest(false);
+      handleCloseRequest();
+      console.log("request done");
     } catch (error) {
       console.log("error", error);
     }
@@ -1038,7 +1039,7 @@ const SpecificPage = () => {
                 }}
                 onClick={makeRequest}
               >
-                Request Fund
+                {isLoadingRequest ? <CircularProgress /> : "    Request Fund"}
               </button>
             </Box>
           </Box>
