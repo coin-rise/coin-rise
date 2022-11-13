@@ -41,6 +41,8 @@ const Card = ({
   const [remaining, setRemaining] = useState();
   const [totalSuply, setTotalSuply] = useState();
   const [minAmount, setMinAmount] = useState();
+  const [isActive, setIsActive] = useState();
+  const [succesfullFunding, setSuccesfullFunding] = useState();
   const [img, setImg] = useState();
   console.log(totalSuply, "totalSuply");
   console.log(address, "address");
@@ -125,7 +127,7 @@ const Card = ({
         let isactive = await contract.isFundingActive();
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log("%c is Funding Active =  %s", stylesMining, isactive);
-        return isactive;
+        setIsActive(isactive);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -157,7 +159,7 @@ const Card = ({
           stylesMining,
           successfulFunded
         );
-        return successfulFunded;
+        setSuccesfullFunding(successfulFunded);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -266,7 +268,7 @@ const Card = ({
       <Box mx={2} mt={2}>
         <Box display="flex" alignItems="center">
           <Box display="flex" justifyContent="flex-start" width="100%">
-            <p>{totalSuply && totalSuply}$ Raised</p>
+            <p>{totalSuply && Math.floor(totalSuply * 0.000001)}$ Raised</p>
           </Box>
           <Box display="flex" justifyContent="flex-end" width="100%">
             {Math.floor((totalSuply / minAmount) * 100)}%
@@ -274,15 +276,28 @@ const Card = ({
         </Box>
         <BorderLinearProgress
           variant="determinate"
-          value={totalSuply / minAmount}
+          value={totalSuply / minAmount > 1 ? 100 : totalSuply / minAmount}
         />
       </Box>
-      <Box ml={2} mt={2} display="flex" alignItems="center">
-        <Clock width="20px" height="20px" style={{ marginRight: "10px" }} />
-        <p style={{ margin: 0 }}>
-          {remaining && Math.floor(remaining / (3600 * 24))} days
-        </p>
-      </Box>
+      {isActive ? (
+        <Box ml={2} mt={2} display="flex" alignItems="center">
+          <Clock width="20px" height="20px" style={{ marginRight: "10px" }} />
+          <p style={{ margin: 0 }}>
+            {remaining && Math.floor(remaining / (3600 * 24))} days
+          </p>
+        </Box>
+      ) : (
+        <Box ml={3} mt={2}>
+          <p
+            style={{
+              margin: 0,
+              color: succesfullFunding ? "green" : "red",
+            }}
+          >
+            {succesfullFunding ? "Success" : "Failed"}
+          </p>
+        </Box>
+      )}
     </Box>
   );
 };

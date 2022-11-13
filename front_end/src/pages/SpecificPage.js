@@ -8,6 +8,7 @@ import BasicModal from "../components/Modal/Modal";
 import Inputs from "../components/Ui";
 import { ethers, BigNumber } from "ethers";
 import { useParams } from "react-router-dom";
+import { CircularProgress } from "@mui/material";
 
 import {
   storeFiles,
@@ -16,7 +17,7 @@ import {
   retrieveImg,
   loadData,
   loadImg,
-  makeRequestObjects
+  makeRequestObjects,
 } from "../components/Storage";
 import IERC20 from "../artifacts/token/ERC20/ERC20.sol/ERC20.json";
 
@@ -66,10 +67,21 @@ const SpecificPage = () => {
   const [submitterAddress, setSubmitterAddress] = useState();
   const [isActive, setIsActive] = useState();
   const [campaignVotable, setCampaignVotable] = useState();
+  const [succesfullFunding, setSuccesfullFunding] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
   const [allRequests, setAllRequests] = useState([]);
   function handleCheck(e) {
     setRadioCheck(e.target.value);
   }
+  const [request, setRequest] = useState({
+    title: "",
+    reason: "",
+    duration: "",
+    amount: "",
+    wallet: "",
+  });
+  console.log(request, "requestwajih");
 
   useEffect(() => {
     const onNewSigner = async () => {
@@ -237,7 +249,7 @@ const SpecificPage = () => {
           stylesMining,
           successfulFunded
         );
-        return successfulFunded;
+        setSuccesfullFunding(successfulFunded);
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -377,7 +389,7 @@ const SpecificPage = () => {
         let Votable = await contract.isCampaignVotable();
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log("%c is Campaign Votable =  %s", stylesMining, Votable);
-        setCampaignVotable(Votable.toString());
+        setCampaignVotable(Votable);
         return Votable;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -388,8 +400,8 @@ const SpecificPage = () => {
   };
 
   /**
- * Get All Requests Info
- */
+   * Get All Requests Info
+   */
   const getAllRequests = async (campaignaddress) => {
     try {
       const { ethereum } = window;
@@ -416,8 +428,6 @@ const SpecificPage = () => {
     }
   };
 
-
-
   const [CampaignsData, setCampaignsData] = useState();
   const [campaignsRequests, setCampaignsRequests] = useState();
   const getCampaignData = async (address) => {
@@ -431,7 +441,6 @@ const SpecificPage = () => {
     }
   };
 
-
   const StoreRequestsInfo = async () => {
     try {
       /*const files = await makeRequestObjects(
@@ -444,7 +453,6 @@ const SpecificPage = () => {
       console.error("error", error);
     }
   };
-
 
   const getCampaignRequestsInfo = async (address, ReqId) => {
     try {
@@ -501,8 +509,9 @@ const SpecificPage = () => {
             console.log("Campaign address :", campaignAddress);
           }
         );
+        setIsLoading(true);
         let appr = await stableToken.approve(campaignManagerAddress, amount);
-        console.log("approve... please wait!",);
+        console.log("approve... please wait!");
         await appr.wait();
         let tx = await contract.contributeCampaign(
           BigNumber.from(amount),
@@ -538,6 +547,8 @@ const SpecificPage = () => {
             tx.hash
           );
         }
+        setIsLoading(false);
+        handleClose();
         return;
       } else {
         console.log("Ethereum object doesn't exist!");
@@ -547,7 +558,13 @@ const SpecificPage = () => {
     }
   };
 
-  const transferStableTokensWithRequest = async (campaignAddress, to, amount, requestDuration, cidIpfs) => {
+  const transferStableTokensWithRequest = async (
+    campaignAddress,
+    to,
+    amount,
+    requestDuration,
+    cidIpfs
+  ) => {
     if (!campaignAddress) {
       console.log(`Error, Please enter a valid campaign Address`);
       return;
@@ -599,11 +616,7 @@ const SpecificPage = () => {
         //wait until a block containing our transaction has been mined and confirmed.
         const receipt = await tx.wait();
         const stylesReceipt = ["color: black", "background: #e9429b"].join(";");
-        console.log(
-          "%c you just passed a request %s ",
-          stylesReceipt,
-          tx.hash
-        );
+        console.log("%c you just passed a request %s ", stylesReceipt, tx.hash);
         /* Check our Transaction results */
         if (receipt.status === 1) {
           /**
@@ -657,7 +670,7 @@ const SpecificPage = () => {
 
         let tx = await contract.voteOnTransferRequest(
           BigNumber.from(requestId),
-          approve,
+          approve
         );
         const stylesMining = ["color: black", "background: yellow"].join(";");
         console.log(
@@ -756,14 +769,23 @@ const SpecificPage = () => {
                   </p>
                 </Box>
               ) : (
-                <p style={{ margin: 0, color: "red" }}>Failed</p>
+                <Box mt={1}>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: succesfullFunding ? "green" : "red",
+                    }}
+                  >
+                    {succesfullFunding ? "Success" : "Failed"}
+                  </p>
+                </Box>
               )}
               <p style={{ margin: 0, marginTop: "10px" }}>
                 {contributor && contributor} Contributors
               </p>
             </Box>
           </Box>
-          <Box display="flex" width="100%" justifyContent="center">
+          <Box mb={2} display="flex" width="100%" justifyContent="center">
             <button
               style={{
                 color: "white",
@@ -782,8 +804,8 @@ const SpecificPage = () => {
               Fund
             </button>
           </Box>
-          {contibution !== 0 /*&& campaignVotable == true*/ && (
-            <Box display="flex" width="100%" justifyContent="center">
+          {contibution !== 0 && campaignVotable /*&& campaignVotable == true*/ && (
+            <Box mb={2} display="flex" width="100%" justifyContent="center">
               <button
                 style={{
                   color: "black",
@@ -803,27 +825,28 @@ const SpecificPage = () => {
               </button>
             </Box>
           )}
-          {submitterAddress === userAddress /*&& campaignVotable == true*/ && (
-            <Box display="flex" width="100%" justifyContent="center">
-              <button
-                style={{
-                  color: "black",
-                  backgroundColor: "white",
-                  borderRadius: "10px",
-                  fontFamily: "Sen",
-                  fontStyle: "normal",
-                  fontWeight: 700,
-                  fontSize: "25px",
-                  lineHeight: "30px",
-                  padding: "10px 85px",
-                  cursor: "pointer",
-                }}
-                onClick={handleOpenRequest}
-              >
-                Request
-              </button>
-            </Box>
-          )}
+          {submitterAddress === userAddress &&
+            campaignVotable /*&& campaignVotable == true*/ && (
+              <Box display="flex" width="100%" justifyContent="center">
+                <button
+                  style={{
+                    color: "black",
+                    backgroundColor: "white",
+                    borderRadius: "10px",
+                    fontFamily: "Sen",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    fontSize: "25px",
+                    lineHeight: "30px",
+                    padding: "10px 85px",
+                    cursor: "pointer",
+                  }}
+                  onClick={handleOpenRequest}
+                >
+                  Request
+                </button>
+              </Box>
+            )}
         </Box>
       </Box>
 
@@ -836,16 +859,18 @@ const SpecificPage = () => {
             width="92%"
           >
             <p style={{ margin: 0, width: "20%" }}>
-              {totalSuply && totalSuply} $ Raised
+              {totalSuply && Math.floor(totalSuply * 0.000001)} $ Raised
             </p>
             <BorderLinearProgress
               variant="determinate"
-              value={totalSuply / minAmount}
+              value={totalSuply / minAmount > 1 ? 100 : totalSuply / minAmount}
               style={{ width: "60%" }}
             />{" "}
           </Box>
           <Box>
-            <p style={{ margin: 0 }}>{minAmount && minAmount} $ needed</p>
+            <p style={{ margin: 0 }}>
+              {minAmount && Math.floor(minAmount * 0.000001)} $ needed
+            </p>
           </Box>
         </Box>
       </Box>
@@ -892,7 +917,10 @@ const SpecificPage = () => {
                   type="text"
                   width={450}
                   onChange={(e) =>
-                    setFundDetails({ ...fundDetails, value: e.target.value })
+                    setFundDetails({
+                      ...fundDetails,
+                      value: e.target.value / 0.000001,
+                    })
                   }
                 />
               </Box>
@@ -911,7 +939,7 @@ const SpecificPage = () => {
                 }}
                 onClick={() => contributeCampaign(fundDetails?.value, id)}
               >
-                Fund
+                {isLoading ? <CircularProgress /> : "Fund"}
               </button>
             </div>,
             <div>e</div>,
@@ -925,27 +953,58 @@ const SpecificPage = () => {
               <h4 style={{ margin: 0, marginBottom: "5px" }}>
                 Title of Request
               </h4>
-              <Inputs type="text" width={450} />
+              <Inputs
+                type="text"
+                width={450}
+                onChange={(e) =>
+                  setRequest({ ...request, title: e.target.value })
+                }
+              />
             </Box>
             <Box my={4}>
               <h4 style={{ margin: 0, marginBottom: "5px" }}>
                 Reason for Request
               </h4>
-              <Inputs type="area" rows={6} width={450} />
+              <Inputs
+                type="area"
+                rows={6}
+                width={450}
+                onChange={(e) =>
+                  setRequest({ ...request, reason: e.target.value })
+                }
+              />
             </Box>
             <Box my={4}>
               <h4 style={{ margin: 0, marginBottom: "5px" }}>
                 Request Duration
               </h4>
-              <Inputs type="text" width={450} />
+              <Inputs
+                type="text"
+                width={450}
+                onChange={(e) =>
+                  setRequest({ ...request, duration: e.target.value })
+                }
+              />
             </Box>
             <Box my={4}>
               <h4 style={{ margin: 0, marginBottom: "5px" }}>Amount</h4>
-              <Inputs type="text" width={450} />
+              <Inputs
+                type="text"
+                width={450}
+                onChange={(e) =>
+                  setRequest({ ...request, amount: e.target.value / 0.000001 })
+                }
+              />
             </Box>
             <Box my={4}>
               <h4 style={{ margin: 0, marginBottom: "5px" }}>Wallet Address</h4>
-              <Inputs type="text" width={450} />
+              <Inputs
+                type="text"
+                width={450}
+                onChange={(e) =>
+                  setRequest({ ...request, wallet: e.target.value })
+                }
+              />
             </Box>
             <Box display="flex" justifyContent="center" widht="100%">
               <button

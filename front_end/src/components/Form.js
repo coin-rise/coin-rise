@@ -88,7 +88,7 @@ function Form() {
         campaign?.nftBronze,
       ];
       if (campaign?.vote == false || campaign?.vote == undefined) {
-        console.log("CreateNewCampaign without vote",campaign?.vote)
+        console.log("CreateNewCampaign without vote", campaign?.vote);
         await CreateNewCampaign(
           campaign?.campaignDuration,
           campaign?.minAmount,
@@ -96,7 +96,7 @@ function Form() {
           nftsBadge
         );
       } else {
-        console.log("CreateNewCampaign with vote",campaign?.vote)
+        console.log("CreateNewCampaign with vote", campaign?.vote);
         await createNewCampaignWithVoting(
           campaign?.campaignDuration,
           campaign?.minAmount,
@@ -218,8 +218,8 @@ function Form() {
   };
 
   /**
-  * Create a new Campaign with voting for funding non-profit projects
-  */
+   * Create a new Campaign with voting for funding non-profit projects
+   */
   const createNewCampaignWithVoting = async (
     duration,
     minamount,
@@ -385,7 +385,13 @@ function Form() {
             cursor: "pointer",
           }}
         >
-          {activeStep == 2 && isLoading ? <CircularProgress /> : "Next"}
+          {activeStep == 2 && isLoading ? (
+            <CircularProgress />
+          ) : !isLoading && activeStep == 2 ? (
+            "Submit"
+          ) : (
+            "Next"
+          )}
         </button>
       </Box>
     </Box>

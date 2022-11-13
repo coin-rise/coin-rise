@@ -9,7 +9,7 @@ const FinalStepper = ({ setCampaign, campaign }) => {
     campaign?.nftSilver,
     campaign?.nftBronze,
   ];
-  console.log(nftsBadge,'nftsBadge')
+  console.log(nftsBadge, "nftsBadge");
   return (
     <Box style={{ marginLeft: "17rem" }}>
       <div
@@ -30,7 +30,7 @@ const FinalStepper = ({ setCampaign, campaign }) => {
         type="text"
         width={900}
         onChange={(e) =>
-          setCampaign({ ...campaign, minAmount: e.target.value })
+          setCampaign({ ...campaign, minAmount: e.target.value / 0.000001 })
         }
       />
       <div
