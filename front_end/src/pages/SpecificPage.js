@@ -174,6 +174,11 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
+  function changeDate(unix_timestamp) {
+    var date = new Date(unix_timestamp * 1000);
+    return date.getDate();
+  }
+  const date = new Date(Date.now()).getDate();
 
   /**
    * Get Remaining Funding Time of a Campaign
@@ -772,6 +777,10 @@ const SpecificPage = () => {
   useEffect(() => {
     getContributor(id, userAddress);
   }, [userAddress]);
+  const leftDate =
+    otherRequest &&
+    otherRequest[selectRequest] &&
+    date - changeDate(otherRequest[selectRequest][1]?.toNumber());
   return (
     <Box px={4}>
       <Box display="flex">
@@ -906,7 +915,11 @@ const SpecificPage = () => {
             </p>
             <BorderLinearProgress
               variant="determinate"
-              value={totalSuply / minAmount > 1 ? 100 : totalSuply / minAmount}
+              value={
+                totalSuply / minAmount > 1
+                  ? 100
+                  : (totalSuply / minAmount) * 100
+              }
               style={{ width: "60%" }}
             />{" "}
           </Box>
@@ -1122,9 +1135,7 @@ const SpecificPage = () => {
                 right: 30,
               }}
             >
-              {otherRequest &&
-                otherRequest[selectRequest] &&
-                otherRequest[selectRequest][1]?.toNumber()}
+              {leftDate < 0 ? 0 : leftDate} days
             </h4>
           </div>
           <div style={{ display: "flex", marginBottom: "30px" }}>

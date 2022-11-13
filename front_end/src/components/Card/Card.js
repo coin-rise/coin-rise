@@ -323,7 +323,9 @@ const Card = ({
         </Box>
         <BorderLinearProgress
           variant="determinate"
-          value={totalSuply / minAmount > 1 ? 100 : totalSuply / minAmount}
+          value={
+            totalSuply / minAmount > 1 ? 100 : (totalSuply / minAmount) * 100
+          }
         />
       </Box>
       <Box display="flex" mt={2} px={2} alignItems="center">
