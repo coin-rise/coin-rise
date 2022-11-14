@@ -2,6 +2,9 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import Inputs from "./Ui/index";
 import CheckBox from "./CheckBox/CheckBox";
+import { ReactComponent as Gold } from "../assets/Silver.svg";
+import { ReactComponent as Silver } from "../assets/Bronze.svg";
+import { ReactComponent as Bronze } from "../assets/Gold.svg";
 
 const FinalStepper = ({ setCampaign, campaign }) => {
   const nftsBadge = [
@@ -46,37 +49,46 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Amount to receive NFT badge
       </div>
-      <div style={{ display: "flex", gap: "80px" }}>
-        <Inputs
-          type="text"
-          width={80}
-          onChange={(e) =>
-            setCampaign({
-              ...campaign,
-              nftGold: e.target.value,
-            })
-          }
-        />
-        <Inputs
-          type="text"
-          width={80}
-          onChange={(e) =>
-            setCampaign({
-              ...campaign,
-              nftSilver: e.target.value,
-            })
-          }
-        />
-        <Inputs
-          type="text"
-          width={80}
-          onChange={(e) =>
-            setCampaign({
-              ...campaign,
-              nftBronze: e.target.value,
-            })
-          }
-        />
+      <div style={{ display: "flex", gap: "40px" }}>
+        <div style={{ display: "flex" }}>
+          <Inputs
+            type="text"
+            width={80}
+            onChange={(e) =>
+              setCampaign({
+                ...campaign,
+                nftGold: e.target.value,
+              })
+            }
+          />
+          <Gold style={{ marginLeft: "10px" }} />
+        </div>
+        <div style={{ display: "flex" }}>
+          <Inputs
+            type="text"
+            width={80}
+            onChange={(e) =>
+              setCampaign({
+                ...campaign,
+                nftSilver: e.target.value,
+              })
+            }
+          />
+          <Silver style={{ marginLeft: "10px" }} />
+        </div>
+        <div style={{ display: "flex" }}>
+          <Inputs
+            type="text"
+            width={80}
+            onChange={(e) =>
+              setCampaign({
+                ...campaign,
+                nftBronze: e.target.value,
+              })
+            }
+          />
+          <Bronze style={{ marginLeft: "10px" }} />
+        </div>
       </div>
       <div
         style={{
