@@ -78,6 +78,21 @@ const SpecificPage = () => {
   const [isLoadingVote, setIsLoadingVote] = useState(false);
   const [allRequests, setAllRequests] = useState([]);
   const [endDate, setEndDate] = useState();
+  const [state, setState] = useState();
+
+  function countDown(countDownDate) {
+    var now = new Date().getTime();
+    var distance = countDownDate - now;
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor(
+      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    if (distance > 0) {
+      setState(days + "d " + hours + "h " + minutes + "m " + seconds + "s ");
+    }
+  }
   const [selectRequest, setSelectRequest] = useState([]);
   function handleTab(tab) {
     let newTab = [];
@@ -450,7 +465,7 @@ const SpecificPage = () => {
   /**
    * Get end date
    */
-   const getEndDate = async (campaignaddress) => {
+  const getEndDate = async (campaignaddress) => {
     try {
       const { ethereum } = window;
       if (ethereum) {
@@ -474,7 +489,6 @@ const SpecificPage = () => {
       console.log("error", error);
     }
   };
-
 
   const [CampaignsData, setCampaignsData] = useState();
   const [campaignsRequests, setCampaignsRequests] = useState();
@@ -802,6 +816,12 @@ const SpecificPage = () => {
     getEndDate(id);
   }, []);
   useEffect(() => {
+    setInterval(() => {
+      countDown(new Date(endDate * 1000));
+    }, 1000);
+  }, [endDate]);
+
+  useEffect(() => {
     getCampaignRequestsInfo(id, selectRequest);
     getAllRequests(id);
   }, [selectRequest]);
@@ -850,9 +870,7 @@ const SpecificPage = () => {
                     height="20px"
                     style={{ marginRight: "10px" }}
                   />
-                  <p style={{ margin: 0 }}>
-                    {remaining && Math.floor(remaining / (3600 * 24))} days
-                  </p>
+                  <p style={{ margin: 0 }}>{state}</p>
                 </Box>
               ) : (
                 <Box mt={1}>
@@ -1133,7 +1151,12 @@ const SpecificPage = () => {
             }
           />
           <div
-            style={{ display: "flex",alignItems:'center', marginBottom: "30px", marginTop: "30px" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+              marginTop: "30px",
+            }}
           >
             <h4 style={{ margin: 0 }}>Title of Request</h4>
             <h4
@@ -1146,10 +1169,14 @@ const SpecificPage = () => {
               {campaignsRequests?.requestTitle}
             </h4>
           </div>
-          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
-            <h4 style={{ margin: 0 }}>
-              Reason for Request
-            </h4>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+            }}
+          >
+            <h4 style={{ margin: 0 }}>Reason for Request</h4>
             <h4
               style={{
                 margin: 0,
@@ -1160,7 +1187,13 @@ const SpecificPage = () => {
               {campaignsRequests?.requestInfo}
             </h4>
           </div>
-          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+            }}
+          >
             <h4 style={{ margin: 0 }}>Request Duration</h4>
             <h4
               style={{
@@ -1172,7 +1205,13 @@ const SpecificPage = () => {
               {leftDate < 0 ? 0 : leftDate} days
             </h4>
           </div>
-          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+            }}
+          >
             <h4 style={{ margin: 0 }}>Amount</h4>
             <h4
               style={{
@@ -1183,10 +1222,17 @@ const SpecificPage = () => {
             >
               {otherRequest &&
                 otherRequest[selectRequest] &&
-                otherRequest[selectRequest][2]?.toNumber() * 0.000001}$
+                otherRequest[selectRequest][2]?.toNumber() * 0.000001}
+              $
             </h4>
           </div>
-          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+            }}
+          >
             <h4 style={{ margin: 0 }}>Wallet Address</h4>
             <h4
               style={{
@@ -1200,7 +1246,13 @@ const SpecificPage = () => {
                 otherRequest[selectRequest][3]}
             </h4>
           </div>
-          <div style={{ display: "flex",alignItems:'center', marginBottom: "30px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "30px",
+            }}
+          >
             <h4 style={{ margin: 0 }}>Total Voters</h4>
             <h4
               style={{
