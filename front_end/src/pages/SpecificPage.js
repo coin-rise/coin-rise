@@ -77,6 +77,7 @@ const SpecificPage = () => {
   const [isLoadingRequest, setIsLoadingRequest] = useState(false);
   const [isLoadingVote, setIsLoadingVote] = useState(false);
   const [allRequests, setAllRequests] = useState([]);
+  const [endDate, setEndDate] = useState();
   const [selectRequest, setSelectRequest] = useState([]);
   function handleTab(tab) {
     let newTab = [];
@@ -446,6 +447,35 @@ const SpecificPage = () => {
     }
   };
 
+  /**
+   * Get end date
+   */
+   const getEndDate = async (campaignaddress) => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.JsonRpcProvider(
+          process.env.REACT_APP_QUICKNODE_URL_POLYGON_MUMBAI
+        );
+        const contract = new ethers.Contract(
+          campaignaddress,
+          campaignAbi,
+          provider
+        );
+
+        let EndDate = await contract.getEndDate();
+        const stylesMining = ["color: black", "background: yellow"].join(";");
+        console.log("%c end date =  %s", stylesMining, EndDate);
+        setEndDate(EndDate.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+
   const [CampaignsData, setCampaignsData] = useState();
   const [campaignsRequests, setCampaignsRequests] = useState();
   const [otherRequest, setOtherRequest] = useState([]);
@@ -769,6 +799,7 @@ const SpecificPage = () => {
     getMinAmount(id);
     getSubmitter(id);
     isCampaignVotable(id);
+    getEndDate(id);
   }, []);
   useEffect(() => {
     getCampaignRequestsInfo(id, selectRequest);
