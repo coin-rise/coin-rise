@@ -106,7 +106,7 @@ const FinalStepper = ({ setCampaign, campaign }) => {
           margin: 0,
         }}
       >
-        Compain Pitch
+        Campaign Pitch
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         Input Video link that best describes what your Campaign is all about ?
@@ -157,7 +157,7 @@ const FinalStepper = ({ setCampaign, campaign }) => {
         Voting
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
-        Allow Contributors vote for your compaign
+        Allow Contributors vote for your campaign
       </p>
 
       <CheckBox

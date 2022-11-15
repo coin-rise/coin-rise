@@ -61,7 +61,7 @@ const StepperGeneral = ({ setCampaign, campaign ,userAddress}) => {
                 margin: "0px",
               }}
             >
-              please Fill out the Information To Start A Compain
+              please Fill out the Information To Start A Campaign
             </div>
 
             <div
@@ -75,7 +75,7 @@ const StepperGeneral = ({ setCampaign, campaign ,userAddress}) => {
                 margin: 0,
               }}
             >
-              Purpose Of Compain
+              Purpose Of Campaign
             </div>
             <Inputs
               type="select"
@@ -97,7 +97,7 @@ const StepperGeneral = ({ setCampaign, campaign ,userAddress}) => {
                 margin: 0,
               }}
             >
-              Category Of Compain
+              Category Of Campaign
             </div>
             <Inputs
               type="select"

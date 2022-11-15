@@ -16,7 +16,7 @@ const StepperInfo = ({ setCampaign, campaign }) => {
           margin: 0,
         }}
       >
-        Compain Name
+        Campaign Name
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         What is the title of your Campaign?
@@ -39,7 +39,7 @@ const StepperInfo = ({ setCampaign, campaign }) => {
           margin: 0,
         }}
       >
-        Compain Info
+        Campaign Info
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         What is your Campaign all about?
@@ -63,7 +63,7 @@ const StepperInfo = ({ setCampaign, campaign }) => {
           margin: 0,
         }}
       >
-        Compain Image
+        Campaign Image
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         Upload an Image that best describes what your Campaign is all about
@@ -87,7 +87,7 @@ const StepperInfo = ({ setCampaign, campaign }) => {
           margin: 0,
         }}
       >
-        Compain Duration
+        Campaign Duration
       </div>
       <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         How long do your Campaign to last?
