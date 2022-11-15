@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import StepperIcon from "../assets/StepperIcon.svg";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, InputAdornment } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import Inputs from "../components/Ui";
 import Card from "../components/Card/Card";
@@ -10,16 +10,18 @@ import {
   storeFiles,
   makeFileObjects,
   loadData,
-  retrieveData
+  retrieveData,
 } from "../components/Storage";
-import deployedContracts from "../deployments/deployedContracts.json"
+import { ReactComponent as SearchIcon } from "../assets/Search.svg";
+
+import deployedContracts from "../deployments/deployedContracts.json";
 
 const MumbaiID = 80001;
-const campaignAbi = deployedContracts[MumbaiID].Campaign.abi
-const campaignFactoryAbi= deployedContracts[MumbaiID].CampaignFactory.abi
+const campaignAbi = deployedContracts[MumbaiID].Campaign.abi;
+const campaignFactoryAbi = deployedContracts[MumbaiID].CampaignFactory.abi;
 
-const campaignFactoryAddress = deployedContracts[MumbaiID].CampaignFactory.address
-
+const campaignFactoryAddress =
+  deployedContracts[MumbaiID].CampaignFactory.address;
 
 const ProejctPage = () => {
   /**
@@ -88,13 +90,13 @@ const ProejctPage = () => {
   const makeObj = async (campaignList) => {
     try {
       let campaignObj = [];
-      const promises = campaignList.slice(10).map(async campaignAddr => {
+      const promises = campaignList.slice(10).map(async (campaignAddr) => {
         let cid_i = await getCampaignURI(campaignAddr);
         let content = await loadData(cid_i);
         content.address = campaignAddr;
         campaignObj.push(content);
-      })
-      await Promise.all(promises)
+      });
+      await Promise.all(promises);
       return campaignObj;
     } catch (error) {
       console.error("error", error);
@@ -121,7 +123,15 @@ const ProejctPage = () => {
       <Inputs
         type="text"
         width={400}
+        placeholder="Search Projects by Title"
         onChange={(e) => setText(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              {text == "" && <SearchIcon width={25} />}
+            </InputAdornment>
+          ),
+        }}
       />
       <Box display="flex" flexWrap="wrap">
         {campaigns
