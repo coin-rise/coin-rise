@@ -153,7 +153,7 @@ function Nav({ children }) {
             justifyContent="flex-start"
             alignItems="center"
           >
-            <Logo/>
+            <Logo />
           </Box>
           <Box
             display="flex"
@@ -191,8 +191,7 @@ function Nav({ children }) {
       <Box mt={3} p={4} style={{ height: "200px", backgroundColor: "black" }}>
         <Box display="flex" width="100%">
           <Box display="flex" width="100%" justifyContent="flex-start">
-            <Typography className={classes.coin}>Coin</Typography>
-            <Typography className={classes.rise}>Rise</Typography>
+            <Logo />
           </Box>
           <Box
             display="flex"
