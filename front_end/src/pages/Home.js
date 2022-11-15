@@ -8,17 +8,20 @@ import ProejctPage from "./ProejctPage";
 import Sponsor1 from "../assets/Sponsor1.svg";
 import Sponsor2 from "../assets/Sponsor2.svg";
 import Sponsor3 from "../assets/Sponsor3.svg";
+import Sponsor4 from "../assets/Sponsor4.svg";
+import Sponsor5 from "../assets/Sponsor5.svg";
+import Sponsor6 from "../assets/Sponsor6.svg";
+
 import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [data, setData] = useState([]);
-  const navigate=useNavigate()
-  function handleSubmit(){
-    navigate('/submit')
+  const navigate = useNavigate();
+  function handleSubmit() {
+    navigate("/submit");
   }
-  function handleFund(){
-    navigate('/project')
-
+  function handleFund() {
+    navigate("/project");
   }
   return (
     <div
@@ -59,7 +62,6 @@ function Home() {
           onClick={handleSubmit}
         >
           Submit
-
         </button>
         <button
           style={{
@@ -116,9 +118,11 @@ function Home() {
         </button>
         <h1>Sponsors</h1>
         <div style={{ display: "flex" }}>
+          <img src={Sponsor4} style={{ marginRight: "30px" }} />
           <img src={Sponsor1} style={{ marginRight: "30px" }} />
           <img src={Sponsor2} style={{ marginRight: "30px" }} />
-          <img src={Sponsor3} />
+          <img src={Sponsor6} style={{ marginRight: "30px" }} />
+          <img src={Sponsor5} />
         </div>
       </div>
     </div>
