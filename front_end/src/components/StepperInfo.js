@@ -18,6 +18,9 @@ const StepperInfo = ({ setCampaign, campaign }) => {
       >
         Compain Name
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        What is the title of your Campaign?
+      </p>
       <Inputs
         type="text"
         width={600}
@@ -38,6 +41,9 @@ const StepperInfo = ({ setCampaign, campaign }) => {
       >
         Compain Info
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        What is your Campaign all about?
+      </p>
       <Inputs
         type="area"
         rows={6}
@@ -59,7 +65,9 @@ const StepperInfo = ({ setCampaign, campaign }) => {
       >
         Compain Image
       </div>
-
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        Upload an Image that best describes what your Campaign is all about
+      </p>
       <Inputs
         type="file"
         hidden
@@ -81,6 +89,9 @@ const StepperInfo = ({ setCampaign, campaign }) => {
       >
         Compain Duration
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        How long do your Campaign to last?
+      </p>
       <Inputs
         type="text"
         width={400}

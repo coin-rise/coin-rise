@@ -28,7 +28,9 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Minimun amount needed
       </div>
-      {/* <Radio/> */}
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        What is the minimum amount needed to start your Campaign?
+      </p>
       <Inputs
         type="text"
         width={900}
@@ -49,6 +51,9 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Amount to receive NFT badge
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        What is the minimum that can contributed to receive NFT badge?
+      </p>
       <div style={{ display: "flex", gap: "40px" }}>
         <div style={{ display: "flex" }}>
           <Inputs
@@ -103,6 +108,9 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Compain Pitch
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        Input Video link that best describes what your Campaign is all about ?
+      </p>
       <Inputs
         type="text"
         width={900}
@@ -123,6 +131,10 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Additional Information
       </div>
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
+        What are the other information that is relevant to your Campaign like
+        social media , website, etc ...
+      </p>
       <Inputs
         type="area"
         rows={6}
@@ -144,19 +156,10 @@ const FinalStepper = ({ setCampaign, campaign }) => {
       >
         Voting
       </div>
-      <p
-        style={{
-          fontFamily: "Sen",
-          fontStyle: "normal",
-          fontWeight: 400,
-          fontSize: "22px",
-          lineHeight: "20px",
-          color: "grey",
-          margin: 0,
-        }}
-      >
+      <p style={{ margin: 0, color: "grey", marginBottom: "10px" }}>
         Allow Contributors vote for your compaign
       </p>
+
       <CheckBox
         onChange={(e) => setCampaign({ ...campaign, vote: e.target.checked })}
       />
