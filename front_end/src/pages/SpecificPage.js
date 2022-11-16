@@ -842,12 +842,7 @@ const SpecificPage = () => {
           <img src={img} width="100%" height="350px" />
         </Box>
         <Box width="50%" m={4}>
-          <Box
-            display="flex"
-            width="62%"
-            alignItems="center"
-            justifyContent="space-between"
-          >
+          <Box display="flex" width="100%" alignItems="center">
             <Avatar
               style={{
                 width: "160px",
@@ -861,7 +856,7 @@ const SpecificPage = () => {
             >
               {Math.floor((totalSuply / minAmount) * 100)} %
             </Avatar>
-            <Box dispaly="flex" flexDirection="column">
+            <Box dispaly="flex" flexDirection="column" ml={4}>
               <h1 style={{ margin: 0 }}>{CampaignsData?.campaignName}</h1>
               {isActive ? (
                 <Box mt={3} display="flex" alignItems="center">
