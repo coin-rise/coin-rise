@@ -5,7 +5,6 @@ import { ReactComponent as Clock } from "../../assets/Clock.svg";
 import { ReactComponent as VoteIcon } from "../../assets/VoteIcon.svg";
 import { ReactComponent as Contribution } from "../../assets/Contribution.svg";
 
-
 import { ethers, BigNumber } from "ethers";
 import CircularProgress, {
   circularProgressClasses,
@@ -270,7 +269,12 @@ const Card = ({
     <Box
       mt={2}
       mr={2}
-      style={{ width: "400px", height: "478px", border: "1px solid #D9D9D9" }}
+      style={{
+        width: "400px",
+        height: "478px",
+        minHeight: "580px",
+        border: "1px solid #D9D9D9",
+      }}
     >
       <img src={img} width="100%" height="40%" />
       <Box mx={2} mt={2}>
