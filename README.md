@@ -43,8 +43,13 @@ the contributor can see the progress of the project and vote if other chunks sho
 - Users without stablecoins can swap tokens into stablecoins to fund a project.  
 - An easy-to-understand UX for non-tech savvy or non-web3 users.  
 
-## What we learned
-- Team work
+## Team
+- Mourad Bouabdallah - Fullstack Web3 Developer - www.linkedin.com/in/mourad-bouabdallah/
+- Florian Meiswinkel - Smart Contracts Developer - github.com/Meiswinkel1991
+- Wajih Jabeur - Front-end Developer - www.linkedin.com/in/wajih-jabeur-506965144/
+- Stephen Ayeomotor - UI/UX Designer - www.linkedin.com/in/stephen-ayeomotor-19b474100/
+- Anupriya Lathey - Front-end Developer - www.linkedin.com/in/anupriya-lathey-585071222/
+
 ## What's next for Coin rise
 - We plan to implement on ramp feature on the platform. Where contributors can buy USDC directly from the platform using their credit card  
 - Users can vote to get their funds back if the project does not go according to their wishes.  
