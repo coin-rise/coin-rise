@@ -45,7 +45,7 @@ the contributor can see the progress of the project and vote if other chunks sho
 
 ## Team
 - Mourad Bouabdallah - Fullstack Web3 Developer - www.linkedin.com/in/mourad-bouabdallah/
-- Florian Meiswinkel - Smart Contracts Developer - github.com/Meiswinkel1991
+- Florian Meiswinkel - Smart Contracts Developer - www.github.com/Meiswinkel1991
 - Wajih Jabeur - Front-end Developer - www.linkedin.com/in/wajih-jabeur-506965144/
 - Stephen Ayeomotor - UI/UX Designer - www.linkedin.com/in/stephen-ayeomotor-19b474100/
 - Anupriya Lathey - Front-end Developer - www.linkedin.com/in/anupriya-lathey-585071222/
