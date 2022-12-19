@@ -88,19 +88,20 @@ const ProejctPage = () => {
   console.log(campaigns, "campaigns");
 
   const makeObj = async (campaignList) => {
+    let campaignObj = [];
     try {
-      let campaignObj = [];
-      const promises = campaignList.slice(10).map(async (campaignAddr) => {
+      const promises = campaignList.slice(22).map(async (campaignAddr) => {
         let cid_i = await getCampaignURI(campaignAddr);
         let content = await loadData(cid_i);
+        const index = campaignList.indexOf(campaignAddr);
         content.address = campaignAddr;
-        campaignObj.push(content);
+        campaignObj[index-22] = content;
       });
       await Promise.all(promises);
-      return campaignObj;
     } catch (error) {
       console.error("error", error);
     }
+    return campaignObj; // return campaignObj regardless of whether an error was thrown
   };
   useEffect(() => {
     const test = async (cid) => {
